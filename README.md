@@ -9,3 +9,7 @@ Die App bietet hilfreiche Tools wie Countdown-Timer zur Erinnerung an Ess- und T
 > [Figma UX/UI Design](https://www.figma.com/design/FMorQUMx5iu7ysW2AuTS1x/Project-MagenApp?node-id=40-29&t=7M0qex8nEc9LTMWf-1)
 
 > [Figma Pitch Presentation](./images/presentation_bauch_glueck_compressed.pdf)
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
