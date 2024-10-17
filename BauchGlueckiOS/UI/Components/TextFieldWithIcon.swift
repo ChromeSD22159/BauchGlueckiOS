@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TextFieldWithIcon: View {
+struct TextFieldWithIcon<FieldTypes: Hashable>: View {
     var placeholder: String
     var title: String
     var input: Binding<String>
@@ -15,8 +15,9 @@ struct TextFieldWithIcon: View {
     var type: FieldType
     var theme = Theme()
     var footnote: String?
-    @State var focusedField: FocusState<LoginScreen.FocusedField?>.Binding
-    var fieldType: LoginScreen.FocusedField
+    
+    @FocusState.Binding var focusedField: FieldTypes?  // Verwende hier FocusState.Binding
+    var fieldType: FieldTypes
     var icon: String
     
     init(
@@ -25,9 +26,9 @@ struct TextFieldWithIcon: View {
         title: String,
         input: Binding<String>,
         footnote: String? = nil,
-        type: FieldType = .text,
-        focusedField: FocusState<LoginScreen.FocusedField?>.Binding,
-        fieldType: LoginScreen.FocusedField,
+        type: FieldType,
+        focusedField: FocusState<FieldTypes?>.Binding,  // Verwende FocusState.Binding
+        fieldType: FieldTypes,
         onEditingChanged: @escaping (String) -> Void
     ) {
         self.placeholder = placeholder
@@ -36,65 +37,62 @@ struct TextFieldWithIcon: View {
         self.icon = icon
         self.onEditingChanged = onEditingChanged
         self.type = type
-        self.focusedField = focusedField
+        self._focusedField = focusedField  // Zuweisung des FocusState
         self.fieldType = fieldType
         self.footnote = footnote
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            
             Section {
                 HStack(spacing: theme.padding) {
-                      Image(systemName: icon)
+                    Image(systemName: icon)
                         .frame(width: 24, height: 24)
                     
-                      switch type {
-                        case .text:
-                            TextField(
-                                placeholder,
-                                text: input,
-                                onEditingChanged: { newValue in
-                                    onEditingChanged(input.wrappedValue)
-                                },
-                                onCommit: {
-                                    onEditingChanged(input.wrappedValue)
-                                }
-                            )
-                            .focused(focusedField, equals: fieldType)
-                            .disableAutocorrection(true)
-                        case .secure:
-                            SecureField(
-                                placeholder,
-                                text: input,
-                                onCommit: {
-                                    onEditingChanged(input.wrappedValue)
-                                }
-                            )
-                            .focused(focusedField, equals: fieldType)
-                            .disableAutocorrection(true)
-                        
-                      }
+                    switch type {
+                    case .text:
+                        TextField(
+                            placeholder,
+                            text: input,
+                            onEditingChanged: { _ in
+                                onEditingChanged(input.wrappedValue)
+                            },
+                            onCommit: {
+                                onEditingChanged(input.wrappedValue)
+                            }
+                        )
+                        .focused($focusedField, equals: fieldType)  // Verwendung von FocusState
+                        .disableAutocorrection(true)
+                    case .secure:
+                        SecureField(
+                            placeholder,
+                            text: input,
+                            onCommit: {
+                                onEditingChanged(input.wrappedValue)
+                            }
+                        )
+                        .focused($focusedField, equals: fieldType)  // Verwendung von FocusState
+                        .disableAutocorrection(true)
+                    }
                 }
                 .padding(10)
                 .background(theme.surface.opacity(0.9))
                 .cornerRadius(theme.radius)
-            } header:  {
+            } header: {
                 Text(title)
                     .font(.footnote)
                     .padding(.leading, theme.padding)
             } footer: {
-                if (footnote != nil) {
-                    Text(footnote!)
-                       .font(.footnote)
-                       .padding(.leading, theme.padding)
+                if let footnote = footnote {
+                    Text(footnote)
+                        .font(.footnote)
+                        .padding(.leading, theme.padding)
                 }
             }
-           
         }
     }
     
     enum FieldType {
-       case text, secure
+        case text, secure
     }
 }
