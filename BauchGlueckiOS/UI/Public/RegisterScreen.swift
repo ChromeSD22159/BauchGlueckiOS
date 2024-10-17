@@ -7,7 +7,9 @@
 
 import SwiftUI
 
-struct RegisterScreen: View {
+struct RegisterScreen: View, Navigable {
+    var navigate: (Screen) -> Void
+    
     var theme: Theme = Theme()
     
     @FocusState private var focusedField: FocusedField?
@@ -15,7 +17,7 @@ struct RegisterScreen: View {
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var verifyPassword: String = ""
-    
+
     var body: some View {
         AppBackground(color: theme.background) {
             theme.bubbleBackground {
@@ -66,6 +68,7 @@ struct RegisterScreen: View {
                         }
                     )
                     .submitLabel(.next)
+                
                     
                     TextFieldWithIcon(
                         placeholder: "* * * *",
@@ -81,22 +84,34 @@ struct RegisterScreen: View {
                     )
                     .submitLabel(.done)
                     
+                    
                     HStack(spacing: theme.padding) {
                         Spacer()
                         IconTextButton(
                             text: "Zur Anmeldung",
-                            onEditingChanged: {}
+                            onEditingChanged: {
+                                withAnimation {
+                                    navigate(Screen.Login)
+                                }
+                            }
                         )
                         
                         IconButton(icon: "arrow.right") {
-                            
+                            // TO HOME
                         }
                     }
                     
                     HStack {
                         Text("Passwort vergessen?")
                             .font(.footnote)
-                    }.padding(.top, theme.padding * 2)
+                    }
+                    .padding(.top, theme.padding * 2)
+                    .onTapGesture {
+                        withAnimation {
+                            navigate(Screen.ForgotPassword)
+                        }
+                    }
+                    
                 }
                 .padding(.horizontal, theme.padding)
             }
@@ -120,31 +135,8 @@ struct RegisterScreen: View {
     }
 }
 
-struct AuthImageHeader: View {
-    var headline: String
-    var description: String
-    var theme: Theme = Theme()
-    
-    var body: some View {
-        VStack {
-            
-            Image(uiImage: .magen)
-                .resizable()
-                .frame(width: 150, height: 150)
-            
-            VStack {
-                Text(headline)
-                    .font(theme.headlineText)
-                    .foregroundStyle(theme.primary)
-                
-                Text(description)
-                    .fontSytle(color: theme.onBackground)
-            }
-            
-        }
-    }
-}
-
 #Preview("Light") {
-    RegisterScreen()
+    RegisterScreen() {_ in
+        
+    }
 }

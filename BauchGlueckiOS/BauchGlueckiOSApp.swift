@@ -9,23 +9,27 @@ import SwiftUI
 import SwiftData
 
 @main
-struct BauchGlueckiOSApp: App {
+struct BauchGlueckiOSApp: App, HandleNavigation {
+    @State var screen = Screen.Login
     var body: some Scene {
         WindowGroup {
-            LoginScreen()
-                .onAppear{
-                    listAllFonts()
+            ZStack {
+                switch screen {
+                    case .Login: LoginScreen(navigate: handleNavigation)
+                    case .Register: RegisterScreen(navigate: handleNavigation)
+                    case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
+                    case .Home: HomeScreen(navigate: handleNavigation)
                 }
+            }
+            .onAppear{
+                listAllFonts()
+            }
         }
         .modelContainer(localDataScource)
     }
-}
-
-func listAllFonts() {
-    for family in UIFont.familyNames {
-        print("Font family: \(family)")
-        for font in UIFont.fontNames(forFamilyName: family) {
-            print("  Font name: \(font)")
-        }
+    
+    
+    func handleNavigation(screen: Screen) {
+        self.screen = screen
     }
 }

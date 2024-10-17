@@ -1,5 +1,5 @@
 //
-//  LoginScreen.swift
+//  test.swift
 //  BauchGlueckiOS
 //
 //  Created by Frederik Kohler on 17.10.24.
@@ -7,29 +7,29 @@
 
 import SwiftUI
 
-struct LoginScreen: View, Navigable {
+struct ForgotPassword: View, Navigable {
     var navigate: (Screen) -> Void
     
     var theme: Theme = Theme()
     
     @FocusState private var focusedField: FocusedField?
     @State private var email: String = ""
-    @State private var password: String = ""
-    
+
     var body: some View {
         AppBackground(color: theme.background) {
             theme.bubbleBackground {
                 VStack(spacing: 16) {
                     AuthImageHeader(
-                        headline: "Wilkommen zurück!",
-                        description: "Mit deinem Konto anmelden!"
+                        headline: "Passwort vergessen?",
+                        description: "Lass dir einen Link schicken um,\n dein Passwort zurückzusetzen!"
                     )
                     
                     TextFieldWithIcon<FocusedField>(
                         placeholder: "max.mustermann@gmail.com",
                         icon: "envelope.fill",
-                        title: "Email:",
+                        title: "",
                         input: $email,
+                        footnote: "",
                         type: .text,
                         focusedField: $focusedField,
                         fieldType: .email,
@@ -39,47 +39,23 @@ struct LoginScreen: View, Navigable {
                     )
                     .submitLabel(.next)
                     
-                    TextFieldWithIcon(
-                        placeholder: "* * * *",
-                        icon: "lock.fill",
-                        title: "Passwort",
-                        input: $password,
-                        type: .secure,
-                        focusedField: $focusedField,
-                        fieldType: .password,
-                        onEditingChanged: { newValue in
-                           password = newValue
-                        }
-                    )
-                    .submitLabel(.done)
-                    
                     HStack(spacing: theme.padding) {
                         Spacer()
                         IconTextButton(
-                            text: "Zur Registierung",
+                            text: "zurück",
                             onEditingChanged: {
                                 withAnimation {
-                                    navigate(Screen.Register)
+                                    navigate(Screen.Login)
                                 }
                             }
                         )
                         
-                        IconButton(icon: "arrow.right") {
-                            withAnimation {
-                                // TO HOME
+                        IconTextButton(
+                            text: "E-Mail anfordern!",
+                            onEditingChanged: {
+                                // TODO: FIREBASE REQUEST
                             }
-                        }
-                    }
-                    
-                    HStack {
-                        Text("Passwort vergessen?")
-                            .font(.footnote)
-                    }
-                    .padding(.top, theme.padding * 2)
-                    .onTapGesture {
-                        withAnimation {
-                            navigate(Screen.ForgotPassword)
-                        }
+                        )
                     }
                 }
                 .padding(.horizontal, theme.padding)
@@ -101,7 +77,7 @@ struct LoginScreen: View, Navigable {
 }
 
 #Preview("Light") {
-    LoginScreen() {_ in 
+    ForgotPassword() {_ in
         
     }
 }
