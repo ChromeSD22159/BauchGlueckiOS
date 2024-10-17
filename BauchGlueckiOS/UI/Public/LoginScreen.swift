@@ -14,6 +14,12 @@ struct LoginScreen: View {
     @State private var email: String = ""
     @State private var password: String = ""
     
+    var navigate: (Screens) -> Void
+    
+    init(navigate: @escaping (Screens) -> Void) {
+        self.navigate = navigate
+    }
+    
     var body: some View {
         AppBackground(color: theme.background) {
             theme.bubbleBackground {
@@ -55,18 +61,30 @@ struct LoginScreen: View {
                         Spacer()
                         IconTextButton(
                             text: "Zur Registierung",
-                            onEditingChanged: {}
+                            onEditingChanged: {
+                                withAnimation {
+                                    navigate(Screens.Register)
+                                }
+                            }
                         )
                         
                         IconButton(icon: "arrow.right") {
-                            
+                            withAnimation {
+                                // TO HOME
+                            }
                         }
                     }
                     
                     HStack {
                         Text("Passwort vergessen?")
                             .font(.footnote)
-                    }.padding(.top, theme.padding * 2)
+                    }
+                    .padding(.top, theme.padding * 2)
+                    .onTapGesture {
+                        withAnimation {
+                            // TO HOME
+                        }
+                    }
                 }
                 .padding(.horizontal, theme.padding)
             }
@@ -89,5 +107,7 @@ struct LoginScreen: View {
 
 
 #Preview("Light") {
-    LoginScreen()
+    LoginScreen() {_ in 
+        
+    }
 }
