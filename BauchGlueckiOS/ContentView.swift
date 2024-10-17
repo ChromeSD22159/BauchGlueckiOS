@@ -14,6 +14,9 @@ struct ContentView: View {
 
     var body: some View {
         NavigationSplitView {
+            
+            Image(.bubbleRight)
+            
             List {
                 ForEach(items) { item in
                     NavigationLink {
