@@ -15,6 +15,7 @@
 		B648642C2CC24071007D7228 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B648642B2CC24071007D7228 /* FirebaseStorage */; };
 		B64864372CC24568007D7228 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B64864362CC24568007D7228 /* GoogleSignIn */; };
 		B64864392CC24568007D7228 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B64864382CC24568007D7228 /* GoogleSignInSwift */; };
+		B64864A32CC28B88007D7228 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B64864A22CC28B84007D7228 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B64864A22CC28B84007D7228 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BauchGlueckiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -77,6 +79,7 @@
 		B664D4622CC1007B0092FE3E = {
 			isa = PBXGroup;
 			children = (
+				B64864A22CC28B84007D7228 /* .gitignore */,
 				B664D46D2CC1007B0092FE3E /* BauchGlueckiOS */,
 				B664D46C2CC1007B0092FE3E /* Products */,
 			);
@@ -167,6 +170,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B64864A32CC28B88007D7228 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
