@@ -9,9 +9,9 @@ import SwiftUI
 
 struct ForgotPassword: View, Navigable {
     var navigate: (Screen) -> Void
-    
     var theme: Theme = Theme()
     
+    @EnvironmentObject var firebase: FirebaseRepository
     @FocusState private var focusedField: FocusedField?
     @State private var email: String = ""
 
@@ -53,10 +53,16 @@ struct ForgotPassword: View, Navigable {
                         IconTextButton(
                             text: "E-Mail anfordern!",
                             onEditingChanged: {
-                                // TODO: FIREBASE REQUEST
+                                guard !email.isEmpty else { return }
+                                firebase.forgotPassword(email: email)
                             }
                         )
                     }
+                    
+                    // TODO: REFACTOR
+                    Text(firebase.error?.localizedDescription ?? "")
+                        .font(.callout)
+                        .foregroundStyle(Color.red)
                 }
                 .padding(.horizontal, theme.padding)
             }

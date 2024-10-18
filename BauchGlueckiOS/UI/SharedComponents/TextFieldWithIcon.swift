@@ -63,6 +63,21 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
                         )
                         .focused($focusedField, equals: fieldType)  // Verwendung von FocusState
                         .disableAutocorrection(true)
+                        .keyboardType(.alphabet)  
+                    case .email:
+                        TextField(
+                            placeholder,
+                            text: input,
+                            onEditingChanged: { _ in
+                                onEditingChanged(input.wrappedValue)
+                            },
+                            onCommit: {
+                                onEditingChanged(input.wrappedValue)
+                            }
+                        )
+                        .focused($focusedField, equals: fieldType)  // Verwendung von FocusState
+                        .disableAutocorrection(true)
+                        .keyboardType(.emailAddress)
                     case .secure:
                         SecureField(
                             placeholder,
@@ -93,6 +108,6 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
     }
     
     enum FieldType {
-        case text, secure
+        case text, secure, email
     }
 }

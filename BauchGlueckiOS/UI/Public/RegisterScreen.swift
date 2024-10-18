@@ -9,8 +9,8 @@ import SwiftUI
 
 struct RegisterScreen: View, Navigable {
     var navigate: (Screen) -> Void
-    
     var theme: Theme = Theme()
+    @EnvironmentObject var firebase: FirebaseRepository
     
     @FocusState private var focusedField: FocusedField?
     @State private var name: String = ""
@@ -97,7 +97,23 @@ struct RegisterScreen: View, Navigable {
                         )
                         
                         IconButton(icon: "arrow.right") {
-                            // TO HOME
+                            guard !email.isEmpty,
+                                  !password.isEmpty,
+                                  !verifyPassword.isEmpty,
+                                  password == verifyPassword
+                            else { return }
+                            
+                            firebase.register(
+                                email: email,
+                                password: password
+                            ) {_,_ in 
+                                // wenn user eingeloggt ist
+                                
+                                // dann lade userProfile von firebase
+                                
+                                // wenn es kein userProfil für die userId gibt
+                                // navigiere zum onboarding
+                            }
                         }
                     }
                     

@@ -6,11 +6,17 @@
 //
 
 import SwiftUI
-import SwiftData
+import GoogleSignIn
+import FirebaseAuth
+import FirebaseCore
 
 @main
 struct BauchGlueckiOSApp: App, HandleNavigation {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
     @State var screen = Screen.Login
+    @State private var firebase: FirebaseRepository? = nil
+    
     var body: some Scene {
         WindowGroup {
             ZStack {
@@ -21,13 +27,27 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                     case .Home: HomeScreen(navigate: handleNavigation)
                 }
             }
+            .onOpenURL { url in
+                GIDSignIn.sharedInstance.handle(url)
+            }
             .onAppear{
                 listAllFonts()
+                
+                DispatchQueue.main.async {
+                    firebase = FirebaseRepository()
+                    firebase?.authListener { auth, user in
+                        if (user != nil) {
+                            screen = .Home
+                        } else {
+                            screen = .Login
+                        }
+                    }
+                }
             }
+            .environmentObject(firebase ?? FirebaseRepository())
         }
         .modelContainer(localDataScource)
     }
-    
     
     func handleNavigation(screen: Screen) {
         self.screen = screen

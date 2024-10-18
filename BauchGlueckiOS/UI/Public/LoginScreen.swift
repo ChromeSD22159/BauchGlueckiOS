@@ -9,9 +9,10 @@ import SwiftUI
 
 struct LoginScreen: View, Navigable {
     var navigate: (Screen) -> Void
-    
     var theme: Theme = Theme()
+    @EnvironmentObject var firebase: FirebaseRepository
     
+    // FormStates
     @FocusState private var focusedField: FocusedField?
     @State private var email: String = ""
     @State private var password: String = ""
@@ -30,7 +31,7 @@ struct LoginScreen: View, Navigable {
                         icon: "envelope.fill",
                         title: "Email:",
                         input: $email,
-                        type: .text,
+                        type: .email,
                         focusedField: $focusedField,
                         fieldType: .email,
                         onEditingChanged: { newValue in
@@ -66,10 +67,21 @@ struct LoginScreen: View, Navigable {
                         
                         IconButton(icon: "arrow.right") {
                             withAnimation {
-                                // TO HOME
+                                guard !email.isEmpty,
+                                      !password.isEmpty
+                                else { return }
+                                
+                                Task {
+                                    firebase.login(email: email, password: password)
+                                }
                             }
                         }
                     }
+                    
+                    // TODO: REFACTOR
+                    Text(firebase.error?.localizedDescription ?? "")
+                        .font(.callout)
+                        .foregroundStyle(Color.red)
                     
                     HStack {
                         Text("Passwort vergessen?")
@@ -80,7 +92,13 @@ struct LoginScreen: View, Navigable {
                         withAnimation {
                             navigate(Screen.ForgotPassword)
                         }
-                    }
+                    }.padding(.top, theme.padding)
+                    
+                    HStack {
+                        Button("G") { firebase.signInWithGoogle() }
+                        
+                        Button("A") { firebase.signInWithApple() }
+                    }.padding(.top, theme.padding)
                 }
                 .padding(.horizontal, theme.padding)
             }

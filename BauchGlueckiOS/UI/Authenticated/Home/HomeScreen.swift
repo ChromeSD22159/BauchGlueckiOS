@@ -6,15 +6,20 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct HomeScreen: View, Navigable {
-    var navigate: (Screen) -> Void
 
+    var navigate: (Screen) -> Void
+    @EnvironmentObject var firebase: FirebaseRepository
+    
     var body: some View {
-        EmptyView()
+        VStack {
+            Button("Logout") {
+                Task {
+                    try await firebase.logout()
+                }
+            }
+        }
     }
 }
-
-
-
-
