@@ -104,7 +104,11 @@ struct RegisterScreen: View, Navigable {
                             else { return }
                             
                             firebase.register(
-                                email: email,
+                                userProfile: UserProfile(
+                                    firstName: name,
+                                    email: email
+                                    // TODO: surgeryDateTimeStamp: timeStamp
+                                ),
                                 password: password
                             ) {_,_ in 
                                 // wenn user eingeloggt ist
@@ -117,16 +121,7 @@ struct RegisterScreen: View, Navigable {
                         }
                     }
                     
-                    HStack {
-                        Text("Passwort vergessen?")
-                            .font(.footnote)
-                    }
-                    .padding(.top, theme.padding * 2)
-                    .onTapGesture {
-                        withAnimation {
-                            navigate(Screen.ForgotPassword)
-                        }
-                    }
+                    SignInWithGoogle(firebase: firebase)
                     
                 }
                 .padding(.horizontal, theme.padding)
@@ -152,7 +147,6 @@ struct RegisterScreen: View, Navigable {
 }
 
 #Preview("Light") {
-    RegisterScreen() {_ in
-        
-    }
+    RegisterScreen(navigate: {_ in })
+        .environmentObject(FirebaseRepository())
 }

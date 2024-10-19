@@ -4,17 +4,22 @@
 //
 //  Created by Frederik Kohler on 18.10.24.
 //
+
 import AuthenticationServices
 import CryptoKit
 import FirebaseAuth
 import FirebaseCore
 import GoogleSignIn
+import FirebaseDatabaseInternal
+import FirebaseFirestore
 
 class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerDelegate {
     @Published var user: User? = nil
+    @Published var userProfile: UserProfile? = nil
     @Published var error: Error? = nil
     
     let firebaseAuth = Auth.self.auth()
+    let firebaseDatabase = Firestore.firestore()
     
     var authStateListenerHandle: AuthStateDidChangeListenerHandle?
     
@@ -33,11 +38,22 @@ class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerD
     }
     
     func register(
-        email: String,
+        userProfile: UserProfile,
         password: String,
         completion: @escaping (AuthDataResult?, (any Error)?) -> Void
     ) {
-        firebaseAuth.createUser(withEmail: email, password: password, completion: completion)
+        firebaseAuth.createUser(withEmail: userProfile.email, password: password) { authResult, error in
+            guard let uid = authResult?.user.uid else { return }
+            
+            var newUser = userProfile
+            newUser.uid = uid
+            
+            self.saveUserProfile(userProfile: newUser) { error in
+                if (error == nil) {
+                    self.userProfile = newUser
+                }
+            }
+        }
     }
     
     func logout() async throws {
@@ -66,8 +82,7 @@ class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerD
             }
         }
     }
-    
-    // Funktion für Sign in with Apple
+
     func signInWithApple() {
         let request = createAppleIDRequest()
         
@@ -76,8 +91,7 @@ class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerD
         authorizationController.presentationContextProvider = self
         authorizationController.performRequests()
     }
-    
-    // Hilfsfunktion zum Erstellen des Apple Sign-in-Requests
+
     private func createAppleIDRequest() -> ASAuthorizationAppleIDRequest {
         let appleIDProvider = ASAuthorizationAppleIDProvider()
         let request = appleIDProvider.createRequest()
@@ -122,7 +136,6 @@ class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerD
         return result
     }
 
-    // SHA256 Hashing für den Nonce
     private func sha256(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashedData = SHA256.hash(data: inputData)
@@ -172,14 +185,130 @@ class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerD
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        // Fehlerbehandlung für Sign in with Apple
         self.error = error
         print("Authorization failed: \(error.localizedDescription)")
     }
     
     func authListener(completion: @escaping (Auth?, User?) -> Void) {
         authStateListenerHandle = Auth.auth().addStateDidChangeListener { auth, user in
+            
+            if (user != nil) {
+                self.readUserProfileById(userId: user!.uid) { userProfile in
+                    self.userProfile = userProfile
+                }
+            }
+            
             completion(auth, user)
+        }
+    }
+    
+    func saveUserProfile(userProfile: UserProfile, completion: @escaping (Error?) -> Void) {
+        guard
+            let currentUser = Auth.auth().currentUser,
+            let userNotifierToken = getSavedDeviceToken()
+        else {
+            return
+        }
+
+        if let error = error {
+            print("Error retrieving push token: \(error)")
+            completion(error)
+            return
+        }
+        
+        var updatedUserProfile = userProfile
+        updatedUserProfile.userNotifierToken = userNotifierToken
+
+        let db = Firestore.firestore()
+        do {
+            try db.collection("UserProfile").document(currentUser.uid).setData(from: updatedUserProfile) { error in
+                completion(error)
+            }
+        } catch let error {
+            print("Error saving user profile: \(error)")
+            completion(error)
+        }
+    }
+    
+    func readUserProfileById(userId: String, completion: @escaping (UserProfile?) -> Void) {
+        let documentRef = firebaseDatabase.collection(Collection.UserProfile.rawValue).document(userId)
+        documentRef.getDocument { documentSnapshot, error in
+            if let document = documentSnapshot, document.exists {
+                do {
+                    let userProfile = try document.data(as: UserProfile.self)
+                    completion(userProfile)
+                } catch {
+                    print("Error decoding \(Collection.UserProfile.rawValue): \(error)")
+                    completion(nil)
+                }
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    func observeOnlineUserCount(onUserCountChange: @escaping (Int) -> Void) -> DatabaseHandle? {
+        let onlineUsersReference = Database.database().reference(withPath: "OnlineUsers")
+
+        let handle = onlineUsersReference.observe(.value) { snapshot in
+            let count = snapshot.childrenCount
+            onUserCountChange(Int(count))
+        }
+        
+        return handle
+    }
+    
+    func removeOnlineUserObserver(handle: DatabaseHandle?) {
+        guard let handle = handle else { return }
+        let onlineUsersReference = Database.database().reference(withPath: Collection.OnlineUsers.rawValue)
+        onlineUsersReference.removeObserver(withHandle: handle)
+    }
+    
+    func getOnlineUserCount(onUserCount: @escaping (Int) -> Void) async throws {
+        let onlineUsersReference = Database.database().reference(withPath: Collection.OnlineUsers.rawValue)
+        
+        let snapshot = try await onlineUsersReference.getData()
+        let count = snapshot.childrenCount
+        onUserCount(Int(count))
+    }
+    
+    func markUserOnline() async throws {
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        guard
+            let userId = Auth.auth().currentUser?.uid,
+            let token = getSavedDeviceToken(),
+            let user = userProfile
+        else { return
+            print("Token: \(String(describing: getSavedDeviceToken())) User: \(userProfile?.uid ?? "")")
+        }
+        
+        let userReference = Database.database().reference(withPath: "\(Collection.OnlineUsers.rawValue)/\(userId)")
+
+        
+        
+        let appUser = AppUser(name: user.firstName, email: user.email, appToken: token)
+        print("Set Online: \(appUser)")
+        // Setze den Benutzer online
+        do {
+            try await userReference.setValue(appUser.toDictionary())
+            
+            try await userReference.onDisconnectRemoveValue()
+        } catch {
+            print(error)
+        }
+       
+    }
+    
+    func markUserOffline() async {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        
+        let userReference = Database.database().reference(withPath: "\(Collection.OnlineUsers.rawValue)/\(userId)")
+        
+        // Entferne den Benutzer
+        do {
+            try await userReference.removeValue()
+        } catch {
+            print(error)
         }
     }
 }
@@ -237,4 +366,25 @@ struct Authentication {
 
 enum AuthenticationError: Error {
     case runtimeError(String)
+}
+
+
+enum Collection: String{
+    case UserProfile = "UserProfile"
+    case UserNode = "UserNode"
+    case OnlineUsers = "bauchglueck-6c1cf/onlineUsers"
+}
+
+struct AppUser {
+    var name: String = ""
+    var email: String = ""
+    var appToken: String = ""
+    
+    func toDictionary() -> [String: Any] {
+        return [
+            "name": name,
+            "email": email,
+            "appToken": appToken
+        ]
+    }
 }

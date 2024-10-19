@@ -67,4 +67,4 @@ fastlane/screenshots
 # *.mobileprovision
 
 # Firebase
-.GoogleService-Info.plist
+/BauchGlueckiOS/GoogleService-Info.plist

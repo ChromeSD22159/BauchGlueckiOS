@@ -13,6 +13,8 @@ import FirebaseCore
 @main
 struct BauchGlueckiOSApp: App, HandleNavigation {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
+    @State var notificationManager: NotificationManager? = nil
     
     @State var screen = Screen.Login
     @State private var firebase: FirebaseRepository? = nil
@@ -24,32 +26,69 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                     case .Login: LoginScreen(navigate: handleNavigation)
                     case .Register: RegisterScreen(navigate: handleNavigation)
                     case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
-                    case .Home: HomeScreen(navigate: handleNavigation)
+                    case .Home: HomeScreen(page: .home)
+                            .onAppear{
+                                //listAllFonts()
+                                markUserOnlineOnStart()
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
+                                    GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
+                                })
+                            }
+                            .onAppEnterForeground {
+                                try await firebase?.markUserOnline()
+                            }
                 }
             }
             .onOpenURL { url in
                 GIDSignIn.sharedInstance.handle(url)
             }
-            .onAppear{
-                listAllFonts()
-                
-                DispatchQueue.main.async {
-                    firebase = FirebaseRepository()
-                    firebase?.authListener { auth, user in
-                        if (user != nil) {
-                            screen = .Home
-                        } else {
-                            screen = .Login
-                        }
-                    }
-                }
+            .onAppEnterBackground {
+                await firebase?.markUserOffline()
             }
             .environmentObject(firebase ?? FirebaseRepository())
         }
         .modelContainer(localDataScource)
     }
     
-    func handleNavigation(screen: Screen) {
+    internal func handleNavigation(screen: Screen) {
         self.screen = screen
     }
+    
+    private func markUserOnlineOnStart() {
+        DispatchQueue.main.async {
+            firebase = FirebaseRepository()
+            notificationManager = NotificationManager()
+            firebase?.authListener { auth, user in
+                if (user != nil) {
+                    screen = .Home
+                    Task {
+                        try await firebase?.markUserOnline()
+                    }
+                } else {
+                    screen = .Login
+                }
+            }
+            
+            Task {
+                await notificationManager?.getAuthStatus()
+                await notificationManager?.request()
+            }
+        }
+    }
 }
+
+
+
+/*
+ Button("Request Notification"){
+    Task{
+        await notificationManager.request()
+    }
+}
+.buttonStyle(.bordered)
+.disabled(notificationManager.hasPermission)
+.task {
+    await notificationManager.getAuthStatus()
+}
+ */

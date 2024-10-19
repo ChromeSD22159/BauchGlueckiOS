@@ -83,7 +83,6 @@ struct ForgotPassword: View, Navigable {
 }
 
 #Preview("Light") {
-    ForgotPassword() {_ in
-        
-    }
+    ForgotPassword(navigate: {_ in })
+        .environmentObject(FirebaseRepository())
 }

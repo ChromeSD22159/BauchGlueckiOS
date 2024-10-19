@@ -16,6 +16,8 @@
 		B64864372CC24568007D7228 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B64864362CC24568007D7228 /* GoogleSignIn */; };
 		B64864392CC24568007D7228 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B64864382CC24568007D7228 /* GoogleSignInSwift */; };
 		B64864A32CC28B88007D7228 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B64864A22CC28B84007D7228 /* .gitignore */; };
+		B6ADCE8F2CC3259D001AFC57 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCE8E2CC3259D001AFC57 /* FirebaseMessaging */; };
+		B6ADCE982CC33108001AFC57 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCE972CC33108001AFC57 /* GoogleMobileAds */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -62,7 +64,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6ADCE8F2CC3259D001AFC57 /* FirebaseMessaging in Frameworks */,
 				B64864222CC24071007D7228 /* FirebaseAnalytics in Frameworks */,
+				B6ADCE982CC33108001AFC57 /* GoogleMobileAds in Frameworks */,
 				B64864262CC24071007D7228 /* FirebaseCore in Frameworks */,
 				B64864282CC24071007D7228 /* FirebaseDatabase in Frameworks */,
 				B64864392CC24568007D7228 /* GoogleSignInSwift in Frameworks */,
@@ -81,6 +85,7 @@
 			children = (
 				B64864A22CC28B84007D7228 /* .gitignore */,
 				B664D46D2CC1007B0092FE3E /* BauchGlueckiOS */,
+				B6ADCE8D2CC3259D001AFC57 /* Frameworks */,
 				B664D46C2CC1007B0092FE3E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -91,6 +96,13 @@
 				B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B6ADCE8D2CC3259D001AFC57 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -122,6 +134,8 @@
 				B648642B2CC24071007D7228 /* FirebaseStorage */,
 				B64864362CC24568007D7228 /* GoogleSignIn */,
 				B64864382CC24568007D7228 /* GoogleSignInSwift */,
+				B6ADCE8E2CC3259D001AFC57 /* FirebaseMessaging */,
+				B6ADCE972CC33108001AFC57 /* GoogleMobileAds */,
 			);
 			productName = BauchGlueckiOS;
 			productReference = B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */;
@@ -154,6 +168,7 @@
 			packageReferences = (
 				B64864202CC24070007D7228 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B64864352CC24568007D7228 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				B6ADCE962CC33108001AFC57 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B664D46C2CC1007B0092FE3E /* Products */;
@@ -410,6 +425,14 @@
 				minimumVersion = 8.0.0;
 			};
 		};
+		B6ADCE962CC33108001AFC57 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.10.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -452,6 +475,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B64864352CC24568007D7228 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
+		};
+		B6ADCE8E2CC3259D001AFC57 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B64864202CC24070007D7228 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		B6ADCE972CC33108001AFC57 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6ADCE962CC33108001AFC57 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

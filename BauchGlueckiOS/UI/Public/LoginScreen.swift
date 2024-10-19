@@ -94,19 +94,15 @@ struct LoginScreen: View, Navigable {
                         }
                     }.padding(.top, theme.padding)
                     
-                    HStack {
-                        Button("G") { firebase.signInWithGoogle() }
-                        
-                        Button("A") { firebase.signInWithApple() }
-                    }.padding(.top, theme.padding)
+                    
+                    SignInWithGoogle(firebase: firebase)
                 }
                 .padding(.horizontal, theme.padding)
             }
         }
         .onSubmit {
             switch focusedField {
-                case .email:
-                    focusedField = .password
+                case .email: focusedField = .password
                 case .password: print("Login abgeschlossen")
                 default: break
             }
@@ -118,8 +114,26 @@ struct LoginScreen: View, Navigable {
     }
 }
 
-#Preview("Light") {
-    LoginScreen() {_ in 
+@ViewBuilder func SignInWithGoogle(
+    firebase: FirebaseRepository,
+    theme: Theme = Theme()
+) -> some View {
+    HStack(spacing: theme.padding) {
+        Button(action: {
+            firebase.signInWithGoogle()
+        }) {
+            Image(.google)
+        }
         
-    }
+        Button(action: {
+            firebase.signInWithApple()
+        }) {
+            Image(.apple)
+        }
+    }.padding(.top, theme.padding)
+}
+
+#Preview("Light") {
+    LoginScreen(navigate: {_ in })
+    .environmentObject(FirebaseRepository())
 }
