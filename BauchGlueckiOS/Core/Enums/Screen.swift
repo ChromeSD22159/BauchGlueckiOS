@@ -6,5 +6,5 @@
 //
 
 enum Screen {
-    case Login, Register, ForgotPassword, Home
+    case Login, Register, ForgotPassword, Home, Launch
 }

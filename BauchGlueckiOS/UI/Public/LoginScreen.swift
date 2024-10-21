@@ -57,7 +57,7 @@ struct LoginScreen: View, Navigable {
                     HStack(spacing: theme.padding) {
                         Spacer()
                         IconTextButton(
-                            text: "Zur Registierung",
+                            text: "Zur Registrierung",
                             onEditingChanged: {
                                 withAnimation {
                                     navigate(Screen.Register)

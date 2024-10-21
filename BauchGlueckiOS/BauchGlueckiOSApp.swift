@@ -14,23 +14,22 @@ import FirebaseCore
 struct BauchGlueckiOSApp: App, HandleNavigation {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
+    let client = StrapiApiClient(environment: .production)
     @State var notificationManager: NotificationManager? = nil
     
-    @State var screen = Screen.Login
+    @State var screen: Screen = Screen.Launch
     @State private var firebase: FirebaseRepository? = nil
     
     var body: some Scene {
         WindowGroup {
             ZStack {
                 switch screen {
+                    case .Launch: LaunchScreen()
                     case .Login: LoginScreen(navigate: handleNavigation)
                     case .Register: RegisterScreen(navigate: handleNavigation)
                     case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
                     case .Home: HomeScreen(page: .home)
                             .onAppear{
-                                //listAllFonts()
-                                markUserOnlineOnStart()
-                                
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
                                     GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
                                 })
@@ -46,6 +45,11 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
             .onAppEnterBackground {
                 await firebase?.markUserOffline()
             }
+            .onAppear {
+                markUserOnlineOnStart(launchDelay: 2.5)
+                
+                checkBackendIsReachable()
+            }
             .environmentObject(firebase ?? FirebaseRepository())
         }
         .modelContainer(localDataScource)
@@ -55,25 +59,36 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
         self.screen = screen
     }
     
-    private func markUserOnlineOnStart() {
+    private func markUserOnlineOnStart(launchDelay: Double) {
         DispatchQueue.main.async {
             firebase = FirebaseRepository()
             notificationManager = NotificationManager()
-            firebase?.authListener { auth, user in
-                if (user != nil) {
-                    screen = .Home
-                    Task {
-                        try await firebase?.markUserOnline()
+            
+            guard let fb = firebase else { return }
+
+            fb.authListener { auth, user in
+                DispatchQueue.main.asyncAfter(deadline: .now() + launchDelay, execute: {
+                    if (user != nil) {
+                        handleNavigation(screen: .Home)
+                        Task {
+                            try await firebase?.markUserOnline()
+                        }
+                    } else {
+                        handleNavigation(screen: .Login)
                     }
-                } else {
-                    screen = .Login
-                }
+                })
             }
             
             Task {
                 await notificationManager?.getAuthStatus()
                 await notificationManager?.request()
             }
+        }
+    }
+    
+    private func checkBackendIsReachable() {
+        Task {
+            try await isServerReachable(client: client)
         }
     }
 }
