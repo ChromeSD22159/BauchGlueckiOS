@@ -12,7 +12,7 @@ import Foundation
 
 class StrapiApiClient: GenericAPIService {
     
-    override init(environment: Environment = .production) {
+    override init(environment: EnvironmentVariables = .production) {
        super.init(environment: environment)
     }
 
@@ -23,7 +23,7 @@ class GenericAPIService {
     var baseURL: String
     var bearerToken: String
 
-    init(environment: Environment) {
+    init(environment: EnvironmentVariables) {
         self.baseURL = ""
         self.bearerToken = ""
         
@@ -185,7 +185,7 @@ enum HTTPMethod: String {
     case get, post, put, delete
 }
 
-enum Environment {
+enum EnvironmentVariables {
     case production
     case localFrederik
     case localSabina

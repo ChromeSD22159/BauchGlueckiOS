@@ -8,7 +8,7 @@
 import Foundation
 
 struct UserProfile: Codable {
-    var uid: String = ""
+    var uid: String? = nil
     var firstName: String = ""
     var email: String = ""
     var surgeryDateTimeStamp: TimeInterval = Date().timeIntervalSince1970 * 1000
@@ -19,7 +19,7 @@ struct UserProfile: Codable {
     var waterIntake: Double = 0.25
     var waterDayIntake: Double = 2.0
     var userNotifierToken: String = ""
-    var role: UserRole = .user
+    var role: UserRole? = .user
 
     // Computed property to convert timestamp to Date
     var surgeryDate: Date {

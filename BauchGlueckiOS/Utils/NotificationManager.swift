@@ -37,6 +37,23 @@ class NotificationManager: ObservableObject{
             hasPermission = false
         }
     }
+    
+    func requesterNoticication(title: String, subTitle: String, min: Int = 5) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.subtitle = subTitle
+        content.sound = UNNotificationSound.default
+
+        // show this notification five seconds from now
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(min * 60), repeats: false)
+
+        // choose a random identifier
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+
+        // add our notification request
+        UNUserNotificationCenter.current().add(request)
+    }
+
 }
 
 func getSavedDeviceToken() -> String? {

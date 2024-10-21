@@ -17,6 +17,8 @@ struct HomeScreen: View, PageIdentifier {
     
     var page: Destination
 
+    @State var isSettingSheet: Bool = true
+    
     @EnvironmentObject var firebase: FirebaseService
     
     @State private var path: [Destination] = []
@@ -26,41 +28,36 @@ struct HomeScreen: View, PageIdentifier {
             ZStack {
                 theme.background.ignoresSafeArea()
                 
-                VStack(spacing: 24) {
-                  
-                    SectionImageCard(
-                        image: .icMealPlan,
-                        title: "MealPlaner",
-                        description: "Erstelle deinen MealPlan, indifiduell auf deine bedürfnisse."
-                    )
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 24) {
+                      
+                        SectionImageCard(
+                            image: .icMealPlan,
+                            title: "MealPlaner",
+                            description: "Erstelle deinen MealPlan, indifiduell auf deine bedürfnisse."
+                        )
+                        
+                        SectionImageCard(
+                            image: .icKochhut,
+                            title: "Rezepte",
+                            description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu."
+                        )
+                        
+                        SectionImageCard(
+                            image: .icCartMirrored,
+                            title: "Shoppinglist",
+                            description: "Erstelle aus deinem Mealplan eine Shoppingliste."
+                        )
+                        
+                        
+                        HomeCountdownTimerWidgetCard()
+                        
+                        ImageCard()
                     
-                    SectionImageCard(
-                        image: .icKochhut,
-                        title: "Rezepte",
-                        description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu."
-                    )
-                    
-                    SectionImageCard(
-                        image: .icCartMirrored,
-                        title: "Shoppinglist",
-                        description: "Erstelle aus deinem Mealplan eine Shoppingliste."
-                    )
-                    
-                    
-                    HomeCountdownTimerWidgetCard()
-                    
-                    ImageCard()
-                
-                    
-                    NavigationLink(destination: ProfileScreen(page: .profile, path: $path), label: { Text("Zu Profile") })
+                        
+                        NavigationLink(destination: ProfileScreen(page: .profile, path: $path), label: { Text("Zu Profile") })
 
-                    
-                    Button("Logout \(firebase.userProfile?.firstName ?? "")") {
-                        Task {
-                            try await firebase.logout()
-                        }
-                    }.padding(.top, Theme().padding * 2)
-
+                    }
                 }
                 .navigationDestination(for: Destination.self) { destination in
                     switch destination {
@@ -76,13 +73,17 @@ struct HomeScreen: View, PageIdentifier {
                     }
 
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Image(systemName: "figure.walk")  // Icon rechts im Header
+                        Image(systemName: "gear")
+                            .onTapGesture {
+                                isSettingSheet = !isSettingSheet
+                            }
                     }
                 }
                 .navigationTitle("")  // Entfernt die Standardtitel-Navigation
                 .navigationBarTitleDisplayMode(.inline)
             }
         }
+        .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, onDismiss: {}) 
     }
     
     @ViewBuilder func header() -> some View {

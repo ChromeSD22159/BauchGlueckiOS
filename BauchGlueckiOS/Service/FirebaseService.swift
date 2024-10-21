@@ -12,14 +12,17 @@ import FirebaseCore
 import GoogleSignIn
 import FirebaseDatabaseInternal
 import FirebaseFirestore
+import FirebaseStorage
 
 class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDelegate {
     @Published var user: User? = nil
     @Published var userProfile: UserProfile? = nil
     @Published var error: Error? = nil
+    @Published var userProfileImage = UIImage()
     
     let firebaseAuth = Auth.self.auth()
     let firebaseDatabase = Firestore.firestore()
+    let storage = Storage.storage()
     
     var authStateListenerHandle: AuthStateDidChangeListenerHandle?
     
@@ -32,8 +35,6 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         firebaseAuth.signIn(withEmail: email.lowercased(), password: password) { result ,error in
             self.user = result?.user
             self.error = error
-            print("LOGIN USER: \(String(describing: result?.user))")
-            print("LOGIN ERROR: \(String(describing: error))")
         }
     }
     
@@ -56,12 +57,14 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         }
     }
     
-    func logout() async throws {
-        do {
-            try firebaseAuth.signOut()
-            try await Authentication().logout()
-        } catch {
-            throw error
+    func signOut() {
+        Task {
+            do {
+                try firebaseAuth.signOut()
+                try await Authentication().logout()
+            } catch {
+                throw error
+            }
         }
     }
     
@@ -74,7 +77,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
             do {
                 try await Authentication().googleOauth()
                 
-                authListener { auth , error in
+                self.authListener { auth , error in
                     self.user = auth?.currentUser
                 }
             } catch {
@@ -315,6 +318,69 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
     func isAuthenticated() -> Bool {
         return firebaseAuth.currentUser != nil ? true : false
     }
+    
+    // image
+    func uploadAndSaveProfileImage(completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            completion(.failure(NSError(domain: "AuthError", code: -2, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])))
+            return
+        }
+        
+        let imageName = "\(user.uid)_profile_image.jpg"
+        let storageRef = storage.reference(withPath: "profile_images/\(imageName)")
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+
+        guard let scaledImage = userProfileImage.resizedAndCropped(to: CGSize(width: 512, height: 512)), let imageData = scaledImage.jpegData(compressionQuality: 0.5) else {
+            completion(.failure(NSError(domain: "ImageError", code: -3, userInfo: [NSLocalizedDescriptionKey: "Image compression or resizing failed"])))
+            return
+        }
+        
+        storageRef.putData(imageData, metadata: metadata) { (metadata, error) in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                
+                storageRef.downloadURL { result in
+                    switch result {
+                    case .success(let url):
+                        self.userProfile?.profileImageURL = url.absoluteString
+                        if let profile = self.userProfile {
+                            self.saveUserProfile(userProfile: profile) {_ in
+                                
+                            }
+                        }
+                        
+                        self.userProfileImage = scaledImage
+                        completion(.success(()))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
+            }
+        }
+    }
+        
+    func downloadProfileImage(imageURL: String) {
+        guard let url = URL(string: imageURL), url.scheme == "https" else {
+            print("Invalid image URL")
+            return
+        }
+           
+        let storageRef = storage.reference(forURL: imageURL)
+        
+        storageRef.getData(maxSize: 1 * 1024 * 1024) { (data, error) in // 1 MB max size
+            if let error = error {
+                print(error)
+            } else {
+                if let imageData = data, let image = UIImage(data: imageData) {
+                    self.userProfileImage = image
+                } else {
+                    print(String(describing: error?.localizedDescription))
+                }
+            }
+        }
+    }
 }
 
 extension FirebaseService: ASAuthorizationControllerPresentationContextProviding {
@@ -372,7 +438,6 @@ enum AuthenticationError: Error {
     case runtimeError(String)
 }
 
-
 enum Collection: String{
     case UserProfile = "UserProfile"
     case UserNode = "UserNode"
@@ -390,5 +455,23 @@ struct AppUser {
             "email": email,
             "appToken": appToken
         ]
+    }
+}
+
+extension UIImage {
+    func resizedAndCropped(to size: CGSize) -> UIImage? {
+        let scale = max(size.width / self.size.width, size.height / self.size.height)
+        let width = self.size.width * scale
+        let height = self.size.height * scale
+        let x = (size.width - width) / 2.0
+        let y = (size.height - height) / 2.0
+        let cropRect = CGRect(x: x, y: y, width: width, height: height)
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+        self.draw(in: cropRect)
+        let croppedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return croppedImage
     }
 }

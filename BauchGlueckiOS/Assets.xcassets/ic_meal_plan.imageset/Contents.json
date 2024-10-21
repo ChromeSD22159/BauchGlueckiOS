@@ -19,6 +19,7 @@
     "version" : 1
   },
   "properties" : {
+    "compression-type" : "lossless",
     "template-rendering-intent" : "template"
   }
 }

@@ -10,6 +10,7 @@ struct Theme {
     var backgroundGradient = LinearGradient(colors: [.prime, .prime.opacity(0.5)], startPoint: .top, endPoint: .bottom)
     
     var primary: Color = Color.prime
+    var onPrimary: Color = Color.onPrimary
     var background: Color = Color.background
     var onBackground: Color = Color.primary
     var surface = Color.surface

@@ -55,11 +55,13 @@ struct ImageCard: View {
                     .padding(.horizontal, 10)
                     .background(theme.backgroundGradient)
                     .cornerRadius(100)
-                }
+                }.foregroundStyle(Color.white)
+                
             }.padding(10)
         }
         .background(theme.surface)
         .cornerRadius(theme.radius)
         .padding(.horizontal, 10)
+        
     }
 }
