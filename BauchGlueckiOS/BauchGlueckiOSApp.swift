@@ -18,7 +18,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     @State var notificationManager: NotificationManager? = nil
     
     @State var screen: Screen = Screen.Launch
-    @State private var firebase: FirebaseRepository? = nil
+    @State private var firebase: FirebaseService? = nil
     
     var body: some Scene {
         WindowGroup {
@@ -36,6 +36,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                             }
                             .onAppEnterForeground {
                                 try await firebase?.markUserOnline()
+                                fetchBackendData()
                             }
                 }
             }
@@ -50,7 +51,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                 
                 checkBackendIsReachable()
             }
-            .environmentObject(firebase ?? FirebaseRepository())
+            .environmentObject(firebase ?? FirebaseService())
         }
         .modelContainer(localDataScource)
     }
@@ -61,7 +62,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     
     private func markUserOnlineOnStart(launchDelay: Double) {
         DispatchQueue.main.async {
-            firebase = FirebaseRepository()
+            firebase = FirebaseService()
             notificationManager = NotificationManager()
             
             guard let fb = firebase else { return }
@@ -73,6 +74,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                         Task {
                             try await firebase?.markUserOnline()
                         }
+                       
                     } else {
                         handleNavigation(screen: .Login)
                     }
@@ -90,6 +92,12 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
         Task {
             try await isServerReachable(client: client)
         }
+    }
+    
+    // TODO: SYNC REMOTE
+    private func fetchBackendData() {
+        let repo = Services()
+        repo.countdownRepository.fetchTimerFromBackend()
     }
 }
 

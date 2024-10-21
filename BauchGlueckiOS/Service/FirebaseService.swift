@@ -13,7 +13,7 @@ import GoogleSignIn
 import FirebaseDatabaseInternal
 import FirebaseFirestore
 
-class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerDelegate {
+class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDelegate {
     @Published var user: User? = nil
     @Published var userProfile: UserProfile? = nil
     @Published var error: Error? = nil
@@ -317,7 +317,7 @@ class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerD
     }
 }
 
-extension FirebaseRepository: ASAuthorizationControllerPresentationContextProviding {
+extension FirebaseService: ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {

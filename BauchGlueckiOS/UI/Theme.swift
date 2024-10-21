@@ -33,6 +33,10 @@ struct Theme {
     }
     
     var headlineText = CustomFont.Rodetta.font(size: 25)
+    var headlineTextMedium = CustomFont.Rodetta.font(size: 22)
+    var headlineTextSmall = CustomFont.Rodetta.font(size: 16)
+    
+    var iconFont = CustomFont.Rodetta.font(size: 64)
     
     enum CustomFont: String {
         case Rodetta = "RodettaRegular"

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Alamofire
 
 func isServerReachable(client: StrapiApiClient) async throws -> Bool {
     let token = client.bearerToken

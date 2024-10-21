@@ -18,6 +18,7 @@
 		B64864A32CC28B88007D7228 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B64864A22CC28B84007D7228 /* .gitignore */; };
 		B6ADCE8F2CC3259D001AFC57 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCE8E2CC3259D001AFC57 /* FirebaseMessaging */; };
 		B6ADCE982CC33108001AFC57 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCE972CC33108001AFC57 /* GoogleMobileAds */; };
+		B6ADCEAA2CC67F86001AFC57 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCEA92CC67F86001AFC57 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,6 +30,16 @@
 			files = (
 			);
 			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6ADCEAE2CC682ED001AFC57 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -69,6 +80,7 @@
 				B6ADCE982CC33108001AFC57 /* GoogleMobileAds in Frameworks */,
 				B64864262CC24071007D7228 /* FirebaseCore in Frameworks */,
 				B64864282CC24071007D7228 /* FirebaseDatabase in Frameworks */,
+				B6ADCEAA2CC67F86001AFC57 /* Alamofire in Frameworks */,
 				B64864392CC24568007D7228 /* GoogleSignInSwift in Frameworks */,
 				B648642A2CC24071007D7228 /* FirebaseFirestore in Frameworks */,
 				B64864242CC24071007D7228 /* FirebaseAuth in Frameworks */,
@@ -116,6 +128,7 @@
 				B664D4682CC1007B0092FE3E /* Frameworks */,
 				B664D4692CC1007B0092FE3E /* Resources */,
 				B64864522CC2845C007D7228 /* Embed Watch Content */,
+				B6ADCEAE2CC682ED001AFC57 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -136,6 +149,7 @@
 				B64864382CC24568007D7228 /* GoogleSignInSwift */,
 				B6ADCE8E2CC3259D001AFC57 /* FirebaseMessaging */,
 				B6ADCE972CC33108001AFC57 /* GoogleMobileAds */,
+				B6ADCEA92CC67F86001AFC57 /* Alamofire */,
 			);
 			productName = BauchGlueckiOS;
 			productReference = B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */;
@@ -169,6 +183,7 @@
 				B64864202CC24070007D7228 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B64864352CC24568007D7228 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				B6ADCE962CC33108001AFC57 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				B6ADCEA82CC67F86001AFC57 /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B664D46C2CC1007B0092FE3E /* Products */;
@@ -433,6 +448,14 @@
 				minimumVersion = 11.10.0;
 			};
 		};
+		B6ADCEA82CC67F86001AFC57 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -485,6 +508,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6ADCE962CC33108001AFC57 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
+		};
+		B6ADCEA92CC67F86001AFC57 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6ADCEA82CC67F86001AFC57 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

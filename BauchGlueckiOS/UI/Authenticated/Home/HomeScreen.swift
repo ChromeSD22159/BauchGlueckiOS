@@ -7,50 +7,81 @@
 
 import SwiftUI
 import FirebaseAuth
+import SwiftData
 
 struct HomeScreen: View, PageIdentifier {
+    let theme = Theme()
     func navigate(to destination: Destination) {
         path.append(destination)
     }
     
     var page: Destination
 
-    @EnvironmentObject var firebase: FirebaseRepository
+    @EnvironmentObject var firebase: FirebaseService
     
     @State private var path: [Destination] = []
     
     var body: some View {
         NavigationStack {
-            VStack {
-                NavigationLink(destination: ProfileScreen(page: .profile, path: $path), label: { Text("Zu Profile") })
+            ZStack {
+                theme.background.ignoresSafeArea()
                 
+                VStack(spacing: 24) {
+                  
+                    SectionImageCard(
+                        image: .icMealPlan,
+                        title: "MealPlaner",
+                        description: "Erstelle deinen MealPlan, indifiduell auf deine bedürfnisse."
+                    )
+                    
+                    SectionImageCard(
+                        image: .icKochhut,
+                        title: "Rezepte",
+                        description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu."
+                    )
+                    
+                    SectionImageCard(
+                        image: .icCartMirrored,
+                        title: "Shoppinglist",
+                        description: "Erstelle aus deinem Mealplan eine Shoppingliste."
+                    )
+                    
+                    
+                    HomeCountdownTimerWidgetCard()
+                    
+                    ImageCard()
                 
-                Button("Logout \(firebase.userProfile?.firstName ?? "")") {
-                    Task {
-                        try await firebase.logout()
+                    
+                    NavigationLink(destination: ProfileScreen(page: .profile, path: $path), label: { Text("Zu Profile") })
+
+                    
+                    Button("Logout \(firebase.userProfile?.firstName ?? "")") {
+                        Task {
+                            try await firebase.logout()
+                        }
+                    }.padding(.top, Theme().padding * 2)
+
+                }
+                .navigationDestination(for: Destination.self) { destination in
+                    switch destination {
+                        case .profile: ProfileScreen(page: .profile, path: $path)
+                        case .settings: SettingsScreen(page: .settings, path: $path)
+                        case .home: HomeScreen(page: .settings)
                     }
-                }.padding(.top, Theme().padding * 2)
+                }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Text(page.screen.title)
+                            .font(.headline)
+                    }
 
-            }
-            .navigationDestination(for: Destination.self) { destination in
-                switch destination {
-                    case .profile: ProfileScreen(page: .profile, path: $path)
-                    case .settings: SettingsScreen(page: .settings, path: $path)
-                    case .home: HomeScreen(page: .settings)
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Image(systemName: "figure.walk")  // Icon rechts im Header
+                    }
                 }
+                .navigationTitle("")  // Entfernt die Standardtitel-Navigation
+                .navigationBarTitleDisplayMode(.inline)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Text(page.screen.title)
-                        .font(.headline)
-                }
-
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Image(systemName: "figure.walk")  // Icon rechts im Header
-                }
-            }
-            .navigationTitle("")  // Entfernt die Standardtitel-Navigation
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
     
@@ -59,13 +90,13 @@ struct HomeScreen: View, PageIdentifier {
     }
 }
 
+/*
 #Preview {
     HomeScreen(page: .home)
-        .environmentObject(FirebaseRepository())
+        .environmentObject(FirebaseService())
+        .modelContainer(localDataScource)
 }
-
-
-
+*/
 protocol PageIdentifier {
     var page: Destination { get }
     func navigate(to destination: Destination)

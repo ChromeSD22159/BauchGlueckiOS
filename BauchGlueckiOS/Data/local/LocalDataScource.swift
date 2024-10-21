@@ -9,6 +9,7 @@ import SwiftData
 var localDataScource: ModelContainer = {
     let schema = Schema([
         CountdownTimer.self,
+        SyncHistory.self
     ])
     let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

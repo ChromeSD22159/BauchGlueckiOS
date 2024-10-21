@@ -12,20 +12,10 @@ import Foundation
 
 class StrapiApiClient: GenericAPIService {
     
-    override init(environment: Environment = .localSabina) {
-           super.init(environment: environment)
-       }
-    
-    func syncTimer(timers: [CountdownTimer] ) {
-        sendRequest(endpoint: "", method: .get, body: timers) { (result: Result<[CountdownTimer], Error>) in
-            switch result {
-            case .success(let responseModel):
-                print("Erfolgreich: \(responseModel)")
-            case .failure(let error):
-                print("Fehler: \(error.localizedDescription)")
-            }
-        }
+    override init(environment: Environment = .production) {
+       super.init(environment: environment)
     }
+
 }
 
 class GenericAPIService {

@@ -10,7 +10,7 @@ import SwiftUI
 struct LoginScreen: View, Navigable {
     var navigate: (Screen) -> Void
     var theme: Theme = Theme()
-    @EnvironmentObject var firebase: FirebaseRepository
+    @EnvironmentObject var firebase: FirebaseService
     
     // FormStates
     @FocusState private var focusedField: FocusedField?
@@ -115,7 +115,7 @@ struct LoginScreen: View, Navigable {
 }
 
 @ViewBuilder func SignInWithGoogle(
-    firebase: FirebaseRepository,
+    firebase: FirebaseService,
     theme: Theme = Theme()
 ) -> some View {
     HStack(spacing: theme.padding) {
@@ -135,5 +135,5 @@ struct LoginScreen: View, Navigable {
 
 #Preview("Light") {
     LoginScreen(navigate: {_ in })
-    .environmentObject(FirebaseRepository())
+    .environmentObject(FirebaseService())
 }

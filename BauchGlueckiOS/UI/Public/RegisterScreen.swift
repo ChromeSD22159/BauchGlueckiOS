@@ -10,7 +10,7 @@ import SwiftUI
 struct RegisterScreen: View, Navigable {
     var navigate: (Screen) -> Void
     var theme: Theme = Theme()
-    @EnvironmentObject var firebase: FirebaseRepository
+    @EnvironmentObject var firebase: FirebaseService
     
     @FocusState private var focusedField: FocusedField?
     @State private var name: String = ""
@@ -148,5 +148,5 @@ struct RegisterScreen: View, Navigable {
 
 #Preview("Light") {
     RegisterScreen(navigate: {_ in })
-        .environmentObject(FirebaseRepository())
+        .environmentObject(FirebaseService())
 }

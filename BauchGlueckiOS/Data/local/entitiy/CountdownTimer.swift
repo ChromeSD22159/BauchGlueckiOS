@@ -9,90 +9,49 @@ import SwiftData
 import Foundation
 
 @Model
-class CountdownTimer: Codable {
-    @Attribute(.unique)
-    var id: Int = 0
-    var timerId: String = ""
-    var userId: String = ""
-    var name: String = ""
-    var duration: Int64 = 0
-    var startDate: Int64? = nil
-    var endDate: Int64? = nil
-    var timerState: String = ""
-    var showActivity: Bool = true
-    var isDeleted: Bool = false
-    var updatedAtOnDevice: Int64 = Date().timeIntervalSince1970Milliseconds
-    var createdAt: String = ISO8601DateFormatter().string(from: Date())
-    var updatedAt: String = ISO8601DateFormatter().string(from: Date())
+class CountdownTimer: Identifiable {
+    @Attribute(.unique) var id: UUID
+    var timerID: String
+    var userID: String
+    var name: String
+    var duration: Int
+    var startDate: Int64?
+    var endDate: Int64?
+    var timerState: String
+    var showActivity: Bool
+    var isDeleted: Bool
+    var updatedAtOnDevice: Int64
+    var createdAt: String
+    var updatedAt: String
     
-    // Initialisierer
     init(
-        id: Int = 0,
-        timerId: String = "",
-        userId: String = "",
-        name: String = "",
-        duration: Int64 = 0,
+        id: UUID = UUID(),
+        timerID: String,
+        userID: String,
+        name: String,
+        duration: Int64,
         startDate: Int64? = nil,
         endDate: Int64? = nil,
-        timerState: String = "",
-        showActivity: Bool = true,
-        isDeleted: Bool = false,
-        createdAt: String = ISO8601DateFormatter().string(from: Date()),
-        updatedAt: String = ISO8601DateFormatter().string(from: Date())
+        timerState: String,
+        showActivity: Bool,
+        isDeleted: Bool,
+        updatedAtOnDevice: Int64,
+        createdAt: String,
+        updatedAt: String
     ) {
         self.id = id
-        self.timerId = timerId
-        self.userId = userId
+        self.timerID = timerID
+        self.userID = userID
         self.name = name
-        self.duration = duration
+        self.duration = Int(duration)
         self.startDate = startDate
         self.endDate = endDate
         self.timerState = timerState
         self.showActivity = showActivity
         self.isDeleted = isDeleted
+        self.updatedAtOnDevice = Date().timeIntervalSince1970Milliseconds
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.updatedAtOnDevice = Date().timeIntervalSince1970Milliseconds
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case id, timerId, userId, name, duration, startDate, endDate, timerState, showActivity, isDeleted, updatedAtOnDevice, createdAt, updatedAt
-    }
-    
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        self.id = try container.decode(Int.self, forKey: .id)
-        self.timerId = try container.decode(String.self, forKey: .timerId)
-        self.userId = try container.decode(String.self, forKey: .userId)
-        self.name = try container.decode(String.self, forKey: .name)
-        self.duration = try container.decode(Int64.self, forKey: .duration)
-        self.startDate = try container.decodeIfPresent(Int64.self, forKey: .startDate)
-        self.endDate = try container.decodeIfPresent(Int64.self, forKey: .endDate)
-        self.timerState = try container.decode(String.self, forKey: .timerState)
-        self.showActivity = try container.decode(Bool.self, forKey: .showActivity)
-        self.isDeleted = try container.decode(Bool.self, forKey: .isDeleted)
-        self.updatedAtOnDevice = try container.decode(Int64.self, forKey: .updatedAtOnDevice)
-        self.createdAt = try container.decode(String.self, forKey: .createdAt)
-        self.updatedAt = try container.decode(String.self, forKey: .updatedAt)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-
-        try container.encode(id, forKey: .id)
-        try container.encode(timerId, forKey: .timerId)
-        try container.encode(userId, forKey: .userId)
-        try container.encode(name, forKey: .name)
-        try container.encode(duration, forKey: .duration)
-        try container.encodeIfPresent(startDate, forKey: .startDate)
-        try container.encodeIfPresent(endDate, forKey: .endDate)
-        try container.encode(timerState, forKey: .timerState)
-        try container.encode(showActivity, forKey: .showActivity)
-        try container.encode(isDeleted, forKey: .isDeleted)
-        try container.encode(updatedAtOnDevice, forKey: .updatedAtOnDevice)
-        try container.encode(createdAt, forKey: .createdAt)
-        try container.encode(updatedAt, forKey: .updatedAt)
     }
 }
 
@@ -105,21 +64,31 @@ func dateStringToMilliseconds(_ dateString: String) -> Int64 {
 }
 
 extension CountdownTimer {
-    var toCreatedAtLong: Int64 {
-        return dateStringToMilliseconds(self.createdAt)
-    }
-
-    var toUpdateAtLong: Int64 {
-        return dateStringToMilliseconds(self.updatedAt)
-    }
-    
     var toTimerState: TimerState {
         get {
             return TimerState.fromValue(self.timerState)
         }
         set {
-            timerState = newValue.value
+            timerState = newValue.rawValue
         }
+    }
+    
+    func toCountdownTimerResponse() -> CountdownTimerResponse {
+        return CountdownTimerResponse(
+            id: 0, // ID kann optional sein oder angepasst werden, falls erforderlich
+            timerID: self.timerID,
+            userID: self.userID,
+            name: self.name,
+            duration: Int64(self.duration), // Du wandelst die Int-Dauer in Int64 um
+            startDate: self.startDate,
+            endDate: self.endDate,
+            timerState: self.timerState,
+            showActivity: self.showActivity,
+            isDeleted: self.isDeleted,
+            updatedAtOnDevice: self.updatedAtOnDevice,
+            createdAt: self.createdAt,
+            updatedAt: self.updatedAt
+        )
     }
 }
 

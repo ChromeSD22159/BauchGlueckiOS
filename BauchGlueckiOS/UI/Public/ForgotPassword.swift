@@ -11,7 +11,7 @@ struct ForgotPassword: View, Navigable {
     var navigate: (Screen) -> Void
     var theme: Theme = Theme()
     
-    @EnvironmentObject var firebase: FirebaseRepository
+    @EnvironmentObject var firebase: FirebaseService
     @FocusState private var focusedField: FocusedField?
     @State private var email: String = ""
 
@@ -84,5 +84,5 @@ struct ForgotPassword: View, Navigable {
 
 #Preview("Light") {
     ForgotPassword(navigate: {_ in })
-        .environmentObject(FirebaseRepository())
+        .environmentObject(FirebaseService())
 }
