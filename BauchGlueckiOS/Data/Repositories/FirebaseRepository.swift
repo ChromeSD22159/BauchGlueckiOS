@@ -279,7 +279,7 @@ class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerD
             let token = getSavedDeviceToken(),
             let user = userProfile
         else { return
-            print("Token: \(String(describing: getSavedDeviceToken())) User: \(userProfile?.uid ?? "")")
+            print("Token: \(getSavedDeviceToken() ?? "No TOKEN") User: \(userProfile?.uid ?? "")")
         }
         
         let userReference = Database.database().reference(withPath: "\(Collection.OnlineUsers.rawValue)/\(userId)")
@@ -310,6 +310,10 @@ class FirebaseRepository: NSObject, ObservableObject, ASAuthorizationControllerD
         } catch {
             print(error)
         }
+    }
+    
+    func isAuthenticated() -> Bool {
+        return firebaseAuth.currentUser != nil ? true : false
     }
 }
 
