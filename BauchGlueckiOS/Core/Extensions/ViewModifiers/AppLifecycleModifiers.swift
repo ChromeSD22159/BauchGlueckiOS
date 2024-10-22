@@ -32,13 +32,3 @@ struct OnAppEnterForeground: ViewModifier {
             }
     }
 }
-
-extension View {
-    func onAppEnterForeground(perform action: @escaping () async throws -> Void) -> some View {
-        self.modifier(OnAppEnterForeground(action: action))
-    }
-    
-    func onAppEnterBackground(perform action: @escaping () async -> Void) -> some View {
-        self.modifier(OnAppEnterBackground(action: action))
-    }
-}

@@ -115,9 +115,3 @@ enum TimerState: String {
         }
     }
 }
-
-extension Date {
-    var timeIntervalSince1970Milliseconds: Int64 {
-        return Int64(self.timeIntervalSince1970 * 1000)
-    }
-}

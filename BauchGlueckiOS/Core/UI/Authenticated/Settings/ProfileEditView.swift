@@ -180,33 +180,3 @@ struct ProfileEditView: View {
         }
     }
 }
-
-struct TextFieldClearButton: ViewModifier {
-    @Binding var text: String
-    
-    @State private var iconName: String = "xmark.seal.fill"
-    
-    private var isValidTxt: Bool {
-        text.count >= 3
-    }
-    
-    private var dynamicImage: String {
-        isValidTxt ? "checkmark.seal.fill" : "xmark.seal.fill"
-    }
-    
-    private var dynamicColor: Color {
-        isValidTxt ? Theme().primary : Color(UIColor.opaqueSeparator)
-    }
-    
-    func body(content: Content) -> some View {
-        HStack {
-            content
-                
-            Spacer()
-            
-            Image(systemName: dynamicImage)
-                .foregroundColor(dynamicColor)
-            
-        }
-    }
-}

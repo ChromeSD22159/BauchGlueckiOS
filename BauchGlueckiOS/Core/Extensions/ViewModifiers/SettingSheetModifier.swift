@@ -45,7 +45,7 @@ struct SettingSheet: ViewModifier {
                                             color: theme.onBackground,
                                             destination: Destination.settings,
                                             firebase: authManager,
-                                            onDismiss: {
+                                            onDismissAction: {
                                                 viewModel.updateProfile()
                                             }
                                         )
@@ -251,83 +251,5 @@ struct RowItem: View {
                 .padding(10)
                 .foregroundStyle(theme.onPrimary)
         }
-    }
-}
-
-extension View {
-    func settingSheet(isSettingSheet: Binding<Bool>, authManager: FirebaseService, onDismiss: @escaping () -> Void) -> some View {
-        modifier(SettingSheet(isSettingSheet: isSettingSheet, authManager: authManager, onDismiss: onDismiss))
-    }
-    
-    func textFieldClearButton(text: Binding<String>) -> some View {
-        modifier(TextFieldClearButton(text: text))
-    }
-    
-    func navigationBackButton<T: View>(
-        color: Color,
-        icon: String? = nil,
-        destination: Destination,
-        firebase: FirebaseService,
-        onDismiss: @escaping () -> Void  = {},
-        showSettingButton: Bool = true,
-        @ViewBuilder toolbarItems: @escaping () -> T = { EmptyView() }
-    ) -> some View {
-        self.modifier(
-            NavigationBackButton<T>(
-                color: color,
-                icon: icon,
-                destination: destination,
-                firebase: firebase,
-                onDismiss: onDismiss,
-                showSettingButton: showSettingButton,
-                toolbarItems: toolbarItems
-            )
-        )
-    }
-}
-
-struct NavigationBackButton<T: View>: ViewModifier {
-    var color: Color
-    var icon: String?
-    var destination: Destination
-    var firebase: FirebaseService
-    var onDismiss: () -> Void
-    var showSettingButton: Bool
-    @ViewBuilder var toolbarItems: () -> T
-    
-    
-    
-    @Environment(\.dismiss) var dismiss
-    @State var isSettingSheet: Bool = false
-    
-    func body(content: Content) -> some View {
-        content
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    HStack(spacing: 16) {
-                        Image(systemName: icon ?? "arrow.backward")
-                            .font(.body)
-                        Text(destination.screen.title)
-                            .font(.callout)
-                    }
-                    .onTapGesture {
-                        onDismiss()
-                        dismiss()
-                    }
-                }
-
-                ToolbarItem(placement: .navigationBarTrailing, content: {
-                    toolbarItems()
-                    
-                    if showSettingButton {
-                        Image(systemName: "gear")
-                            .onTapGesture {
-                                isSettingSheet = !isSettingSheet
-                            }
-                    }
-                })
-            }
-            .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, onDismiss: {})
     }
 }

@@ -36,53 +36,42 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: {TimerScreen()}
+                                target: { TimerScreen(firebase: firebase) }
                             )
                         
                         SectionImageCard(image: .icKochhut,title: "Rezepte",description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.")
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: {TimerScreen()}
+                                target: { TimerScreen(firebase: firebase) }
                             )
                         
                         SectionImageCard(image: .icCartMirrored,title: "Shoppinglist",description: "Erstelle aus deinem Mealplan eine Shoppingliste.")
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: {TimerScreen()}
+                                target: { TimerScreen(firebase: firebase) }
                             )
 
                         HomeCountdownTimerWidgetCard()
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: {TimerScreen()}
+                                target: { TimerScreen(firebase: firebase) },
+                                toolbarItems: {
+                                    Image(systemName: "figure")
+                                }
                             )
                         
                         ImageCard()
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: {TimerScreen()}
+                                target: { TimerScreen(firebase: firebase) },
+                                toolbarItems: {
+                                    Image(systemName: "figure")
+                                }
                             )
-                    
-                        
-                        NavigationLink(destination: ProfileScreen(page: .profile, path: $path), label: { Text("Zu Profile") })
-                    }
-                }
-                .navigationDestination(for: Destination.self) { destination in
-                    switch destination {
-                        case .profile: ProfileScreen(page: .profile, path: $path)
-                        case .settings: SettingsScreen(page: .settings, path: $path)
-                        case .home: HomeScreen(page: .settings)
-                        case .timer: TimerScreen().navigationBackButton(
-                                                        color: theme.onBackground,
-                                                        destination: Destination.settings,
-                                                        firebase: firebase,
-                                                        showSettingButton: true
-                                                    )
-                            
                     }
                 }
                 .toolbar {
@@ -106,41 +95,21 @@ struct HomeScreen: View, PageIdentifier {
     }
 }
 
-extension View {
-    func navigateTo<Target: View>(
-        firebase: FirebaseService,
-        destination: Destination,
-        showSettingButton: Bool = true,
-        @ViewBuilder target: @escaping () -> Target = { EmptyView() }
-    ) -> some View {
-        modifier(
-            NavigateTo<Target>(
-                destination: destination,
-                firebase: firebase,
-                showSettingButton: showSettingButton,
-                target: target
-            )
-        )
-    }
-}
 
-struct NavigateTo<Target: View>: ViewModifier {
-    var destination: Destination
-    var firebase: FirebaseService
-    var showSettingButton: Bool
-    @ViewBuilder var target: () -> Target
+struct ScreenHolder<Content: View>: View {
+    let theme = Theme()
+    let firebase: FirebaseService
+    @ViewBuilder var content: () -> Content
     
-    func body(content: Content) -> some View {
-        NavigationLink {
-            target()
-                .navigationBackButton(
-                    color: Theme().onBackground,
-                    destination: destination,
-                    firebase: firebase,
-                    showSettingButton: showSettingButton
-                )
-        } label: {
-            content
+    var body: some View {
+        ZStack {
+            theme.background.ignoresSafeArea()
+            
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 24) {
+                    content()
+                }
+            }
         }
     }
 }
