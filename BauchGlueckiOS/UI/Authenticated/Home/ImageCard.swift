@@ -60,8 +60,8 @@ struct ImageCard: View {
             }.padding(10)
         }
         .background(theme.surface)
+        .foregroundStyle(theme.onBackground)
         .cornerRadius(theme.radius)
         .padding(.horizontal, 10)
-        
     }
 }

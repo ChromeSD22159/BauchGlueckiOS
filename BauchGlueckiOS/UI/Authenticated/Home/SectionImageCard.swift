@@ -33,12 +33,14 @@ struct SectionImageCard: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Text(description)
+                    .multilineTextAlignment(.leading)
                     .font(.footnote)
                     .lineLimit(2)
             }
             .padding(.horizontal, 10)
         }
         .frame(maxHeight: 120)
+        .foregroundStyle(theme.onBackground)
         .background(theme.surface)
         .cornerRadius(theme.radius)
         .padding(.horizontal, 10)

@@ -15,7 +15,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     let client = StrapiApiClient(environment: .production)
-    @State var notificationManager: NotificationManager? = nil
+    @State var notificationManager: NotificationService? = nil
     
     @State var screen: Screen = Screen.Launch
     @State private var firebase: FirebaseService? = nil
@@ -63,7 +63,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     private func markUserOnlineOnStart(launchDelay: Double) {
         DispatchQueue.main.async {
             firebase = FirebaseService()
-            notificationManager = NotificationManager()
+            notificationManager = NotificationService()
             
             guard let fb = firebase else { return }
 
@@ -100,21 +100,6 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
         repo.countdownRepository.fetchTimerFromBackend()
     }
 }
-
-
-
-/*
- Button("Request Notification"){
-    Task{
-        await notificationManager.request()
-    }
-}
-.buttonStyle(.bordered)
-.disabled(notificationManager.hasPermission)
-.task {
-    await notificationManager.getAuthStatus()
-}
- */
 
 
 private struct ThemeEnvironmentKey: EnvironmentKey {

@@ -1,5 +1,5 @@
 //
-//  TimerScreeb.swift
+//  TimerScreen.swift
 //  BauchGlueckiOS
 //
 //  Created by Frederik Kohler on 21.10.24.
@@ -10,6 +10,6 @@ import SwiftUI
 
 struct TimerScreen: View {
     var body: some View {
-        EmptyView()
+        Text("asdasd")
     }
 }

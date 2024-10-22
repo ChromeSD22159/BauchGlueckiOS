@@ -43,7 +43,8 @@ struct SettingSheet: ViewModifier {
                                     ProfileEditView(viewModel: viewModel)
                                         .navigationBackButton(
                                             color: theme.onBackground,
-                                            text: "Settings",
+                                            destination: Destination.settings,
+                                            firebase: authManager,
                                             onDismiss: {
                                                 viewModel.updateProfile()
                                             }
@@ -91,7 +92,7 @@ struct SettingSheet: ViewModifier {
                                 
                         }
                     }
-                    .navigationTitle("⚙️ Settings")
+                    .navigationTitle("⚙️ Einstellungen")
                     .navigationBarTitleDisplayMode(.inline)
                 }
             })
@@ -223,7 +224,7 @@ struct RowItem: View {
                 case .toggle: Toggle(isOn: toggle ?? .constant(false), label: {}).labelsHidden()
             }
         }
-        .foregroundStyle(fill == .regular ? theme.primary : theme.onPrimary)
+        .foregroundStyle(fill == .regular ? theme.onBackground : theme.onPrimary)
         .font(.callout)
         .padding(.vertical, 5)
     }
@@ -236,7 +237,7 @@ struct RowItem: View {
             
             Image(systemName: icon)
                 .padding(10)
-                .foregroundStyle(theme.onBackground)
+                .foregroundStyle(theme.onPrimary)
         }
     }
     
@@ -248,7 +249,7 @@ struct RowItem: View {
             
             Image(image)
                 .padding(10)
-                .foregroundStyle(theme.onBackground)
+                .foregroundStyle(theme.onPrimary)
         }
     }
 }
@@ -262,34 +263,71 @@ extension View {
         modifier(TextFieldClearButton(text: text))
     }
     
-    func navigationBackButton(color: Color, icon: String? = nil, text: LocalizedStringKey? = nil, onDismiss: @escaping () -> Void) -> some View {
-        self.modifier(NavigationBackButton(color: color, icon: icon, text: text, onDismiss: onDismiss))
+    func navigationBackButton<T: View>(
+        color: Color,
+        icon: String? = nil,
+        destination: Destination,
+        firebase: FirebaseService,
+        onDismiss: @escaping () -> Void  = {},
+        showSettingButton: Bool = true,
+        @ViewBuilder toolbarItems: @escaping () -> T = { EmptyView() }
+    ) -> some View {
+        self.modifier(
+            NavigationBackButton<T>(
+                color: color,
+                icon: icon,
+                destination: destination,
+                firebase: firebase,
+                onDismiss: onDismiss,
+                showSettingButton: showSettingButton,
+                toolbarItems: toolbarItems
+            )
+        )
     }
 }
 
-struct NavigationBackButton: ViewModifier {
+struct NavigationBackButton<T: View>: ViewModifier {
     var color: Color
     var icon: String?
-    var text: LocalizedStringKey?
+    var destination: Destination
+    var firebase: FirebaseService
     var onDismiss: () -> Void
+    var showSettingButton: Bool
+    @ViewBuilder var toolbarItems: () -> T
+    
+    
+    
     @Environment(\.dismiss) var dismiss
+    @State var isSettingSheet: Bool = false
     
     func body(content: Content) -> some View {
         content
             .navigationBarBackButtonHidden(true)
-            .navigationBarItems( leading:
-                HStack(spacing: 16) {
-                    Image(systemName: icon ?? "arrow.backward")
-                    .font(.body)
-                    if let text = text {
-                        Text(text)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    HStack(spacing: 16) {
+                        Image(systemName: icon ?? "arrow.backward")
+                            .font(.body)
+                        Text(destination.screen.title)
                             .font(.callout)
                     }
+                    .onTapGesture {
+                        onDismiss()
+                        dismiss()
+                    }
                 }
-                .onTapGesture {
-                    onDismiss()
-                    dismiss()
-                }
-            )
+
+                ToolbarItem(placement: .navigationBarTrailing, content: {
+                    toolbarItems()
+                    
+                    if showSettingButton {
+                        Image(systemName: "gear")
+                            .onTapGesture {
+                                isSettingSheet = !isSettingSheet
+                            }
+                    }
+                })
+            }
+            .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, onDismiss: {})
     }
 }

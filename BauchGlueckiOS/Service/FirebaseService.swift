@@ -320,7 +320,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
     }
     
     // image
-    func uploadAndSaveProfileImage(completion: @escaping (Result<Void, Error>) -> Void) {
+    func uploadAndSaveProfileImage(completion: @escaping (Result<UserProfile, Error>) -> Void) {
         guard let user = Auth.auth().currentUser else {
             completion(.failure(NSError(domain: "AuthError", code: -2, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])))
             return
@@ -344,18 +344,14 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
                 storageRef.downloadURL { result in
                     switch result {
                     case .success(let url):
-                        self.userProfile?.profileImageURL = url.absoluteString
-                        if let profile = self.userProfile {
-                            self.saveUserProfile(userProfile: profile) {_ in
-                                
-                            }
-                        }
-                        
+                        self.userProfile?.profileImageURL = URLCacheManager.shared.generateUniqueUrl(for: url.absoluteString).absoluteString
                         self.userProfileImage = scaledImage
-                        completion(.success(()))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
+                        
+                        if let profile = self.userProfile {
+                            self.saveUserProfile(userProfile: profile) {_ in }
+                            completion( .success(profile) )
+                        }
+                    case .failure(let error): completion(.failure(error)) }
                 }
             }
         }

@@ -9,8 +9,7 @@ import Foundation
 import UserNotifications
 import SwiftUI
 
-@MainActor
-class NotificationManager: ObservableObject{
+class NotificationService: ObservableObject{
     @Published private(set) var hasPermission = false
     
     init() {

@@ -14,12 +14,10 @@ class SettingViewModel: ObservableObject {
     
     @Published var userProfile: UserProfile? = nil
     
-    @Published var userProfileImage: UIImage? = nil
-    
     init(authManager: FirebaseService) {
         self.authManager = authManager
         
-        loadUserProfileAndImage()
+        loadUserProfile()
     }
     
     @FocusState var isFocused: Bool
@@ -148,23 +146,26 @@ class SettingViewModel: ObservableObject {
                 self.authManager.saveUserProfile(userProfile: new, completion: {_ in 
                     
                 })
+                
+                self.loadUserProfile()
             }
         })
     }
     
     func updateProfileImage() {
-        authManager.uploadAndSaveProfileImage {_ in
-            
-        }
+        authManager.uploadAndSaveProfileImage {_ in }
     }
     
-    func loadUserProfileAndImage() {
+    func loadUserProfile() {
         if let user = Auth.auth().currentUser {
             authManager.readUserProfileById(userId: user.uid) { userProfile in
+                var new = userProfile
+                
                 if let image = userProfile?.profileImageURL {
-                    self.authManager.downloadProfileImage(imageURL: image)
-                    self.userProfileImage = self.authManager.userProfileImage
+                    new?.profileImageURL = URLCacheManager.shared.generateUniqueUrl(for: image).absoluteString
                 }
+                
+                self.userProfile = new
             }
         }
     }

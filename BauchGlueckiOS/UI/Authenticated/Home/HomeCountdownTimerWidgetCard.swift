@@ -12,7 +12,6 @@ struct HomeCountdownTimerWidgetCard: View {
     let theme: Theme = Theme()
 
     var body: some View {
-        
         VStack(alignment: .leading) {
             Label("Timer", systemImage: "gauge.with.dots.needle.33percent")
                 .font(.caption)
@@ -65,7 +64,7 @@ struct HomeCountdownTimerWidgetCard: View {
                     }
                 }.frame(height: 100)
             }
-        }
+        }.foregroundStyle(theme.onBackground)
     }
 }
 

@@ -25,17 +25,15 @@ struct ProfileEditView: View {
                 WaterIntake()
             }
         }
-        .onAppear {
-            viewModel.loadUserProfileAndImage()
-        }
     }
     
     @ViewBuilder func ChangeImage() -> some View {
         Section {
             HStack(spacing: 20) {
-
-                if let image = viewModel.userProfileImage {
-                    Image(uiImage: image)
+                if let profile = viewModel.userProfile, let imageUrl = profile.profileImageURL  {
+                    
+                    AsyncCachedImage(url: URL(string: imageUrl)) { image in
+                        image
                             .resizable()
                             .cornerRadius(50)
                             .padding(.all, 4)
@@ -44,20 +42,20 @@ struct ProfileEditView: View {
                             .aspectRatio(contentMode: .fill)
                             .clipShape(Circle())
                             .padding(8)
-                } else {
-                    ZStack{
-                        Image(uiImage: .placeholder)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        ZStack{
+                            Image(uiImage: .placeholder)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        }
+                        .cornerRadius(50)
+                        .padding(.all, 4)
+                        .frame(width: 100, height: 100)
+                        .background(theme.backgroundGradient)
+                        .clipShape(Circle())
+                        .padding(8)
                     }
-                    .cornerRadius(50)
-                    .padding(.all, 4)
-                    .frame(width: 100, height: 100)
-                    .background(theme.backgroundGradient)
-                    .clipShape(Circle())
-                    .padding(8)
                 }
-                
                 
                 Button(action: {
                     viewModel.showImageSheet.toggle()
@@ -72,20 +70,18 @@ struct ProfileEditView: View {
                 })
             }
             .sheet(isPresented: $viewModel.showImageSheet, onDismiss: {
-                // upload
                 viewModel.authManager.uploadAndSaveProfileImage { result in
                     switch result {
+                        case .success(let profile):
+                            if let imageUrl = profile.profileImageURL, let url = URL(string: imageUrl) {
+                                URLCacheManager.shared.invalidateURLCache(for: url)
+                            }
+                            viewModel.loadUserProfile()
                         
-                    case .success(let url):
-                        print(url)
-                    case .failure(let error):
-                        print(error.localizedDescription)
+                        case .failure(let error): print(error.localizedDescription)
                     }
                 }
-                
-                // reload vm
-                viewModel.loadUserProfileAndImage()
-            } ) {
+            }) {
                 ImagePicker(sourceType: .photoLibrary, selectedImage: $viewModel.authManager.userProfileImage)
             }
         } header: {
