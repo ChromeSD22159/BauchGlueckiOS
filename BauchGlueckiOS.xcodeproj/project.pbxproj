@@ -92,6 +92,14 @@
 			);
 			target = B664D46A2CC1007B0092FE3E /* BauchGlueckiOS */;
 		};
+		B61AF14D2CC9ABE3009F9878 /* Exceptions for "BauchGlueckiOS" folder in "BGWidgetExtentionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Fonts/rodetta_stamp.ttf,
+				Fonts/rodetta.ttf,
+			);
+			target = B6167C982CC94A8300451BAB /* BGWidgetExtentionExtension */;
+		};
 		B664D4B02CC148220092FE3E /* Exceptions for "BauchGlueckiOS" folder in "BauchGlueckiOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -115,6 +123,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				B664D4B02CC148220092FE3E /* Exceptions for "BauchGlueckiOS" folder in "BauchGlueckiOS" target */,
+				B61AF14D2CC9ABE3009F9878 /* Exceptions for "BauchGlueckiOS" folder in "BGWidgetExtentionExtension" target */,
 			);
 			path = BauchGlueckiOS;
 			sourceTree = "<group>";

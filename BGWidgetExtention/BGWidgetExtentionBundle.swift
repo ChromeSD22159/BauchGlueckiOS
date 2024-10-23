@@ -11,7 +11,7 @@ import SwiftUI
 @main
 struct BGWidgetExtentionBundle: WidgetBundle {
     var body: some Widget {
-        BGWidgetExtention()
+        //BGWidgetExtention()
         BGWidgetExtentionLiveActivity()
     }
 }

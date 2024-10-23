@@ -27,7 +27,10 @@ struct BGWidgetExtentionLiveActivity: Widget {
      var body: some WidgetConfiguration {
          return ActivityConfiguration(for: BGWidgetExtentionAttributes.self) { context in
              
-             lockScreen(endDate: context.state.endDate, name: context.attributes.name)
+             lockScreen(
+                endDate: context.state.endDate,
+                name: context.attributes.name
+             )
              
 
          } dynamicIsland: { context in
@@ -72,16 +75,15 @@ struct BGWidgetExtentionLiveActivity: Widget {
          
          ZStack {
              theme.background
-             
+                         
              VStack {
                  HStack(spacing: 12) {
                      Image(.iconStromach)
                          .font(.subheadline)
-                         .foregroundStyle(theme.onBackground)
-                     
+                                              
                      Text("\(name) timer")
                          .font(.title)
-                 }
+                 }.foregroundStyle(theme.primary)
                  
                  Spacer()
 
@@ -89,14 +91,15 @@ struct BGWidgetExtentionLiveActivity: Widget {
                     timerInterval: range,
                     pauseTime: range.lowerBound
                  )
-                 .font(.largeTitle)
+                 .font(theme.headlineText(size: 50))
+                 .foregroundStyle(theme.onBackground)
                  .multilineTextAlignment(.center)
                  
                  Spacer()
                  
-                 Text("end \(name)")
+                 Text("\(name)")
                      .font(.caption)
-                     .foregroundStyle(theme.onPrimary)
+                     .foregroundStyle(theme.onBackground)
                      .padding(.vertical, 5)
                      .padding(.horizontal, 10)
                      .background {
@@ -115,12 +118,12 @@ struct BGWidgetExtentionLiveActivity: Widget {
                              .foregroundStyle(theme.onBackground.opacity(0.05))
                          
                          Text("BauchGlück")
-                             .font(.system(size: 75))
+                             .font(theme.headlineText(size: 70))
                              .foregroundStyle(theme.onBackground.opacity(0.0))
                      }
                      
                      Text("BauchGlück")
-                         .font(.system(size: 50))
+                         .font(theme.headlineText(size: 50))
                          .foregroundStyle(theme.onBackground.opacity(0.05))
                  }
              }
