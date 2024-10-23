@@ -100,17 +100,3 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
         repo.countdownRepository.fetchTimerFromBackend()
     }
 }
-
-
-private struct ThemeEnvironmentKey: EnvironmentKey {
-    typealias Value = Theme
-    
-    static let defaultValue: Theme = Theme()
-}
-
-extension EnvironmentValues {
-    var appTheme: Theme {
-        get { self[ThemeEnvironmentKey.self] }
-        set { self[ThemeEnvironmentKey.self] = newValue }
-    }
-}

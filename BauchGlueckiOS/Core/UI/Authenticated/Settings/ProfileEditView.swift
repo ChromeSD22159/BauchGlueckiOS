@@ -11,7 +11,7 @@ import SwiftUI
 struct ProfileEditView: View {
     @StateObject var viewModel: SettingViewModel
 
-    var theme: Theme = Theme()
+    private let theme = Theme.shared
     
     var body: some View {
         Form {

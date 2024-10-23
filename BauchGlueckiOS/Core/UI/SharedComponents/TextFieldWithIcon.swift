@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct TextFieldWithIcon<FieldTypes: Hashable>: View {
+    private let theme = Theme.shared
+    
     var placeholder: String
     var title: String
     var input: Binding<String>
     var onEditingChanged: (String) -> Void
     var type: FieldType
-    var theme = Theme()
     var footnote: String?
     
     @FocusState.Binding var focusedField: FieldTypes?  // Verwende hier FocusState.Binding

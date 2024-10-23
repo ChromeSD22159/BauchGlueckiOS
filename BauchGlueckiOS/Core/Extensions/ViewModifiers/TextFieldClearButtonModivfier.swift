@@ -11,6 +11,8 @@ struct TextFieldClearButton: ViewModifier {
     
     @State private var iconName: String = "xmark.seal.fill"
     
+    private let theme: Theme = Theme.shared
+    
     private var isValidTxt: Bool {
         text.count >= 3
     }
@@ -20,7 +22,7 @@ struct TextFieldClearButton: ViewModifier {
     }
     
     private var dynamicColor: Color {
-        isValidTxt ? Theme().primary : Color(UIColor.opaqueSeparator)
+        isValidTxt ? theme.primary : Color(UIColor.opaqueSeparator)
     }
     
     func body(content: Content) -> some View {

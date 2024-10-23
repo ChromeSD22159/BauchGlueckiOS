@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B6167C9B2CC94A8300451BAB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9A2CC94A8300451BAB /* WidgetKit.framework */; };
+		B6167C9D2CC94A8300451BAB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9C2CC94A8300451BAB /* SwiftUI.framework */; };
+		B6167CAA2CC94A8500451BAB /* BGWidgetExtentionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6167C992CC94A8300451BAB /* BGWidgetExtentionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B64864222CC24071007D7228 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B64864212CC24071007D7228 /* FirebaseAnalytics */; };
 		B64864242CC24071007D7228 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B64864232CC24071007D7228 /* FirebaseAuth */; };
 		B64864262CC24071007D7228 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = B64864252CC24071007D7228 /* FirebaseCore */; };
@@ -21,7 +24,28 @@
 		B6ADCEAA2CC67F86001AFC57 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCEA92CC67F86001AFC57 /* Alamofire */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		B6167CA82CC94A8500451BAB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B664D4632CC1007B0092FE3E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B6167C982CC94A8300451BAB;
+			remoteInfo = BGWidgetExtentionExtension;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
+		B6167CAF2CC94A8500451BAB /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B6167CAA2CC94A8500451BAB /* BGWidgetExtentionExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B64864522CC2845C007D7228 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -45,11 +69,29 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B6167C992CC94A8300451BAB /* BGWidgetExtentionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BGWidgetExtentionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6167C9A2CC94A8300451BAB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		B6167C9C2CC94A8300451BAB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		B6167CBB2CC952E100451BAB /* BGWidgetExtentionExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BGWidgetExtentionExtension.entitlements; sourceTree = "<group>"; };
 		B64864A22CC28B84007D7228 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BauchGlueckiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B6167CAE2CC94A8500451BAB /* Exceptions for "BGWidgetExtention" folder in "BGWidgetExtentionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B6167C982CC94A8300451BAB /* BGWidgetExtentionExtension */;
+		};
+		B6167CB62CC94C9600451BAB /* Exceptions for "BGWidgetExtention" folder in "BauchGlueckiOS" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				BGWidgetExtentionLiveActivity.swift,
+			);
+			target = B664D46A2CC1007B0092FE3E /* BauchGlueckiOS */;
+		};
 		B664D4B02CC148220092FE3E /* Exceptions for "BauchGlueckiOS" folder in "BauchGlueckiOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -60,6 +102,15 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		B6167C9E2CC94A8300451BAB /* BGWidgetExtention */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B6167CB62CC94C9600451BAB /* Exceptions for "BGWidgetExtention" folder in "BauchGlueckiOS" target */,
+				B6167CAE2CC94A8500451BAB /* Exceptions for "BGWidgetExtention" folder in "BGWidgetExtentionExtension" target */,
+			);
+			path = BGWidgetExtention;
+			sourceTree = "<group>";
+		};
 		B664D46D2CC1007B0092FE3E /* BauchGlueckiOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -71,6 +122,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		B6167C962CC94A8300451BAB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6167C9D2CC94A8300451BAB /* SwiftUI.framework in Frameworks */,
+				B6167C9B2CC94A8300451BAB /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B664D4682CC1007B0092FE3E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -95,8 +155,10 @@
 		B664D4622CC1007B0092FE3E = {
 			isa = PBXGroup;
 			children = (
+				B6167CBB2CC952E100451BAB /* BGWidgetExtentionExtension.entitlements */,
 				B64864A22CC28B84007D7228 /* .gitignore */,
 				B664D46D2CC1007B0092FE3E /* BauchGlueckiOS */,
+				B6167C9E2CC94A8300451BAB /* BGWidgetExtention */,
 				B6ADCE8D2CC3259D001AFC57 /* Frameworks */,
 				B664D46C2CC1007B0092FE3E /* Products */,
 			);
@@ -106,6 +168,7 @@
 			isa = PBXGroup;
 			children = (
 				B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */,
+				B6167C992CC94A8300451BAB /* BGWidgetExtentionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -113,6 +176,8 @@
 		B6ADCE8D2CC3259D001AFC57 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B6167C9A2CC94A8300451BAB /* WidgetKit.framework */,
+				B6167C9C2CC94A8300451BAB /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -120,6 +185,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		B6167C982CC94A8300451BAB /* BGWidgetExtentionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6167CAB2CC94A8500451BAB /* Build configuration list for PBXNativeTarget "BGWidgetExtentionExtension" */;
+			buildPhases = (
+				B6167C952CC94A8300451BAB /* Sources */,
+				B6167C962CC94A8300451BAB /* Frameworks */,
+				B6167C972CC94A8300451BAB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B6167C9E2CC94A8300451BAB /* BGWidgetExtention */,
+			);
+			name = BGWidgetExtentionExtension;
+			packageProductDependencies = (
+			);
+			productName = BGWidgetExtentionExtension;
+			productReference = B6167C992CC94A8300451BAB /* BGWidgetExtentionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B664D46A2CC1007B0092FE3E /* BauchGlueckiOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B664D47B2CC1007D0092FE3E /* Build configuration list for PBXNativeTarget "BauchGlueckiOS" */;
@@ -129,10 +216,12 @@
 				B664D4692CC1007B0092FE3E /* Resources */,
 				B64864522CC2845C007D7228 /* Embed Watch Content */,
 				B6ADCEAE2CC682ED001AFC57 /* Embed Frameworks */,
+				B6167CAF2CC94A8500451BAB /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B6167CA92CC94A8500451BAB /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B664D46D2CC1007B0092FE3E /* BauchGlueckiOS */,
@@ -165,6 +254,9 @@
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					B6167C982CC94A8300451BAB = {
+						CreatedOnToolsVersion = 16.0;
+					};
 					B664D46A2CC1007B0092FE3E = {
 						CreatedOnToolsVersion = 16.0;
 					};
@@ -192,11 +284,19 @@
 			projectRoot = "";
 			targets = (
 				B664D46A2CC1007B0092FE3E /* BauchGlueckiOS */,
+				B6167C982CC94A8300451BAB /* BGWidgetExtentionExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		B6167C972CC94A8300451BAB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B664D4692CC1007B0092FE3E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -208,6 +308,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B6167C952CC94A8300451BAB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B664D4672CC1007B0092FE3E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -217,7 +324,71 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		B6167CA92CC94A8500451BAB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B6167C982CC94A8300451BAB /* BGWidgetExtentionExtension */;
+			targetProxy = B6167CA82CC94A8500451BAB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		B6167CAC2CC94A8500451BAB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = BGWidgetExtentionExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZD275Y62U7;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BGWidgetExtention/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BGWidgetExtention;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.frederikkohler.BauchGlueckiOS.BGWidgetExtention;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B6167CAD2CC94A8500451BAB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = BGWidgetExtentionExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZD275Y62U7;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BGWidgetExtention/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BGWidgetExtention;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.frederikkohler.BauchGlueckiOS.BGWidgetExtention;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		B664D4792CC1007D0092FE3E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -351,6 +522,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BauchGlueckiOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "BauchGlück";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "Diese App verwendet Ihre Daten, um personalisierte Werbung bereitzustellen und die Benutzererfahrung zu verbessern.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -383,6 +556,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BauchGlueckiOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "BauchGlück";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "Diese App verwendet Ihre Daten, um personalisierte Werbung bereitzustellen und die Benutzererfahrung zu verbessern.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -404,6 +579,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		B6167CAB2CC94A8500451BAB /* Build configuration list for PBXNativeTarget "BGWidgetExtentionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6167CAC2CC94A8500451BAB /* Debug */,
+				B6167CAD2CC94A8500451BAB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B664D4662CC1007B0092FE3E /* Build configuration list for PBXProject "BauchGlueckiOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

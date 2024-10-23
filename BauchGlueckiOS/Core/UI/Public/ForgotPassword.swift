@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct ForgotPassword: View, Navigable {
+    
+    private let theme = Theme.shared
+    
     var navigate: (Screen) -> Void
-    var theme: Theme = Theme()
     
     @EnvironmentObject var firebase: FirebaseService
     @FocusState private var focusedField: FocusedField?

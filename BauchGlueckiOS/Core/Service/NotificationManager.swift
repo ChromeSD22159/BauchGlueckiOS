@@ -8,10 +8,14 @@
 import Foundation
 import UserNotifications
 import SwiftUI
+import ActivityKit
 
-class NotificationService: ObservableObject{
-    @Published private(set) var hasPermission = false
+@Observable
+class NotificationService {
+    static var shared = NotificationService()
     
+    var hasPermission = false
+
     init() {
         Task{
             await getAuthStatus()
@@ -21,7 +25,7 @@ class NotificationService: ObservableObject{
     func request() async{
         do {
             try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
-             await getAuthStatus()
+            await getAuthStatus()
         } catch{
             print(error)
         }
@@ -36,7 +40,7 @@ class NotificationService: ObservableObject{
             hasPermission = false
         }
     }
-    
+
     func requesterNoticication(title: String, subTitle: String, min: Int = 5) {
         let content = UNMutableNotificationContent()
         content.title = title
@@ -53,14 +57,106 @@ class NotificationService: ObservableObject{
         UNUserNotificationCenter.current().add(request)
     }
 
-}
+    func sendTimerNotification(countdown: CountdownTimer, timeStamp: Int64) {
+        
+        let content = UNMutableNotificationContent()
+        content.title = "BauchGlück Timer"
+        content.body = "Der \(countdown.name) Timer ist beeendet."
+        content.sound = UNNotificationSound.default
 
-func getSavedDeviceToken() -> String? {
-    @AppStorage("DEVICE_TOKEN", store: UserDefaults(suiteName: "group.bauchglueck")) var deviceToken = ""
-    return deviceToken
-}
+        let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: timeStamp.toDate)
+        
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        
+        print("Notification will be triggered at: \(dateComponents)")
+        
+        let currentTime = Date()
+        if let triggerDate = Calendar.current.date(from: dateComponents), triggerDate > currentTime {
+            print("Notification scheduled for: \(triggerDate)")
+        } else {
+            print("The trigger date is in the past.")
+        }
+        
+        let request = UNNotificationRequest(identifier: countdown.id.uuidString, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
+    }
 
-func setDeviceToken(token: String) {
-    @AppStorage("DEVICE_TOKEN", store: UserDefaults(suiteName: "group.bauchglueck")) var deviceToken = ""
-    deviceToken = token
+    func removeTimerNotification(withIdentifier identifier: UUID) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier.uuidString])
+    }
+    
+    func liveActivityStart(withTimer timer: CountdownTimer, remainingDuration: Int) async {
+        guard timer.showActivity else { return }
+        
+        @AppStorage("activityID") var activityID: String = ""
+        
+        if ActivityAuthorizationInfo().areActivitiesEnabled {
+            guard let startDate = timer.startDate, let endDate = timer.endDate else {
+                return
+            }
+            
+            let contentState = BGWidgetExtentionAttributes.ContentState(
+                state: timer.timerState,
+                startDate: timer.startDate?.toDate ?? Date(),
+                endDate: timer.endDate?.toDate ?? Date(),
+                remainingDuration: remainingDuration
+            )
+
+            let activityAttributes = BGWidgetExtentionAttributes(name: timer.name)
+            
+            let activityContent = ActivityContent<BGWidgetExtentionAttributes.ContentState>(state: contentState, staleDate: nil)
+
+            do {
+                let activity = try Activity<BGWidgetExtentionAttributes>.request(
+                    attributes: activityAttributes,
+                    content: activityContent,
+                    pushType: nil
+                )
+                
+                print("Live Activity registered: \(activity)")
+                
+                activityID = activity.id
+            } catch (let error) {
+                print("Error starting Live Activity: \(error.localizedDescription)")
+            }
+        } else {
+            // Handle the case where Live Activities are not enabled on the device.
+            // You might want to prompt the user to enable them in Settings.
+        }
+    }
+        
+    func liveActivityEnd() async {
+        @AppStorage("activityID") var activityID: String = ""
+        for activity in Activity<BGWidgetExtentionAttributes>.activities {
+            if activity.id == activityID {
+                await activity.end(activity.content, dismissalPolicy: .immediate)
+                activityID = ""
+                
+                break // Exit the loop once the activity is found
+            }
+        }
+    }
+
+    func liveActivityUpdate(timer: CountdownTimer, remainingDuration: Int) async {
+        @AppStorage("activityID") var activityID: String = ""
+        guard let startDate = timer.startDate, let endDate = timer.endDate else {
+            return
+        }
+
+        let updatedContentState = BGWidgetExtentionAttributes.ContentState(
+            state: timer.timerState,
+            startDate: timer.startDate?.toDate ?? Date(),
+            endDate: timer.endDate?.toDate ?? Date(),
+            remainingDuration: remainingDuration
+        )
+
+        let updatedContent = ActivityContent<BGWidgetExtentionAttributes.ContentState>(state: updatedContentState, staleDate: nil) // Update staleDate if needed
+
+        for activity in Activity<BGWidgetExtentionAttributes>.activities {
+            if activity.id == activityID {
+                await activity.update(updatedContent)
+                break
+            }
+        }
+    }
 }

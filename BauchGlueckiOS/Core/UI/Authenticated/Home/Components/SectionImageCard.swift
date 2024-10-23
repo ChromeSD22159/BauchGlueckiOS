@@ -7,10 +7,10 @@
 import SwiftUI
 
 struct SectionImageCard: View {
+    private let theme = Theme.shared
     var image: ImageResource
     var title: String
     var description: String
-    let theme = Theme()
     
     var body: some View {
         ZStack(alignment: .leading) {

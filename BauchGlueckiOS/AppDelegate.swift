@@ -12,6 +12,8 @@ import GoogleMobileAds
 
 class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     
+    let deviceTokenService = DeviceTokenService.shared
+    
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
@@ -45,7 +47,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         if let fcm = Messaging.messaging().fcmToken {
-            setDeviceToken(token: fcm)
+            deviceTokenService.setDeviceToken(token: fcm)
         }
     }
 }

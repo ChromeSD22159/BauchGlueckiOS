@@ -19,6 +19,8 @@ struct NavigationBackButton<T: View>: ViewModifier {
     @Environment(\.dismiss) var dismiss
     @State var isSettingSheet: Bool = false
     
+    let theme: Theme = Theme.shared
+    
     func body(content: Content) -> some View {
         content
             .navigationBarBackButtonHidden(true)
@@ -37,7 +39,7 @@ struct NavigationBackButton<T: View>: ViewModifier {
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing, content: {
-                    HStack(spacing: Theme().padding) {
+                    HStack(spacing: theme.padding) {
                         toolbarItems()
                         
                         if showSettingButton {

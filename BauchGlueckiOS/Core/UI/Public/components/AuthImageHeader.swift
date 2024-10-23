@@ -7,9 +7,11 @@
 import SwiftUI
 
 struct AuthImageHeader: View {
+    
+    private let theme = Theme.shared
+    
     var headline: String
     var description: String
-    var theme: Theme = Theme()
     
     var body: some View {
         VStack {
@@ -32,5 +34,5 @@ struct AuthImageHeader: View {
 }
 
 #Preview {
-    AuthImageHeader(headline: "Headline", description: "description", theme: Theme())
+    AuthImageHeader(headline: "Headline", description: "description")
 }

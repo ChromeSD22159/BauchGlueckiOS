@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ImageCard: View {
-    let theme = Theme()
+    private let theme = Theme.shared
     var iconLeft: String = "🤪"
     var iconRight: String = "🥳"
     var body: some View {

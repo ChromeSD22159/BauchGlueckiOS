@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct IconTextButton: View {
+    
+    private let theme = Theme.shared
+    
     var onEditingChanged: () -> Void
     var text: String
-    var theme: Theme = Theme()
+    
     init(
         text: String = "",
         onEditingChanged: @escaping () -> Void

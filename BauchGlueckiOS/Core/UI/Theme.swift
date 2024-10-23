@@ -7,6 +7,8 @@
 import SwiftUI
 
 struct Theme {
+    static var shared: Theme = Theme()
+    
     var backgroundGradient = LinearGradient(colors: [.prime, .prime.opacity(0.5)], startPoint: .top, endPoint: .bottom)
     
     var primary: Color = Color.prime
@@ -31,6 +33,11 @@ struct Theme {
             
             content()
         }
+    }
+    
+    
+    func headlineText(size: CGFloat = 25) -> Font {
+        CustomFont.Rodetta.font(size: size)
     }
     
     var headlineText = CustomFont.Rodetta.font(size: 25)

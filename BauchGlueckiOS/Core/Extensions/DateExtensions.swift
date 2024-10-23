@@ -11,3 +11,9 @@ extension Date {
         return Int64(self.timeIntervalSince1970 * 1000)
     }
 }
+
+extension Int64 {
+    var toDate: Date {
+        return Date(timeIntervalSince1970: Double(self / 1000))
+    }
+}

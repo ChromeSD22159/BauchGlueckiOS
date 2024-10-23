@@ -14,11 +14,13 @@ struct NavigateTo<Target: View, Toolbar: View>: ViewModifier {
     @ViewBuilder var target: () -> Target
     @ViewBuilder var toolbarItems: () -> Toolbar
     
+    let theme: Theme = Theme.shared
+    
     func body(content: Content) -> some View {
         NavigationLink {
             target()
                 .navigationBackButton(
-                    color: Theme().onBackground,
+                    color: theme.onBackground,
                     destination: destination,
                     firebase: firebase,
                     showSettingButton: showSettingButton,

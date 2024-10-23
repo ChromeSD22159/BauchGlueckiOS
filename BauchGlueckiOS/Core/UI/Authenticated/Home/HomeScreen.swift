@@ -10,7 +10,7 @@ import FirebaseAuth
 import SwiftData
 
 struct HomeScreen: View, PageIdentifier {
-    let theme = Theme()
+    private let theme: Theme = Theme.shared
     
     func navigate(to destination: Destination) {
         path.append(destination)
@@ -33,6 +33,7 @@ struct HomeScreen: View, PageIdentifier {
                     VStack(spacing: 24) {
                       
                         SectionImageCard(image: .icMealPlan,title: "MealPlaner",description: "Erstelle deinen MealPlan, indifiduell auf deine bedürfnisse.")
+                            .sectionShadow(margin: theme.padding)
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
@@ -40,6 +41,7 @@ struct HomeScreen: View, PageIdentifier {
                             )
                         
                         SectionImageCard(image: .icKochhut,title: "Rezepte",description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.")
+                            .sectionShadow(margin: theme.padding)
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
@@ -47,6 +49,7 @@ struct HomeScreen: View, PageIdentifier {
                             )
                         
                         SectionImageCard(image: .icCartMirrored,title: "Shoppinglist",description: "Erstelle aus deinem Mealplan eine Shoppingliste.")
+                            .sectionShadow(margin: theme.padding)
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
@@ -97,7 +100,7 @@ struct HomeScreen: View, PageIdentifier {
 
 
 struct ScreenHolder<Content: View>: View {
-    let theme = Theme()
+    private let theme: Theme = Theme.shared
     let firebase: FirebaseService
     @ViewBuilder var content: () -> Content
     

@@ -27,6 +27,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
     var authStateListenerHandle: AuthStateDidChangeListenerHandle?
     
     private var currentNonce: String?
+    private let deviceTokenService = DeviceTokenService.shared
     
     func login(
         email: String,
@@ -208,7 +209,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
     func saveUserProfile(userProfile: UserProfile, completion: @escaping (Error?) -> Void) {
         guard
             let currentUser = Auth.auth().currentUser,
-            let userNotifierToken = getSavedDeviceToken()
+            let userNotifierToken = deviceTokenService.getSavedDeviceToken()
         else {
             return
         }
@@ -279,10 +280,10 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         try? await Task.sleep(nanoseconds: 500_000_000)
         guard
             let userId = Auth.auth().currentUser?.uid,
-            let token = getSavedDeviceToken(),
+            let token = deviceTokenService.getSavedDeviceToken(),
             let user = userProfile
         else { return
-            print("Token: \(getSavedDeviceToken() ?? "No TOKEN") User: \(userProfile?.uid ?? "")")
+            print("Token: \(deviceTokenService.getSavedDeviceToken() ?? "No TOKEN") User: \(userProfile?.uid ?? "")")
         }
         
         let userReference = Database.database().reference(withPath: "\(Collection.OnlineUsers.rawValue)/\(userId)")

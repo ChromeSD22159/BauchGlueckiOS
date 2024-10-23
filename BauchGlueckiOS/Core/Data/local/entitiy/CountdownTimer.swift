@@ -63,13 +63,20 @@ func dateStringToMilliseconds(_ dateString: String) -> Int64 {
     return 0
 }
 
+extension TimerState {
+    var toTimerStateString: String {
+        return self.value
+    }
+}
+
 extension CountdownTimer {
+    
     var toTimerState: TimerState {
         get {
             return TimerState.fromValue(self.timerState)
         }
         set {
-            timerState = newValue.rawValue
+            timerState = newValue.value
         }
     }
     
@@ -90,13 +97,24 @@ extension CountdownTimer {
             updatedAt: self.updatedAt
         )
     }
+    
+    /*
+    var remainingTime: TimeInterval {
+        let now = Date().timeIntervalSince1970Milliseconds
+
+        if let endDate = self.endDate, endDate > now {
+            print("END DATE: \(endDate - now)")
+            
+            return TimeInterval(endDate - now)
+        } else {
+            return 0
+        }
+    }
+     */
 }
 
-enum TimerState: String {
-    case running = "running"
-    case paused = "paused"
-    case completed = "completed"
-    case notRunning = "notRunning"
+enum TimerState: String, CaseIterable {
+    case running, paused, completed, notRunning
 
     var value: String {
         return self.rawValue

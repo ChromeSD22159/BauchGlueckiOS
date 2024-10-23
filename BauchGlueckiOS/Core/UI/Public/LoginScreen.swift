@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct LoginScreen: View, Navigable {
+    
+    private let theme = Theme.shared
     var navigate: (Screen) -> Void
-    var theme: Theme = Theme()
     @EnvironmentObject var firebase: FirebaseService
     
     // FormStates
@@ -115,9 +116,10 @@ struct LoginScreen: View, Navigable {
 }
 
 @ViewBuilder func SignInWithGoogle(
-    firebase: FirebaseService,
-    theme: Theme = Theme()
+    firebase: FirebaseService
 ) -> some View {
+    let theme = Theme.shared
+    
     HStack(spacing: theme.padding) {
         Button(action: {
             firebase.signInWithGoogle()

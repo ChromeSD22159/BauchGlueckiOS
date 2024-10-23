@@ -6,11 +6,12 @@
 //
 import SwiftUI
 import SwiftData
+import Combine
 
 struct HomeCountdownTimerWidgetCard: View {
     @Query var timers: [CountdownTimer]
-    let theme: Theme = Theme()
-
+    private let theme: Theme = Theme.shared
+    
     var body: some View {
         VStack(alignment: .leading) {
             Label("Timer", systemImage: "gauge.with.dots.needle.33percent")
@@ -22,19 +23,8 @@ struct HomeCountdownTimerWidgetCard: View {
                 LazyHStack {
                     ForEach(Array(timers.enumerated()), id: \.offset) { index, timer in
                         if timers.count > 0 {
-                            VStack {
-                                Text(timer.duration.toTimeString())
-                                    .font(theme.headlineText)
-                                Text(timer.name)
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
-                                    .font(.footnote)
-                            }
-                            .frame(width: 100, height: 80, alignment: .center)
-                            .background(theme.surface)
-                            .cornerRadius(theme.radius)
-                            .shadow(color: Color.black.opacity(0.25), radius: 5, y: 3)
-                            .padding(.leading, index == 0 ? 10 : 0)
+                            @Bindable var currentTimer = timer
+                            HomerTimerCard(timer: currentTimer, index: index)
                         } else {
                             
                         }
@@ -65,6 +55,73 @@ struct HomeCountdownTimerWidgetCard: View {
                 }.frame(height: 100)
             }
         }.foregroundStyle(theme.onBackground)
+    }
+}
+
+struct HomerTimerCard: View {
+    
+    @Bindable var timer: CountdownTimer
+    var index: Int
+    
+    @State var remainingTime: Int = 0
+    @State var job: AnyCancellable?
+
+    private let theme = Theme.shared
+    
+    var body: some View {
+        VStack {
+            Text(remainingTime.toTimeString())
+                .font(theme.headlineText)
+            Text(timer.name)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .font(.footnote)
+        }
+        .frame(width: 100, height: 80, alignment: .center)
+        .background(theme.surface)
+        .cornerRadius(theme.radius)
+        .shadow(color: Color.black.opacity(0.25), radius: 5, y: 3)
+        .padding(.leading, index == 0 ? 10 : 0)
+        .onAppear {
+            let currentTime = Date().timeIntervalSince1970Milliseconds
+            
+            switch (timer.toTimerState) {
+                case .running:
+                    if let endDate = timer.endDate, endDate >= currentTime {
+                        remainingTime = Int((endDate - currentTime) / 1000)
+                        self.startTicking()
+                    } else {
+                        self.completeInternal()
+                    }
+                case .paused:
+                    if let endDate = timer.endDate, endDate >= currentTime {
+                        remainingTime = Int((endDate - currentTime) / 1000)
+                    }
+                case .completed:
+                    remainingTime = 0
+                case .notRunning:
+                    remainingTime = timer.duration
+            }
+        }
+    }
+    
+    private func startTicking() {
+        self.job?.cancel()
+        
+        self.job = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { time in
+                
+                remainingTime -= 1
+                
+                if remainingTime <= 0 {
+                   completeInternal()
+                }
+            }
+    }
+    
+    private func completeInternal() {
+        job?.cancel()
     }
 }
 

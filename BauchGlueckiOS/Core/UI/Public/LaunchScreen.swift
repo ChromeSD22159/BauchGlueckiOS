@@ -7,11 +7,8 @@
 import SwiftUI
 
 struct LaunchScreen: View {
-    let theme: Theme
     
-    init() {
-        self.theme = Theme()
-    }
+    private let theme = Theme.shared
     
     var body: some View {
         AppBackground(color: theme.background) {

@@ -67,4 +67,8 @@ extension View {
     func onAppEnterBackground(perform action: @escaping () async -> Void) -> some View {
         self.modifier(OnAppEnterBackground(action: action))
     }
+    
+    func sectionShadow(margin: CGFloat = 0) -> some View {
+        self.modifier(SectionShadow(margin: margin))
+    }
 }
