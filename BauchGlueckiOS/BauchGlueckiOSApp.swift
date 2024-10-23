@@ -47,7 +47,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                 await firebase?.markUserOffline()
             }
             .onAppear {
-                markUserOnlineOnStart(launchDelay: 2.5)
+                markUserOnlineOnStart(launchDelay: 1.5)
                 
                 checkBackendIsReachable()
             }

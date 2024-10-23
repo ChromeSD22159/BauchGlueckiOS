@@ -56,7 +56,7 @@ struct HomeScreen: View, PageIdentifier {
                                 target: { TimerScreen(firebase: firebase) }
                             )
 
-                        HomeCountdownTimerWidgetCard()
+                        HomeCountdownTimerWidgetCard(firebase: firebase)
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,

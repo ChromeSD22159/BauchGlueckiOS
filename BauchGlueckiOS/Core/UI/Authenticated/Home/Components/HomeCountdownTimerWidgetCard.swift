@@ -9,10 +9,15 @@ import SwiftData
 import Combine
 
 struct HomeCountdownTimerWidgetCard: View {
-    @Query var timers: [CountdownTimer]
+    
     private let theme: Theme = Theme.shared
+    let firebase: FirebaseService
+    
+    @Query var timers: [CountdownTimer]
     
     var body: some View {
+        //let sortedTimers = timers.filter { $0.userID == firebase.user?.uid }
+        
         VStack(alignment: .leading) {
             Label("Timer", systemImage: "gauge.with.dots.needle.33percent")
                 .font(.caption)
@@ -21,6 +26,7 @@ struct HomeCountdownTimerWidgetCard: View {
         
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
+                    
                     ForEach(Array(timers.enumerated()), id: \.offset) { index, timer in
                         if timers.count > 0 {
                             @Bindable var currentTimer = timer
