@@ -97,8 +97,8 @@ class NotificationService {
             
             let contentState = BGWidgetExtentionAttributes.ContentState(
                 state: timer.timerState,
-                startDate: timer.startDate?.toDate ?? Date(),
-                endDate: timer.endDate?.toDate ?? Date(),
+                startDate: startDate.toDate,
+                endDate: endDate.toDate,
                 remainingDuration: remainingDuration
             )
 
@@ -145,8 +145,8 @@ class NotificationService {
 
         let updatedContentState = BGWidgetExtentionAttributes.ContentState(
             state: timer.timerState,
-            startDate: timer.startDate?.toDate ?? Date(),
-            endDate: timer.endDate?.toDate ?? Date(),
+            startDate: startDate.toDate,
+            endDate: endDate.toDate,
             remainingDuration: remainingDuration
         )
 

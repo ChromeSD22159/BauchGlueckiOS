@@ -10,11 +10,13 @@ import SwiftData
 
 struct EditTimerSheetContent: View {
     @Bindable var timer: CountdownTimer
+    @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
     private let theme: Theme = Theme.shared
     
     var durationRange: ClosedRange<Int>
     var stepsEach: Int
+    var steps: [Int]
     
     // FormStates
     @FocusState private var focusedField: FocusedField?
@@ -39,7 +41,7 @@ struct EditTimerSheetContent: View {
                     VStack {
                         TextFieldWithIcon(
                             placeholder: "Timername",
-                            icon: "lock.fill",
+                            icon: "gauge.with.dots.needle.bottom.100percent",
                             title: "Name",
                             input: $timer.name,
                             type: .text,
@@ -56,6 +58,7 @@ struct EditTimerSheetContent: View {
                     
                     
                     VStack {
+                        
                         Stepper(
                             value: $timer.duration,
                             in: durationRange,
@@ -63,8 +66,22 @@ struct EditTimerSheetContent: View {
                             label: {
                                 Text(String(format: NSLocalizedString("Laufzeit: %d Minuten", comment: ""), timer.duration / 60))
                             }
-                        ).padding(.horizontal, 10)
-                        FootLine(text: "Laufzeit in Minuten.")
+                        )
+                        
+                        HStack {
+                            Text("Schnellauswahl: ")
+                            
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                LazyHStack(spacing: 0) {
+                                    ForEach(steps, id: \.self) { step in
+                                        TimerItem(step: step, selected: timer.duration, onTap: { selectedStep in
+                                            timer.duration = selectedStep
+                                        })
+                                    }
+                                }
+                            }
+                        }.frame(maxHeight: 50)
+                        
                     }.padding(.horizontal, 10)
                     
                     
@@ -76,7 +93,12 @@ struct EditTimerSheetContent: View {
                         
                         IconTextButton(
                             text: "Speichern",
-                            onEditingChanged: { dismiss() }
+                            onEditingChanged: {
+                                do {
+                                    try modelContext.save()
+                                    dismiss()
+                                } catch { }
+                            }
                         )
                     }
                     HStack {

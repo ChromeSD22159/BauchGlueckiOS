@@ -9,7 +9,7 @@ import SwiftUI
 class AppConfig {
     static var shared = AppConfig()
     
-    let timerConfig = TimerSettings(durationRange: 0...(60 * 90), stepsEach: (60 * 1))
+    let timerConfig = TimerSettings(durationRange: 0...(60 * 90), stepsEach: (60 * 1), buttonStepsEach: (60 * 5))
 }
 
 

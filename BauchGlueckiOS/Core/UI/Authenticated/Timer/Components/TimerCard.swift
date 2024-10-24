@@ -12,7 +12,8 @@ struct TimerCard: View {
     @Bindable var timer: CountdownTimer
     @State var remainingTime: Int = 0
     @State var job: AnyCancellable?
-    
+    @State var showEditAlert = false
+    @State var showDeleteAlert = false
     let theme = Theme.shared
     
     let options = [
@@ -33,8 +34,30 @@ struct TimerCard: View {
                 Spacer()
                 
                 DropDownComponent(options: options) { item in
-                    if(item.displayText == "Löschen") { modelContext.delete(timer) }
-                    if(item.displayText == "Bearbeiten") { isEditSheet = !isEditSheet }
+                    if(item.displayText == "Löschen") {
+                        if timer.toTimerState != .running {
+                            timer.isDeleted = true
+                        } else {
+                            self.showDeleteAlert = true
+                        }
+                    }
+                    if(item.displayText == "Bearbeiten") {
+                        if timer.toTimerState != .running {
+                            isEditSheet = true
+                            remainingTime = timer.duration
+                            timer.toTimerState = .notRunning
+                            timer.startDate = nil
+                            timer.endDate = nil
+                        } else {
+                            self.showEditAlert = true
+                        }
+                    }
+                }
+                .alert(isPresented: $showEditAlert) {
+                    Alert(title: Text("Timer ist Aktive"), message: Text("Bitte stoppe den Timer, um ihn zu bearbeiten."), dismissButton: .default(Text("OK")))
+                }
+                .alert(isPresented: $showDeleteAlert) {
+                    Alert(title: Text("Timer ist Aktive"), message: Text("Bitte stoppe den Timer, um ihn zu löschen."), dismissButton: .default(Text("OK")))
                 }
             }
             HStack{
@@ -74,6 +97,7 @@ struct TimerCard: View {
                 Spacer()
                 
                 Text(remainingTime.toTimeString())
+                    .id(remainingTime)
                     .font(theme.headlineText(size: 50))
             }
         }
@@ -100,13 +124,18 @@ struct TimerCard: View {
                     remainingTime = timer.duration
             }
         }
+        .onChange(of: timer.duration, {
+            remainingTime = timer.duration
+        })
         .sheet(isPresented: $isEditSheet, onDismiss: {}, content: {
             let config = AppConfig.shared.timerConfig 
             EditTimerSheetContent(
                 timer: timer,
                 durationRange: config.durationRange,
-                stepsEach: config.stepsEach
-            ).presentationDragIndicator(.visible)
+                stepsEach: config.stepsEach,
+                steps: config.stepsInSeconds
+            )
+            .presentationDragIndicator(.visible)
         })
     }
     

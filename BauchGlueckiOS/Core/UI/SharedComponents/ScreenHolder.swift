@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ScreenHolder<Content: View>: View {
     private let theme: Theme = Theme.shared
-    let firebase: FirebaseService
     @ViewBuilder var content: () -> Content
     
     var body: some View {
@@ -18,8 +17,9 @@ struct ScreenHolder<Content: View>: View {
             
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 24) {
+                    
                     content()
-                }
+                }.padding(.top, 10)
             }
         }
     }

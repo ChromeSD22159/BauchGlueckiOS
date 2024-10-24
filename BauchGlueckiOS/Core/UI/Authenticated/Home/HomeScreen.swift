@@ -37,7 +37,7 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: { TimerScreen(firebase: firebase) }
+                                target: { TimerScreen() }
                             )
                         
                         SectionImageCard(image: .icKochhut,title: "Rezepte",description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.")
@@ -45,7 +45,7 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: { TimerScreen(firebase: firebase) }
+                                target: { TimerScreen() }
                             )
                         
                         SectionImageCard(image: .icCartMirrored,title: "Shoppinglist",description: "Erstelle aus deinem Mealplan eine Shoppingliste.")
@@ -53,14 +53,14 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: { TimerScreen(firebase: firebase) }
+                                target: { TimerScreen() }
                             )
 
-                        HomeCountdownTimerWidgetCard(firebase: firebase)
+                        HomeCountdownTimerWidgetCard()
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: { TimerScreen(firebase: firebase) },
+                                target: { TimerScreen() },
                                 toolbarItems: {
                                     AddTimerSheet()
                                 }
@@ -70,12 +70,12 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: { TimerScreen(firebase: firebase) },
+                                target: { TimerScreen() },
                                 toolbarItems: {
                                     Image(systemName: "figure")
                                 }
                             )
-                    }
+                    }.padding(.top, 10)
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {

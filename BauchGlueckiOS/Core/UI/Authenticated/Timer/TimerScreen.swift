@@ -14,23 +14,40 @@ import FirebaseAuth
 struct TimerScreen: View {
     private let theme: Theme = Theme.shared
 
-    let firebase: FirebaseService
+    @Query(
+        sort: \CountdownTimer.name,
+        order: .forward,
+        transaction: .init(animation: .bouncy)
+    ) var countdownTimers: [CountdownTimer]
 
-    @Query( sort: \CountdownTimer.name, order: .reverse ) var countdownTimers: [CountdownTimer]
-
+    init() {
+        let user = Auth.auth().currentUser?.uid ?? ""
+        self._countdownTimers = Query(filter: #Predicate<CountdownTimer> { timer in
+            timer.isDeleted == false && timer.userID == user
+        })
+    }
+    
     var body: some View {
-        ScreenHolder(
-            firebase: firebase
-        ) {
+       
+        ScreenHolder() {
+            
             VStack(spacing: theme.padding) {
                 
                 let groupedTimers = Dictionary(grouping: countdownTimers) { $0.name }
-                let sortedTimers = groupedTimers.sorted { $0.key > $1.key }.flatMap { $0.value.sorted(by: { $0.name < $1.name }) }//.filter { $0.userID == firebase.user?.uid } 
+                let sortedTimers = groupedTimers.sorted { $0.key > $1.key }.flatMap { $0.value.sorted(by: { $0.name < $1.name }) }
                 
-                ForEach(sortedTimers) { timer in
-                    @Bindable var currentTimer = timer
-                    TimerCard(timer: currentTimer)
+                if(sortedTimers.count > 0) {
+                    ForEach(sortedTimers) { timer in
+                        @Bindable var currentTimer = timer
+                        TimerCard(timer: currentTimer)
+                    }
+                } else {
+                    // TODO: No Timer Card from Android
                 }
+                
+                
+               
+                
             }.padding(.horizontal, theme.padding)
         }
     }

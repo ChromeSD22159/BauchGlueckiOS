@@ -7,17 +7,26 @@
 import SwiftUI
 import SwiftData
 import Combine
+import FirebaseAuth
 
 struct HomeCountdownTimerWidgetCard: View {
     
     private let theme: Theme = Theme.shared
-    let firebase: FirebaseService
     
-    @Query var timers: [CountdownTimer]
+    @Query(
+        sort: \CountdownTimer.name,
+        order: .forward,
+        transaction: .init(animation: .bouncy)
+    ) var countdownTimers: [CountdownTimer]
+    
+    init() {
+        let user = Auth.auth().currentUser?.uid ?? ""
+        self._countdownTimers = Query(filter: #Predicate<CountdownTimer> { timer in
+            timer.isDeleted == false && timer.userID == user
+        })
+    }
     
     var body: some View {
-        //let sortedTimers = timers.filter { $0.userID == firebase.user?.uid }
-        
         VStack(alignment: .leading) {
             Label("Timer", systemImage: "gauge.with.dots.needle.33percent")
                 .font(.caption)
@@ -26,27 +35,16 @@ struct HomeCountdownTimerWidgetCard: View {
         
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    
-                    ForEach(Array(timers.enumerated()), id: \.offset) { index, timer in
-                        if timers.count > 0 {
-                            @Bindable var currentTimer = timer
-                            HomerTimerCard(timer: currentTimer, index: index)
-                        } else {
-                            
+
+                    if countdownTimers.count > 0 {
+                        ForEach(Array(countdownTimers.enumerated()), id: \.offset) { index, timer in
+                            if countdownTimers.count > 0 {
+                                @Bindable var currentTimer = timer
+                                HomerTimerCard(timer: currentTimer, index: index)
+                            } else {
+                                
+                            }
                         }
-                    }
-                    
-                    if timers.count > 0 {
-                        VStack {
-                            Image(systemName: "plus")
-                                .font(.largeTitle)
-                                .foregroundStyle(Color.white)
-                        }
-                        .frame(width: 100, height: 80, alignment: .center)
-                        .background(theme.backgroundGradient)
-                        .cornerRadius(theme.radius)
-                        .shadow(color: Color.black.opacity(0.25), radius: 5, y: 3)
-                        .padding(.trailing, 10)
                     } else {
                         VStack {
                             Text("Noch keinen Timer!").font(.footnote)
@@ -56,8 +54,19 @@ struct HomeCountdownTimerWidgetCard: View {
                         .background(theme.surface)
                         .cornerRadius(theme.radius)
                         .shadow(color: Color.black.opacity(0.25), radius: 5, y: 3)
-                        .padding(.trailing, 10)
+                        .padding(.leading, 10)
                     }
+                    
+                    VStack {
+                        Image(systemName: "plus")
+                            .font(.largeTitle)
+                            .foregroundStyle(Color.white)
+                    }
+                    .frame(width: 100, height: 80, alignment: .center)
+                    .background(theme.backgroundGradient)
+                    .cornerRadius(theme.radius)
+                    .shadow(color: Color.black.opacity(0.25), radius: 5, y: 3)
+                    .padding(.trailing, 10)
                 }.frame(height: 100)
             }
         }.foregroundStyle(theme.onBackground)

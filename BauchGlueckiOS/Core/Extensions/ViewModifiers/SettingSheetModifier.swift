@@ -50,39 +50,39 @@ struct SettingSheet: ViewModifier {
                                             }
                                         )
                                 } label: {
-                                    RowItem(icon: "person.fill", text: "Profile")
+                                    SettingRowItem(icon: "person.fill", text: "Profile")
                                         .listRowBackground(theme.backgroundGradient)
                                 }
        
-                                RowItem(image: .iconStromach, text: "Bypass since:", surgeryDateBinding: viewModel.surgeryDateBinding)
+                                SettingRowItem(image: .iconStromach, text: "Bypass since:", surgeryDateBinding: viewModel.surgeryDateBinding)
                                 
                             } header: {
                                 Text("Profile")
                             }
                             
                             Section{
-                                RowItem(icon: "envelope", text: "Support + Feedback", url: "mailto:jon.doe@mail.com")
-                                RowItem(icon: "star.fill", text: "Rate 5 stars", action: { requestAppReview() }, background: .regular)
+                                SettingRowItem(icon: "envelope", text: "Support + Feedback", url: "mailto:jon.doe@mail.com")
+                                SettingRowItem(icon: "star.fill", text: "Rate 5 stars", action: { requestAppReview() }, background: .regular)
                             } header: {
                                 Text("Support")
                             }
                             
                             Section {
-                                RowItem(icon: "globe", text: "Instagram des Entwicklers", url: "https://www.instagram.com/frederik.code/")
+                                SettingRowItem(icon: "globe", text: "Instagram des Entwicklers", url: "https://www.instagram.com/frederik.code/")
                            
-                                RowItem(icon: "globe", text: "Webseite des Entwicklers", url: "https://www.frederikkohler.de")
+                                SettingRowItem(icon: "globe", text: "Webseite des Entwicklers", url: "https://www.frederikkohler.de")
                                 
-                                RowItem(icon: "square.grid.2x2.fill", text: "Apps des Entwicklers", url: "https://apps.apple.com/at/developer/frederik-kohler/id1692240999")
+                                SettingRowItem(icon: "square.grid.2x2.fill", text: "Apps des Entwicklers", url: "https://apps.apple.com/at/developer/frederik-kohler/id1692240999")
                                 
                                 let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
                                 let build = Bundle.main.infoDictionary?["CFBundleVersion"] as! String
                                 let string = "Version \(version) (Build Number: \(build))"
-                                RowItem(icon: "info.circle", text: LocalizedStringKey(string))
+                                SettingRowItem(icon: "info.circle", text: LocalizedStringKey(string))
                             } header: {
                                 Text("Developer")
                             }
                             
-                            RowItem(
+                            SettingRowItem(
                                 icon: "iphone.and.arrow.forward",
                                 text: "Abmelden",
                                 action: { viewModel.authManager.signOut() },
@@ -112,7 +112,7 @@ struct SettingSheet: ViewModifier {
                         Text(viewModel.greeting)
                             .font(theme.headlineText)
                         
-                        Text("Unglaublicht, wie schnell die Zeit vergeht!").font(.footnote)
+                        Text("Unglaublich, wie schnell die Zeit vergeht!").font(.footnote)
                         Text(viewModel.timeSinceSurgery).font(.footnote)
                     }
                     .foregroundStyle(theme.onPrimary)
@@ -133,13 +133,13 @@ struct SettingSheet: ViewModifier {
     }
 }
 
-struct RowItem: View {
+struct SettingRowItem: View {
     var icon: String?
     var image: ImageResource?
     var text: LocalizedStringKey
     var url: String?
-    var type: RowItem.RowItemType
-    var fill: RowItem.RowItemFill
+    var type: SettingRowItem.RowItemType
+    var fill: SettingRowItem.RowItemFill
     var surgeryDateBinding: Binding<Date>?
     var action: () -> Void
     var toggle: Binding<Bool>?
@@ -151,7 +151,7 @@ struct RowItem: View {
         self.text = text
         self.image = image
         self.url = nil
-        self.type = RowItem.RowItemType.text
+        self.type = SettingRowItem.RowItemType.text
         self.action = {}
         self.toggle = nil
         self.fill = .regular
@@ -162,7 +162,7 @@ struct RowItem: View {
         self.text = text
         self.image = image
         self.url = url
-        self.type = RowItem.RowItemType.link
+        self.type = SettingRowItem.RowItemType.link
         self.action = {}
         self.toggle = nil
         self.fill = .regular
@@ -172,18 +172,18 @@ struct RowItem: View {
         self.icon = icon
         self.image = image
         self.text = text
-        self.type = RowItem.RowItemType.datePicker
+        self.type = SettingRowItem.RowItemType.datePicker
         self.surgeryDateBinding = surgeryDateBinding
         self.action = {}
         self.toggle = nil
         self.fill = .regular
     }
     
-    init(icon: String? = nil, image: ImageResource? = nil, text: LocalizedStringKey, action: @escaping () -> Void, background: RowItem.RowItemFill) {
+    init(icon: String? = nil, image: ImageResource? = nil, text: LocalizedStringKey, action: @escaping () -> Void, background: SettingRowItem.RowItemFill) {
         self.icon = icon
         self.image = image
         self.text = text
-        self.type = RowItem.RowItemType.button
+        self.type = SettingRowItem.RowItemType.button
         self.action = action
         self.toggle = nil
         self.fill = background
@@ -193,7 +193,7 @@ struct RowItem: View {
         self.icon = icon
         self.image = image
         self.text = text
-        self.type = RowItem.RowItemType.toggle
+        self.type = SettingRowItem.RowItemType.toggle
         self.action = {}
         self.toggle = toggle
         self.fill = .regular
