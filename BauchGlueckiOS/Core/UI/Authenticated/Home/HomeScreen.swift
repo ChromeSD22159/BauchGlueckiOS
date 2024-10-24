@@ -62,7 +62,7 @@ struct HomeScreen: View, PageIdentifier {
                                 destination: Destination.timer,
                                 target: { TimerScreen(firebase: firebase) },
                                 toolbarItems: {
-                                    Image(systemName: "figure")
+                                    AddTimerSheet()
                                 }
                             )
                         
@@ -95,24 +95,5 @@ struct HomeScreen: View, PageIdentifier {
             }
         }
         .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, onDismiss: {}) 
-    }
-}
-
-
-struct ScreenHolder<Content: View>: View {
-    private let theme: Theme = Theme.shared
-    let firebase: FirebaseService
-    @ViewBuilder var content: () -> Content
-    
-    var body: some View {
-        ZStack {
-            theme.background.ignoresSafeArea()
-            
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 24) {
-                    content()
-                }
-            }
-        }
     }
 }

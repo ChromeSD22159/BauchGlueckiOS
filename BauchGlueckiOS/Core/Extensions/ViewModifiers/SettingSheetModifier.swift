@@ -96,6 +96,7 @@ struct SettingSheet: ViewModifier {
                     .navigationBarTitleDisplayMode(.inline)
                 }
             })
+            .presentationDragIndicator(.visible)
     }
     
     @ViewBuilder func TimeSinceSurgeryBadge() -> some View {
