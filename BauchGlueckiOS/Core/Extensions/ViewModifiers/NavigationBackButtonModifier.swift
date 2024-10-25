@@ -15,7 +15,7 @@ struct NavigationBackButton<T: View>: ViewModifier {
     var onDismissAction: () -> Void
     var showSettingButton: Bool
     @ViewBuilder var toolbarItems: () -> T
-
+    @EnvironmentObject var services: Services
     @Environment(\.dismiss) var dismiss
     @State var isSettingSheet: Bool = false
     
@@ -51,6 +51,6 @@ struct NavigationBackButton<T: View>: ViewModifier {
                     }
                 })
             }
-            .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, onDismiss: {})
+            .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, services: services, onDismiss: {})
     }
 }

@@ -287,8 +287,6 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         }
         
         let userReference = Database.database().reference(withPath: "\(Collection.OnlineUsers.rawValue)/\(userId)")
-
-        
         
         let appUser = AppUser(name: user.firstName, email: user.email, appToken: token)
         do {

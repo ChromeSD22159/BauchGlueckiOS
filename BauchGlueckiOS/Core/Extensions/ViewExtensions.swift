@@ -26,8 +26,8 @@ extension View {
         )
     }
     
-    func settingSheet(isSettingSheet: Binding<Bool>, authManager: FirebaseService, onDismiss: @escaping () -> Void) -> some View {
-        modifier(SettingSheet(isSettingSheet: isSettingSheet, authManager: authManager, onDismiss: onDismiss))
+    func settingSheet(isSettingSheet: Binding<Bool>, authManager: FirebaseService, services: Services, onDismiss: @escaping () -> Void) -> some View {
+        modifier(SettingSheet(isSettingSheet: isSettingSheet, authManager: authManager, services: services, onDismiss: onDismiss))
     }
     
     func textFieldClearButton(text: Binding<String>) -> some View {

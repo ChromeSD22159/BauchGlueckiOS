@@ -45,6 +45,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                             }
                             .onAppEnterForeground {
                                 try await firebase.markUserOnline()
+                                try await services.apiService.sendDeviceTokenToBackend()
                                 fetchDataFromBackend()
                             }
                 }
@@ -80,8 +81,9 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                         handleNavigation(screen: .Home)
                         Task {
                             try await firebase.markUserOnline()
+                            
+                            try await services.apiService.sendDeviceTokenToBackend()
                         }
-                       
                     } else {
                         handleNavigation(screen: .Login)
                     }

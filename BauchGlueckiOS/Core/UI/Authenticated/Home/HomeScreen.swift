@@ -21,6 +21,7 @@ struct HomeScreen: View, PageIdentifier {
     @State var isSettingSheet: Bool = false
     
     @EnvironmentObject var firebase: FirebaseService
+    @EnvironmentObject var services: Services
     
     @State private var path: [Destination] = []
     
@@ -94,6 +95,6 @@ struct HomeScreen: View, PageIdentifier {
                 .navigationBarTitleDisplayMode(.inline)
             }
         }
-        .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, onDismiss: {}) 
+        .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, services: services, onDismiss: {})
     }
 }

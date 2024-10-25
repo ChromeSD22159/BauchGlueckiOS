@@ -241,3 +241,15 @@ struct TimerCard: View {
         job?.cancel()
     }
 }
+
+
+#Preview() {
+    let theme = Theme.shared
+    Button(action: {}, label: {
+        Text("Live Activity")
+            .font(.caption)
+            .foregroundStyle(theme.onBackground.opacity(0.7))
+    })
+}
+
+

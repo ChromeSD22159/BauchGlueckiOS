@@ -12,15 +12,23 @@ struct SettingSheet: ViewModifier {
     private let theme: Theme = Theme.shared
     
     @EnvironmentObject var authManager: FirebaseService
+    var services: Services
+    
     @StateObject var viewModel: SettingViewModel
 
     var isSettingSheet: Binding<Bool>
   
     var onDismiss: () -> Void
     
-    init(isSettingSheet: Binding<Bool>, authManager: FirebaseService, onDismiss: @escaping() -> Void) {
+    init(
+        isSettingSheet: Binding<Bool>,
+        authManager: FirebaseService,
+        services: Services,
+        onDismiss: @escaping() -> Void
+    ) {
         self.isSettingSheet = isSettingSheet
         self.onDismiss = onDismiss
+        self.services = services
         _viewModel = StateObject(wrappedValue: SettingViewModel(authManager: authManager))
     }
 
@@ -85,7 +93,13 @@ struct SettingSheet: ViewModifier {
                             SettingRowItem(
                                 icon: "iphone.and.arrow.forward",
                                 text: "Abmelden",
-                                action: { viewModel.authManager.signOut() },
+                                action: {
+                                    Task {
+                                        try await services.apiService.deleteDeviceTokenFromBackend()
+                                        
+                                        viewModel.authManager.signOut()
+                                    }
+                                },
                                 background: .backgroundGradient
                             )
                             .listRowBackground(theme.backgroundGradient)

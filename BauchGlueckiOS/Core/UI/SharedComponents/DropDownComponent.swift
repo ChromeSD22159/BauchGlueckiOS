@@ -20,13 +20,15 @@ import SwiftUI
             })
         }
     }, label: {
-        HStack {
+        HStack() {
+            Spacer()
             Image(systemName: "ellipsis")
                 .foregroundStyle(theme.onBackground)
+                .padding(10)
                 .rotationEffect(Angle(degrees: 90))
-                .padding(.leading, 10)
-                .padding(.bottom, 10)
         }
+        
+        .background(Color.gray.opacity(0.2))
     })
 }
 

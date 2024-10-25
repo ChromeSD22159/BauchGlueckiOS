@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import FirebaseAuth
+import Alamofire
 
 class StrapiApiClient: GenericAPIService {
     
@@ -13,7 +15,7 @@ class StrapiApiClient: GenericAPIService {
        super.init(environment: environment)
     }
     
-    func isServerReachable() async throws -> Bool {
+    func isServerReachable() async throws  -> Bool {
         let token = self.bearerToken
         let url = URL(string: "\(self.baseURL)/api/currentTimeStamp")!
         
@@ -33,6 +35,68 @@ class StrapiApiClient: GenericAPIService {
         } catch {
             print("Backend is not Reachable")
             return false
+        }
+    }
+    
+    func sendDeviceTokenToBackend() async throws {
+        guard
+            let currentUser = Auth.auth().currentUser?.uid,
+            let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken()
+        else {
+            return
+        }
+        
+        let body = ApiDeviceToken(userID: currentUser, token: userNotifierToken)
+        
+        let url = self.baseURL + "/api/saveDeviceToken"
+        let headers: HTTPHeaders = [.authorization(bearerToken: self.bearerToken)]
+        
+        Task {
+            do {
+                let request = AF.request(url, method: .post, parameters: body, encoder: JSONParameterEncoder.default, headers: headers)
+                    .serializingDecodable(ApiMessageResponse.self)
+
+                let result = await request.result
+                   
+                switch result {
+                    case .success(let response): print("Response message:", response.message)
+                    case .failure(_): throw URLError(.badServerResponse)
+                }
+            } catch {
+                print("Error sending device token to backend: \(error)")
+                throw error
+            }
+        }
+    }
+    
+    func deleteDeviceTokenFromBackend() async throws {
+        guard
+            let currentUser = Auth.auth().currentUser?.uid,
+            let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken()
+        else {
+            return
+        }
+        
+        let body = ApiDeviceToken(userID: currentUser, token: userNotifierToken)
+        
+        let url = self.baseURL + "/api/deleteDeviceToken"
+        let headers: HTTPHeaders = [.authorization(bearerToken: self.bearerToken)]
+        
+        Task {
+            do {
+                let request = AF.request(url, method: .post, parameters: body, encoder: JSONParameterEncoder.default, headers: headers)
+                    .serializingDecodable(ApiMessageResponse.self)
+
+                let result = await request.result
+                   
+                switch result {
+                    case .success(let response): print("Response message:", response.message)
+                    case .failure(_): throw URLError(.badServerResponse)
+                }
+            } catch {
+                print("Error sending device token to backend: \(error)")
+                throw error
+            }
         }
     }
 }
