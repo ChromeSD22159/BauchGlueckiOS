@@ -98,6 +98,10 @@ extension CountdownTimer {
         )
     }
     
+    func update() {
+        self.updatedAtOnDevice = Date().timeIntervalSince1970Milliseconds
+    }
+    
     /*
     var remainingTime: TimeInterval {
         let now = Date().timeIntervalSince1970Milliseconds

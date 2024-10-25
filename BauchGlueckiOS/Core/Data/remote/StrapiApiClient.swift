@@ -7,15 +7,34 @@
 
 import Foundation
 
-// Netzwerkfehler
-
-
 class StrapiApiClient: GenericAPIService {
     
     override init(environment: EnvironmentVariables = .production) {
        super.init(environment: environment)
     }
-
+    
+    func isServerReachable() async throws -> Bool {
+        let token = self.bearerToken
+        let url = URL(string: "\(self.baseURL)/api/currentTimeStamp")!
+        
+        var request = URLRequest(url: url)
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else { throw NetworkError.conflict }
+        
+        do {
+            let _ = try JSONDecoder().decode(StrapiCurrentTimeStamp.self, from: data)
+            print("Backend is Reachable")
+            return true
+        } catch {
+            print("Backend is not Reachable")
+            return false
+        }
+    }
 }
 
 class GenericAPIService {
@@ -57,6 +76,8 @@ class GenericAPIService {
         
         // Erstelle die URL mit dem angegebenen Endpunkt
         let url = URL(string: endpoint)!
+        
+        print(">>> Remote: \(url)")
         
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue

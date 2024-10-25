@@ -12,6 +12,7 @@ struct EditTimerSheetContent: View {
     @Bindable var timer: CountdownTimer
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var services: Services
     private let theme: Theme = Theme.shared
     
     var durationRange: ClosedRange<Int>
@@ -21,7 +22,7 @@ struct EditTimerSheetContent: View {
     // FormStates
     @FocusState private var focusedField: FocusedField?
     @State private var error: String = ""
-    
+
     var body: some View {
         AppBackground(color: theme.background) {
             theme.bubbleBackground {
@@ -93,7 +94,7 @@ struct EditTimerSheetContent: View {
                         
                         IconTextButton(
                             text: "Speichern",
-                            onEditingChanged: {
+                            onEditingChanged: {                                
                                 do {
                                     try modelContext.save()
                                     dismiss()

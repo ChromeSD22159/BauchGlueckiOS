@@ -12,6 +12,7 @@ import Combine
 import FirebaseAuth
 
 struct TimerScreen: View {
+    
     private let theme: Theme = Theme.shared
 
     @Query(
@@ -40,6 +41,7 @@ struct TimerScreen: View {
                     ForEach(sortedTimers) { timer in
                         @Bindable var currentTimer = timer
                         TimerCard(timer: currentTimer)
+                          
                     }
                 } else {
                     // TODO: No Timer Card from Android

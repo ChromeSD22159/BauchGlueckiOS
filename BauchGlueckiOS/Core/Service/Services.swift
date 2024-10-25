@@ -9,15 +9,15 @@ import SwiftUI
 import SwiftData
 
 @MainActor
-class Services {
-    
-    let apiService = StrapiApiClient(environment: .production)
+class Services: ObservableObject {
+    let apiService: StrapiApiClient
     let firebase: FirebaseService
-    let countdownRepository: CountdownService
+    let countdownService: CountdownService
     
-    init() {
+    init(env: EnvironmentVariables = .localFrederik, firebase: FirebaseService) {
         let context: ModelContext = localDataScource.mainContext
-        self.firebase = FirebaseService()
-        self.countdownRepository = CountdownService(context: context, apiService: apiService)
+        self.firebase = firebase
+        self.apiService = StrapiApiClient(environment: env)
+        self.countdownService = CountdownService(context: context, apiService: self.apiService)
     }
 }

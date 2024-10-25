@@ -120,7 +120,7 @@ class CountdownService {
                 let headers: HTTPHeaders = [.authorization(bearerToken: apiService.bearerToken)]
                 
                 print("")
-                print(">>> URL \(url)")
+                print("<<< URL \(url)")
                 
                 let response = await AF.request(url, headers: headers)
                                        .cacheResponse(using: .doNotCache)
@@ -166,7 +166,9 @@ class CountdownService {
                 }
                 
                 print("")
-                print(">>> URL \(url)")
+                print("\(table) >>> URL \(url)")
+                print("\(table) last Sync: \(lastSync)")
+                print("\(table) send timers: \(updatedTimers.count)")
                 
                 AF.request(url, method: .post, parameters: updatedTimers, encoder: JSONParameterEncoder.default, headers: headers)
                     .validate()
@@ -176,6 +178,8 @@ class CountdownService {
                             case .failure(let error): print("Fehler beim Senden der Daten: \(error)")
                         }
                     }
+                
+                print("")
             }
         }
     }

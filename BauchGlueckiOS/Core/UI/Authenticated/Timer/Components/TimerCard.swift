@@ -9,6 +9,9 @@ import SwiftUI
 import Combine
 
 struct TimerCard: View {
+    @EnvironmentObject var services: Services
+    @Environment(\.modelContext) var modelContext
+    
     @Bindable var timer: CountdownTimer
     @State var remainingTime: Int = 0
     @State var job: AnyCancellable?
@@ -23,7 +26,6 @@ struct TimerCard: View {
     
     @State private var notificationService = NotificationService.shared
     @State private var isEditSheet = false
-    @Environment(\.modelContext) var modelContext
     
     var body: some View {
         VStack {
@@ -37,6 +39,7 @@ struct TimerCard: View {
                     if(item.displayText == "Löschen") {
                         if timer.toTimerState != .running {
                             timer.isDeleted = true
+                            timer.update()
                         } else {
                             self.showDeleteAlert = true
                         }
@@ -103,29 +106,17 @@ struct TimerCard: View {
         }
         .padding(theme.padding)
         .sectionShadow()
-        .onAppear {
-            let currentTime = Date().timeIntervalSince1970Milliseconds
-            
-            switch (timer.toTimerState) {
-                case .running:
-                    if let endDate = timer.endDate, endDate >= currentTime {
-                        remainingTime = Int((endDate - currentTime) / 1000)
-                        self.startTicking()
-                    } else {
-                        self.completeInternal()
-                    }
-                case .paused:
-                    if let endDate = timer.endDate, endDate >= currentTime {
-                        remainingTime = Int((endDate - currentTime) / 1000)
-                    }
-                case .completed:
-                    remainingTime = 0
-                case .notRunning:
-                    remainingTime = timer.duration
-            }
-        }
+        .onAppear { setupInitialTimerState() }
         .onChange(of: timer.duration, {
             remainingTime = timer.duration
+        })
+        .onChange(of: timer.timerState, {
+            print("TimerCard New State")
+            timer.update()
+            
+            services.countdownService.sendUpdatedTimerToBackend()
+            
+            services.countdownService.fetchTimerFromBackend()
         })
         .sheet(isPresented: $isEditSheet, onDismiss: {}, content: {
             let config = AppConfig.shared.timerConfig 
@@ -139,15 +130,35 @@ struct TimerCard: View {
         })
     }
     
+    private func setupInitialTimerState() {
+        let currentTime = Date().timeIntervalSince1970Milliseconds
+        switch (timer.toTimerState) {
+            case .running:
+                if let endDate = timer.endDate, endDate >= currentTime {
+                    remainingTime = Int((endDate - currentTime) / 1000)
+                    self.startTicking()
+                } else {
+                    self.completeInternal()
+                }
+            case .paused:
+                if let endDate = timer.endDate, endDate >= currentTime {
+                    remainingTime = Int((endDate - currentTime) / 1000)
+                }
+            case .completed:
+                remainingTime = 0
+            case .notRunning:
+                remainingTime = timer.duration
+        }
+    }
+    
     func start() {
         let currentTime = Date().timeIntervalSince1970Milliseconds
-        remainingTime = timer.duration // secunden
+        remainingTime = timer.duration
         timer.startDate = currentTime
         timer.endDate = currentTime + Int64(timer.duration * 1000)
         timer.timerState = TimerState.running.rawValue
         
         startTicking()
-        
 
         notificationService.sendTimerNotification(
             countdown: timer,
@@ -191,6 +202,7 @@ struct TimerCard: View {
     
     func pause() {
         timer.timerState = TimerState.paused.rawValue
+        
         job?.cancel()
         
         Task {
@@ -204,7 +216,7 @@ struct TimerCard: View {
         timer.endDate = nil
         remainingTime = timer.duration
         timer.timerState = TimerState.notRunning.rawValue
-
+        
         job?.cancel()
     }
     
@@ -224,6 +236,8 @@ struct TimerCard: View {
     }
     
     private func completeInternal() {
+        timer.toTimerState = TimerState.completed
+        
         job?.cancel()
     }
 }

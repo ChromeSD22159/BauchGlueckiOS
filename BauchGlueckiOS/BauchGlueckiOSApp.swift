@@ -13,12 +13,19 @@ import FirebaseCore
 @main
 struct BauchGlueckiOSApp: App, HandleNavigation {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
-    let client = StrapiApiClient(environment: .production)
-    @State var notificationManager: NotificationService? = nil
     
+    @State var notificationManager: NotificationService? = nil
+    @State var backendIsReachable = false
     @State var screen: Screen = Screen.Launch
-    @State private var firebase: FirebaseService? = nil
+    @StateObject var firebase: FirebaseService = FirebaseService()
+
+    var services: Services {
+        Services(env: .production, firebase: firebase)
+    }
+        
+    init() {
+        FirebaseApp.configure()
+    }
     
     var body: some Scene {
         WindowGroup {
@@ -33,10 +40,12 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
                                     GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
                                 })
+                                
+                                fetchDataFromBackend()
                             }
                             .onAppEnterForeground {
-                                try await firebase?.markUserOnline()
-                                fetchBackendData()
+                                try await firebase.markUserOnline()
+                                fetchDataFromBackend()
                             }
                 }
             }
@@ -44,14 +53,15 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                 GIDSignIn.sharedInstance.handle(url)
             }
             .onAppEnterBackground {
-                await firebase?.markUserOffline()
+                await firebase.markUserOffline()
             }
+            .onAppEnterForeground { checkBackendIsReachable() }
             .onAppear {
-                markUserOnlineOnStart(launchDelay: 1.5)
-                
                 checkBackendIsReachable()
+                markUserOnlineOnStart(launchDelay: 1.5)
             }
-            .environmentObject(firebase ?? FirebaseService())
+            .environmentObject(firebase)
+            .environmentObject(services)
         }
         .modelContainer(localDataScource)
     }
@@ -62,17 +72,14 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     
     private func markUserOnlineOnStart(launchDelay: Double) {
         DispatchQueue.main.async {
-            firebase = FirebaseService()
             notificationManager = NotificationService()
-            
-            guard let fb = firebase else { return }
 
-            fb.authListener { auth, user in
+            firebase.authListener { auth, user in
                 DispatchQueue.main.asyncAfter(deadline: .now() + launchDelay, execute: {
                     if (user != nil) {
                         handleNavigation(screen: .Home)
                         Task {
-                            try await firebase?.markUserOnline()
+                            try await firebase.markUserOnline()
                         }
                        
                     } else {
@@ -90,13 +97,13 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     
     private func checkBackendIsReachable() {
         Task {
-            try await isServerReachable(client: client)
+            backendIsReachable = try await services.apiService.isServerReachable()
         }
     }
     
-    // TODO: SYNC REMOTE
-    private func fetchBackendData() {
-        let repo = Services()
-        repo.countdownRepository.fetchTimerFromBackend()
+    private func fetchDataFromBackend() {
+        if backendIsReachable && Auth.auth().currentUser?.uid != nil {
+            services.countdownService.fetchTimerFromBackend()
+        }
     }
 }

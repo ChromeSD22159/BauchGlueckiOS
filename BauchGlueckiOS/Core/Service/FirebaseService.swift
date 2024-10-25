@@ -291,8 +291,6 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         
         
         let appUser = AppUser(name: user.firstName, email: user.email, appToken: token)
-        print("Set Online: \(appUser)")
-        // Setze den Benutzer online
         do {
             try await userReference.setValue(appUser.toDictionary())
             

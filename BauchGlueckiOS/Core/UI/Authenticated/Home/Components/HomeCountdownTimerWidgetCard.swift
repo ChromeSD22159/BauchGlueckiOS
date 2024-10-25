@@ -10,7 +10,7 @@ import Combine
 import FirebaseAuth
 
 struct HomeCountdownTimerWidgetCard: View {
-    
+    @EnvironmentObject var services: Services
     private let theme: Theme = Theme.shared
     
     @Query(
@@ -41,6 +41,10 @@ struct HomeCountdownTimerWidgetCard: View {
                             if countdownTimers.count > 0 {
                                 @Bindable var currentTimer = timer
                                 HomerTimerCard(timer: currentTimer, index: index)
+                                    .onChange(of: currentTimer.timerState, {
+                                        services.countdownService.sendUpdatedTimerToBackend()
+                                        services.countdownService.fetchTimerFromBackend()
+                                    })
                             } else {
                                 
                             }
@@ -69,7 +73,8 @@ struct HomeCountdownTimerWidgetCard: View {
                     .padding(.trailing, 10)
                 }.frame(height: 100)
             }
-        }.foregroundStyle(theme.onBackground)
+        }
+        .foregroundStyle(theme.onBackground)
     }
 }
 
@@ -118,6 +123,7 @@ struct HomerTimerCard: View {
                     remainingTime = timer.duration
             }
         }
+        .onDisappear { stopTicking() }
     }
     
     private func startTicking() {
@@ -135,7 +141,13 @@ struct HomerTimerCard: View {
             }
     }
     
+    private func stopTicking() {
+        self.job?.cancel()
+    }
+    
     private func completeInternal() {
+        timer.toTimerState = TimerState.completed
+        timer.update()
         job?.cancel()
     }
 }
