@@ -166,7 +166,7 @@ struct AddTimerSheetContent: View {
                     timerID: UUID().uuidString,
                     userID: user.uid,
                     name: name,
-                    duration: Int64(time * 60),
+                    duration: Int64(time),
                     timerState: TimerState.notRunning.rawValue,
                     showActivity: true,
                     isDeleted: false,
@@ -176,6 +176,8 @@ struct AddTimerSheetContent: View {
                 )
                 
                 modelContext.insert(newTimer)
+                
+                dismiss()
             } catch let error {
                 printError(error.localizedDescription)
             }

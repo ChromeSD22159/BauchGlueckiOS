@@ -12,6 +12,7 @@ import Combine
 import FirebaseAuth
 
 struct TimerScreen: View {
+    @EnvironmentObject var services: Services
     
     private let theme: Theme = Theme.shared
 
@@ -52,10 +53,8 @@ struct TimerScreen: View {
                 
             }.padding(.horizontal, theme.padding)
         }
+        .onChange(of: countdownTimers.count, {
+            services.countdownService.sendUpdatedTimerToBackend()
+        })
     }
 }
-
-
-
-
-

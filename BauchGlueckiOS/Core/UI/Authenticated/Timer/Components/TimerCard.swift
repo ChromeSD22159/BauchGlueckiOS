@@ -31,9 +31,13 @@ struct TimerCard: View {
         VStack {
             HStack{
                 Text(timer.name)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
                     .font(theme.headlineText)
                 
                 Spacer()
+                
+                LiveActtivityButton(timer: timer)
                 
                 DropDownComponent(options: options) { item in
                     if(item.displayText == "Löschen") {
@@ -110,10 +114,7 @@ struct TimerCard: View {
         .onChange(of: timer.duration, {
             remainingTime = timer.duration
         })
-        .onChange(of: timer.timerState, {
-            print("TimerCard New State")
-            timer.update()
-            
+        .onChange(of: timer.updatedAtOnDevice, {
             services.countdownService.sendUpdatedTimerToBackend()
             
             services.countdownService.fetchTimerFromBackend()
@@ -157,7 +158,7 @@ struct TimerCard: View {
         timer.startDate = currentTime
         timer.endDate = currentTime + Int64(timer.duration * 1000)
         timer.timerState = TimerState.running.rawValue
-        
+        timer.update()
         startTicking()
 
         notificationService.sendTimerNotification(
@@ -176,7 +177,7 @@ struct TimerCard: View {
         timer.startDate = currentTime
         timer.endDate = currentTime + Int64(remainingTime)
         timer.timerState = TimerState.running.rawValue
-        
+        timer.update()
         startTicking()
         
         notificationService.sendTimerNotification(
@@ -191,7 +192,7 @@ struct TimerCard: View {
         timer.startDate = nil
         timer.endDate = nil
         timer.timerState = TimerState.notRunning.rawValue
-        
+        timer.update()
         job?.cancel()
         
         Task {
@@ -202,7 +203,7 @@ struct TimerCard: View {
     
     func pause() {
         timer.timerState = TimerState.paused.rawValue
-        
+        timer.update()
         job?.cancel()
         
         Task {
@@ -216,7 +217,7 @@ struct TimerCard: View {
         timer.endDate = nil
         remainingTime = timer.duration
         timer.timerState = TimerState.notRunning.rawValue
-        
+        timer.update()
         job?.cancel()
     }
     
@@ -237,19 +238,28 @@ struct TimerCard: View {
     
     private func completeInternal() {
         timer.toTimerState = TimerState.completed
-        
+        timer.update()
         job?.cancel()
     }
 }
 
 
-#Preview() {
-    let theme = Theme.shared
-    Button(action: {}, label: {
-        Text("Live Activity")
-            .font(.caption)
-            .foregroundStyle(theme.onBackground.opacity(0.7))
+@ViewBuilder func LiveActtivityButton(
+    theme: Theme = Theme.shared,
+    @Bindable timer: CountdownTimer
+) -> some View {
+    Button(action: {
+        timer.showActivity = !timer.showActivity
+        timer.update()
+    }, label: {
+        Image(systemName: timer.showActivity ? "bolt" : "bolt.slash")
+        
+        Text("Live Activity").font(.caption)
     })
+    .foregroundStyle(theme.primary)
+    .padding(theme.padding)
+    .overlay(
+        RoundedRectangle(cornerRadius: theme.padding)
+            .stroke(theme.primary, lineWidth: 1)
+    )
 }
-
-

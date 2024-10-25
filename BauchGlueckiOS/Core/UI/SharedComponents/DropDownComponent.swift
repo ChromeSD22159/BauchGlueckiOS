@@ -20,15 +20,18 @@ import SwiftUI
             })
         }
     }, label: {
-        HStack() {
-            Spacer()
-            Image(systemName: "ellipsis")
-                .foregroundStyle(theme.onBackground)
-                .padding(10)
-                .rotationEffect(Angle(degrees: 90))
+        ZStack() {
+            Image(systemName: "ellipsis.circle")
+                .foregroundStyle(theme.onPrimary)
         }
-        
-        .background(Color.gray.opacity(0.2))
+        .foregroundStyle(theme.primary)
+        .padding(theme.padding)
+        .background(theme.backgroundGradient)
+        .cornerRadius(theme.padding)
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.padding)
+                .stroke(theme.primary, lineWidth: 1)
+        )
     })
 }
 
