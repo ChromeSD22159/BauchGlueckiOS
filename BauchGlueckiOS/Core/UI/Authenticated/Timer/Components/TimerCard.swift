@@ -11,8 +11,9 @@ import Combine
 struct TimerCard: View {
     @EnvironmentObject var services: Services
     @Environment(\.modelContext) var modelContext
-    
+
     @Bindable var timer: CountdownTimer
+    
     @State var remainingTime: Int = 0
     @State var job: AnyCancellable?
     @State var showEditAlert = false
@@ -41,30 +42,25 @@ struct TimerCard: View {
                 
                 DropDownComponent(options: options) { item in
                     if(item.displayText == "Löschen") {
-                        if timer.toTimerState != .running {
+                        if timer.toTimerState == .running {
+                            self.showDeleteAlert = true
+                        } else {
                             timer.isDeleted = true
                             timer.update()
-                        } else {
-                            self.showDeleteAlert = true
                         }
                     }
                     if(item.displayText == "Bearbeiten") {
-                        if timer.toTimerState != .running {
-                            isEditSheet = true
-                            remainingTime = timer.duration
-                            timer.toTimerState = .notRunning
-                            timer.startDate = nil
-                            timer.endDate = nil
-                        } else {
-                            self.showEditAlert = true
-                        }
+                        if timer.toTimerState == .running {
+                           self.showEditAlert = true
+                       } else {
+                           // Wenn der Timer nicht läuft, direkt das Edit Sheet öffnen
+                           isEditSheet = true
+                           remainingTime = timer.duration
+                           timer.toTimerState = .notRunning
+                           timer.startDate = nil
+                           timer.endDate = nil
+                       }
                     }
-                }
-                .alert(isPresented: $showEditAlert) {
-                    Alert(title: Text("Timer ist Aktive"), message: Text("Bitte stoppe den Timer, um ihn zu bearbeiten."), dismissButton: .default(Text("OK")))
-                }
-                .alert(isPresented: $showDeleteAlert) {
-                    Alert(title: Text("Timer ist Aktive"), message: Text("Bitte stoppe den Timer, um ihn zu löschen."), dismissButton: .default(Text("OK")))
                 }
             }
             HStack{
@@ -74,9 +70,9 @@ struct TimerCard: View {
                     switch(timer.toTimerState) {
                         case .notRunning:
                         
-                        TimerControlButton(icon: "play.fill") {
-                            start()
-                        }
+                            TimerControlButton(icon: "play.fill") {
+                                start()
+                            }
                             
                         case .running: HStack {
                             TimerControlButton(icon: "pause.fill") {
@@ -110,15 +106,21 @@ struct TimerCard: View {
         }
         .padding(theme.padding)
         .sectionShadow()
-        .onAppear { setupInitialTimerState() }
+        .onAppLifeCycle(appearAndActive: {
+            setupInitialTimerState()
+        })
         .onChange(of: timer.duration, {
             remainingTime = timer.duration
         })
-        .onChange(of: timer.updatedAtOnDevice, {
-            services.countdownService.sendUpdatedTimerToBackend()
-            
-            services.countdownService.fetchTimerFromBackend()
+        .onChange(of: timer.timerState, {
+            services.countdownService.syncTimers()
         })
+        .alert(isPresented: $showEditAlert) {
+            Alert(title: Text("Timer ist Aktive"), message: Text("Bitte stoppe den Timer, um ihn zu bearbeiten."), dismissButton: .default(Text("OK")))
+        }
+        .alert(isPresented: $showDeleteAlert) {
+            Alert(title: Text("Timer ist Aktive"), message: Text("Bitte stoppe den Timer, um ihn zu löschen."), dismissButton: .default(Text("OK")))
+        }
         .sheet(isPresented: $isEditSheet, onDismiss: {}, content: {
             let config = AppConfig.shared.timerConfig 
             EditTimerSheetContent(
@@ -155,11 +157,15 @@ struct TimerCard: View {
     func start() {
         let currentTime = Date().timeIntervalSince1970Milliseconds
         remainingTime = timer.duration
+        
         timer.startDate = currentTime
         timer.endDate = currentTime + Int64(timer.duration * 1000)
         timer.timerState = TimerState.running.rawValue
         timer.update()
+        
         startTicking()
+        
+        saveChanges()
 
         notificationService.sendTimerNotification(
             countdown: timer,
@@ -180,6 +186,8 @@ struct TimerCard: View {
         timer.update()
         startTicking()
         
+        saveChanges()
+        
         notificationService.sendTimerNotification(
             countdown: timer,
             timeStamp: currentTime + Int64((remainingTime))
@@ -193,6 +201,9 @@ struct TimerCard: View {
         timer.endDate = nil
         timer.timerState = TimerState.notRunning.rawValue
         timer.update()
+        
+        saveChanges()
+        
         job?.cancel()
         
         Task {
@@ -204,6 +215,9 @@ struct TimerCard: View {
     func pause() {
         timer.timerState = TimerState.paused.rawValue
         timer.update()
+        
+        saveChanges()
+        
         job?.cancel()
         
         Task {
@@ -218,6 +232,8 @@ struct TimerCard: View {
         remainingTime = timer.duration
         timer.timerState = TimerState.notRunning.rawValue
         timer.update()
+        saveChanges()
+        
         job?.cancel()
     }
     
@@ -239,7 +255,17 @@ struct TimerCard: View {
     private func completeInternal() {
         timer.toTimerState = TimerState.completed
         timer.update()
+        saveChanges()
+        
         job?.cancel()
+    }
+    
+    func saveChanges() {
+        do {
+            try modelContext.save()
+        } catch {
+            print("Fehler beim Speichern der Änderungen: \(error)")
+        }
     }
 }
 

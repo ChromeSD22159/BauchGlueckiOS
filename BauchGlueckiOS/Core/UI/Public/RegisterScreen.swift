@@ -14,6 +14,7 @@ struct RegisterScreen: View, Navigable {
     var navigate: (Screen) -> Void
     
     @EnvironmentObject var firebase: FirebaseService
+    @EnvironmentObject var services: Services
     
     @FocusState private var focusedField: FocusedField?
     @State private var name: String = ""
@@ -109,17 +110,20 @@ struct RegisterScreen: View, Navigable {
                             firebase.register(
                                 userProfile: UserProfile(
                                     firstName: name,
-                                    email: email
-                                    // TODO: surgeryDateTimeStamp: timeStamp
+                                    email: email,
+                                    userNotifierToken: DeviceTokenService.shared.getSavedDeviceToken() ?? ""
                                 ),
                                 password: password
-                            ) {_,_ in 
-                                // wenn user eingeloggt ist
+                            ) { result , error in
+                                if let user = result?.user {
+                                    firebase.readUserProfileById(userId: user.uid, completion: {_ in 
+                                        
+                                    })
+                                }
                                 
-                                // dann lade userProfile von firebase
-                                
-                                // wenn es kein userProfil für die userId gibt
-                                // navigiere zum onboarding
+                                Task {
+                                    try await services.apiService.sendDeviceTokenToBackend()
+                                }
                             }
                         }
                     }

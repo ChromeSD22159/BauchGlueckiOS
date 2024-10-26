@@ -19,6 +19,7 @@ struct HomeScreen: View, PageIdentifier {
     var page: Destination
 
     @State var isSettingSheet: Bool = false
+    @State var isUserProfileSheet: Bool = false
     
     @EnvironmentObject var firebase: FirebaseService
     @EnvironmentObject var services: Services
@@ -95,6 +96,24 @@ struct HomeScreen: View, PageIdentifier {
                 .navigationBarTitleDisplayMode(.inline)
             }
         }
+        .onAppLifeCycle(appearAndActive: {
+            openOnboardingSheetWhenNoProfileIsGiven()
+        })
+        .fullScreenCover(isPresented: $isUserProfileSheet, onDismiss: {
+            services.countdownService.fetchTimerFromBackend()
+        }, content: {
+            OnBoardingUserProfileSheet(isUserProfileSheet: $isUserProfileSheet)
+        })
         .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, services: services, onDismiss: {})
+    }
+    
+    private func openOnboardingSheetWhenNoProfileIsGiven() {
+        if let userID = Auth.auth().currentUser?.uid {
+            firebase.readUserProfileById(userId: userID, completion: { profile in
+                if profile == nil {
+                    isUserProfileSheet = true
+                }
+            })
+        }
     }
 }

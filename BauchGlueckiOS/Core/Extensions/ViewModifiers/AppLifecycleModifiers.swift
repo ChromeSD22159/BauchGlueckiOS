@@ -32,3 +32,35 @@ struct OnAppEnterForeground: ViewModifier {
             }
     }
 }
+
+struct AppLifeCycle: ViewModifier {
+    @Environment(\.scenePhase) var scenePhase
+    
+    var appear: () -> Void
+    var active: () -> Void
+    var inactive: () -> Void
+    var background: () -> Void
+    
+    init(
+        appear: @escaping () -> Void,
+        active: @escaping () -> Void,
+        inactive: @escaping () -> Void,
+        background: @escaping () -> Void
+    ) {
+        self.appear = appear
+        self.inactive = inactive
+        self.active = active
+        self.background = background
+    }
+    
+    func body(content: Content) -> some View {
+        content
+            .onAppear { appear() }
+            .onChange(of: scenePhase) { oldPhase, newPhase in
+                   if newPhase == .active { active() }
+                   else if newPhase == .inactive { inactive() }
+                   else if newPhase == .background { background() }
+               }
+    }
+}
+

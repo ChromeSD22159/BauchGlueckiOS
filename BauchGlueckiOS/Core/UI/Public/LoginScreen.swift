@@ -12,6 +12,7 @@ struct LoginScreen: View, Navigable {
     private let theme = Theme.shared
     var navigate: (Screen) -> Void
     @EnvironmentObject var firebase: FirebaseService
+    @EnvironmentObject var services: Services
     
     // FormStates
     @FocusState private var focusedField: FocusedField?
@@ -72,8 +73,12 @@ struct LoginScreen: View, Navigable {
                                       !password.isEmpty
                                 else { return }
                                 
-                                Task {
-                                    firebase.login(email: email, password: password)
+                                firebase.login(email: email, password: password) { auth, _error in
+                                    if let _ = auth?.user.uid {
+                                        Task {
+                                            try await services.apiService.sendDeviceTokenToBackend()
+                                        }
+                                    }
                                 }
                             }
                         }

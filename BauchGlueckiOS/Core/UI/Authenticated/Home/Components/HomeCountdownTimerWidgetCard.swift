@@ -41,10 +41,6 @@ struct HomeCountdownTimerWidgetCard: View {
                             if countdownTimers.count > 0 {
                                 @Bindable var currentTimer = timer
                                 HomerTimerCard(timer: currentTimer, index: index)
-                                    .onChange(of: currentTimer.timerState, {
-                                        services.countdownService.sendUpdatedTimerToBackend()
-                                        services.countdownService.fetchTimerFromBackend()
-                                    })
                             } else {
                                 
                             }
@@ -102,28 +98,32 @@ struct HomerTimerCard: View {
         .cornerRadius(theme.radius)
         .shadow(color: Color.black.opacity(0.25), radius: 5, y: 3)
         .padding(.leading, index == 0 ? 10 : 0)
-        .onAppear {
-            let currentTime = Date().timeIntervalSince1970Milliseconds
-            
-            switch (timer.toTimerState) {
-                case .running:
-                    if let endDate = timer.endDate, endDate >= currentTime {
-                        remainingTime = Int((endDate - currentTime) / 1000)
-                        self.startTicking()
-                    } else {
-                        self.completeInternal()
-                    }
-                case .paused:
-                    if let endDate = timer.endDate, endDate >= currentTime {
-                        remainingTime = Int((endDate - currentTime) / 1000)
-                    }
-                case .completed:
-                    remainingTime = 0
-                case .notRunning:
-                    remainingTime = timer.duration
-            }
-        }
+        .onAppLifeCycle(appearAndActive: {
+            setupInitialTimerState()
+        })
         .onDisappear { stopTicking() }
+    }
+    
+    private func setupInitialTimerState() {
+        let currentTime = Date().timeIntervalSince1970Milliseconds
+        
+        switch (timer.toTimerState) {
+            case .running:
+                if let endDate = timer.endDate, endDate >= currentTime {
+                    remainingTime = Int((endDate - currentTime) / 1000)
+                    self.startTicking()
+                } else {
+                    self.completeInternal()
+                }
+            case .paused:
+                if let endDate = timer.endDate, endDate >= currentTime {
+                    remainingTime = Int((endDate - currentTime) / 1000)
+                }
+            case .completed:
+                remainingTime = 0
+            case .notRunning:
+                remainingTime = timer.duration
+        }
     }
     
     private func startTicking() {

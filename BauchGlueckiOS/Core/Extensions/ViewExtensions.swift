@@ -71,4 +71,31 @@ extension View {
     func sectionShadow(margin: CGFloat = 0) -> some View {
         self.modifier(SectionShadow(margin: margin))
     }
+    
+    func onAppLifeCycle(
+        appear: @escaping () -> Void,
+        active: @escaping () -> Void = {},
+        inactive: @escaping () -> Void = {},
+        background: @escaping () -> Void = {}
+    ) -> some View {
+        modifier(AppLifeCycle(appear: appear, active: active, inactive: inactive, background: background))
+    }
+    
+    func onAppLifeCycle(
+        appearAndActive: @escaping () -> Void
+    ) -> some View {
+        modifier(AppLifeCycle(appear: appearAndActive, active: appearAndActive, inactive: {}, background: {}))
+    }
+    
+    func onAppLifeCycle(
+        inactive: @escaping () -> Void
+    ) -> some View {
+        modifier(AppLifeCycle(appear: {}, active: {}, inactive: inactive, background: {}))
+    }
+    
+    func onAppLifeCycle(
+        background: @escaping () -> Void
+    ) -> some View {
+        modifier(AppLifeCycle(appear: {}, active: {}, inactive: {}, background: background))
+    }
 }

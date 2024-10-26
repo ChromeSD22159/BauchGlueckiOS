@@ -16,6 +16,9 @@ class CountdownService {
     private var table: Entitiy
     private var apiService: StrapiApiClient
     private var syncHistoryRepository: SyncHistoryService
+    private var headers: HTTPHeaders {
+        [.authorization(bearerToken: apiService.bearerToken)]
+    }
     
     init(context: ModelContext, apiService: StrapiApiClient) {
         self.context = context
@@ -107,6 +110,7 @@ class CountdownService {
         
         // Speichere die Änderungen im Kontext
         try context.save()
+        syncTimers()
     }
     
     func fetchTimerFromBackend() {
@@ -116,8 +120,6 @@ class CountdownService {
                 guard let user = Auth.auth().currentUser else { return }
                 
                 let url = apiService.baseURL + "/api/timer/fetchItemsAfterTimeStamp?timeStamp=\(lastSync)&userId=\(user.uid)"
-                
-                let headers: HTTPHeaders = [.authorization(bearerToken: apiService.bearerToken)]
                 
                 print("")
                 print("<<< URL \(url)")
@@ -183,5 +185,104 @@ class CountdownService {
             }
         }
     }
+    
+    func syncTimers() {
+        guard let user = Auth.auth().currentUser else { return }
+        
+        Task {
+            do {
+                let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
+                
+                let timerToUpdate = getAllUpdatedTimers(timerStamp: lastSync).map { timer in
+                    timer.toCountdownTimerResponse()
+                }
+                
+                
+                // SEND TIMER TO BACKEND
+                let sendURL = apiService.baseURL + "/api/timer/updateRemoteData"
+                print("")
+                print("\(table) >>> URL \(sendURL)")
+                print("\(table) last Sync: \(lastSync)")
+                print("\(table) send timers: \(timerToUpdate.count)")
+                
+                AF.request(sendURL, method: .post, parameters: timerToUpdate, encoder: JSONParameterEncoder.default, headers: headers)
+                    .validate()
+                    .response { response in
+                        switch response.result {
+                        case .success: print("Daten erfolgreich gesendet!")
+                        case .failure(let error): print("Fehler beim Senden der Daten: \(error)")
+                        }
+                    }
+                
+                print("")
+                
+                
+                // FETCH CURRENT BACKEND DATA
+                let fetchURL = apiService.baseURL + "/api/timer/fetchItemsAfterTimeStamp?timeStamp=\(lastSync)&userId=\(user.uid)"
+                let response = await AF.request(fetchURL, headers: headers)
+                    .cacheResponse(using: .doNotCache)
+                    .validate()
+                    .serializingDecodable([CountdownTimerResponse].self)
+                    .response
+                
+                
+                switch (response.result) {
+                    case .success(let serverTimers):
+                    
+                        serverTimers.forEach { serverTimer in
+                            
+                            let localTimer = getById(timerId: serverTimer.timerID)
+                            
+                            
+                            if let localTimer = localTimer {
+                                
+                                if localTimer.toTimerState != .running {
+                                    localTimer.duration = Int(serverTimer.duration)
+                                    localTimer.timerState = serverTimer.timerState
+                                    localTimer.startDate = serverTimer.startDate
+                                    localTimer.endDate = serverTimer.endDate
+                                }
+                                
+                                localTimer.name = serverTimer.name
+                                localTimer.updatedAtOnDevice = serverTimer.updatedAtOnDevice
+                                localTimer.isDeleted = serverTimer.isDeleted
+                                localTimer.updatedAt = serverTimer.updatedAt
+                                
+                            } else {
+                                context.insert(
+                                    CountdownTimer(
+                                        timerID: serverTimer.timerID,
+                                        userID: serverTimer.userID,
+                                        name: serverTimer.name,
+                                        duration: serverTimer.duration,
+                                        timerState: serverTimer.timerState,
+                                        showActivity: serverTimer.showActivity,
+                                        isDeleted: serverTimer.isDeleted,
+                                        updatedAtOnDevice: serverTimer.updatedAtOnDevice,
+                                        createdAt: serverTimer.createdAt,
+                                        updatedAt: serverTimer.updatedAt
+                                    )
+                                )
+                            }
+                            
+                            syncHistoryRepository.saveSyncHistoryStamp(entity: table)
+                        }
+                        
+                        syncHistoryRepository.saveSyncHistoryStamp(entity: table)
+                    
+                    case .failure(_): throw NetworkError.serializationError
+                }
+            } catch {
+                return
+            }
+        }
+        
+    }
+    
+    
+    
+    
+    
+    
 }
 

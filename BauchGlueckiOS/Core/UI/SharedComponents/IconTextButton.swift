@@ -28,7 +28,7 @@ struct IconTextButton: View {
             }, label: {
                 Text(text)
                     .font(.body)
-                    .foregroundStyle(theme.onBackground)
+                    .foregroundStyle(theme.onPrimary)
             }
         )
         .padding(.horizontal, theme.padding + 5)

@@ -54,16 +54,18 @@ class StrapiApiClient: GenericAPIService {
         Task {
             do {
                 let request = AF.request(url, method: .post, parameters: body, encoder: JSONParameterEncoder.default, headers: headers)
+                    .validate(statusCode: 200..<300)
                     .serializingDecodable(ApiMessageResponse.self)
 
                 let result = await request.result
                    
                 switch result {
                     case .success(let response): print("Response message:", response.message)
-                    case .failure(_): throw URLError(.badServerResponse)
+                    case .failure(let error): print("Error sending device token to backend: \(error)")
+                    throw URLError(.badServerResponse)
                 }
             } catch {
-                print("Error sending device token to backend: \(error)")
+                print("Error sending device token to backend: \(error) \(currentUser) \(userNotifierToken)")
                 throw error
             }
         }
@@ -94,7 +96,7 @@ class StrapiApiClient: GenericAPIService {
                     case .failure(_): throw URLError(.badServerResponse)
                 }
             } catch {
-                print("Error sending device token to backend: \(error)")
+                print("Error delete device token to backend: \(error) \(currentUser) \(userNotifierToken)")
                 throw error
             }
         }

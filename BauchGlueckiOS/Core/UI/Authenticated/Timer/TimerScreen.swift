@@ -32,7 +32,6 @@ struct TimerScreen: View {
     var body: some View {
        
         ScreenHolder() {
-            
             VStack(spacing: theme.padding) {
                 
                 let groupedTimers = Dictionary(grouping: countdownTimers) { $0.name }
@@ -40,21 +39,19 @@ struct TimerScreen: View {
                 
                 if(sortedTimers.count > 0) {
                     ForEach(sortedTimers) { timer in
-                        @Bindable var currentTimer = timer
-                        TimerCard(timer: currentTimer)
+                        
+                        @Bindable var timerBinding = timer
+                        TimerCard(timer: timerBinding)
                           
                     }
                 } else {
                     // TODO: No Timer Card from Android
                 }
                 
-                
-               
-                
             }.padding(.horizontal, theme.padding)
         }
         .onChange(of: countdownTimers.count, {
-            services.countdownService.sendUpdatedTimerToBackend()
+            services.countdownService.syncTimers()
         })
     }
 }

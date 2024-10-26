@@ -31,11 +31,19 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
     
     func login(
         email: String,
-        password: String
+        password: String,
+        completion: @escaping (AuthDataResult?, (any Error)?) -> Void
     ) {
         firebaseAuth.signIn(withEmail: email.lowercased(), password: password) { result ,error in
-            self.user = result?.user
+            if let user = result?.user {
+                self.user = user
+                self.readUserProfileById(userId: user.uid, completion: { prof in
+                    self.userProfile = prof
+                })
+            }
             self.error = error
+            
+            completion(result, error)
         }
     }
     
@@ -50,11 +58,14 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
             var newUser = userProfile
             newUser.uid = uid
             
+            self.user = authResult?.user
             self.saveUserProfile(userProfile: newUser) { error in
                 if (error == nil) {
                     self.userProfile = newUser
                 }
             }
+            
+            completion(authResult, error)
         }
     }
     
@@ -79,7 +90,15 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
                 try await Authentication().googleOauth()
                 
                 self.authListener { auth , error in
-                    self.user = auth?.currentUser
+                    if let user = auth?.currentUser {
+                        self.user = user
+                        self.readUserProfileById(userId: user.uid) { userProfile in
+                           
+                            if let userProf =  userProfile {
+                                self.userProfile = userProf
+                            }
+                        }
+                    }
                 }
             } catch {
                 throw error
@@ -94,6 +113,18 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         authorizationController.delegate = self
         authorizationController.presentationContextProvider = self
         authorizationController.performRequests()
+        
+        self.authListener { auth , error in
+            if let user = auth?.currentUser {
+                self.user = user
+                self.readUserProfileById(userId: user.uid) { userProfile in
+                   
+                    if let userProf =  userProfile {
+                        self.userProfile = userProf
+                    }
+                }
+            }
+        }
     }
 
     private func createAppleIDRequest() -> ASAuthorizationAppleIDRequest {
@@ -226,6 +257,11 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         let db = Firestore.firestore()
         do {
             try db.collection("UserProfile").document(currentUser.uid).setData(from: updatedUserProfile) { error in
+                
+                if error == nil {
+                    self.userProfile = userProfile
+                }
+                
                 completion(error)
             }
         } catch let error {
