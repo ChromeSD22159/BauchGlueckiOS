@@ -119,10 +119,10 @@ struct RegisterScreen: View, Navigable {
                                     firebase.readUserProfileById(userId: user.uid, completion: {_ in 
                                         
                                     })
-                                }
-                                
-                                Task {
-                                    try await services.apiService.sendDeviceTokenToBackend()
+                                    
+                                    Task {
+                                        try await services.apiService.sendDeviceTokenToBackend()
+                                    }
                                 }
                             }
                         }

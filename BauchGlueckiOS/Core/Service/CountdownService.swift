@@ -28,29 +28,41 @@ class CountdownService {
     }
     
     func getAll() async throws -> [CountdownTimer] {
-        let timers = try context.fetch(FetchDescriptor<CountdownTimer>())
-        print("Anzahl der geladenen Timer: \(timers.count)")
-        return timers
-    }
-    
-    func getAllUpdatedTimers(timerStamp: Int64) -> [CountdownTimer] {
+        guard let userID = Auth.auth().currentUser?.uid else { return [] }
+        
         let predicate = #Predicate { (timer: CountdownTimer) in
-            timer.updatedAtOnDevice > timerStamp
+            timer.userID == userID
         }
-
-        // Erstelle einen FetchDescriptor mit der Predicate und Sortierung nach Name
+        
         let query = FetchDescriptor<CountdownTimer>(
             predicate: predicate,
             sortBy: [SortDescriptor(\CountdownTimer.name)]
         )
-        
-        // Führe die Abfrage durch und gib das erste gefundene Ergebnis zurück
-        if let result = try? context.fetch(query) {
-            return result
+
+        do {
+            return try context.fetch(query)
+        } catch {
+            return []
+        }
+    }
+    
+    func getAllUpdatedTimers(timerStamp: Int64) -> [CountdownTimer] {
+        guard let userID = Auth.auth().currentUser?.uid else { return [] }
+       
+        let predicate = #Predicate { (timer: CountdownTimer) in
+            timer.userID == userID && timer.updatedAtOnDevice > timerStamp
         }
         
-        // Falls kein Ergebnis gefunden wird, gib nil zurück
-        return []
+        let query = FetchDescriptor<CountdownTimer>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\CountdownTimer.name)]
+        )
+
+        do {
+            return try context.fetch(query)
+        } catch {
+            return []
+        }
     }
     
     func getById(timerId: String) -> CountdownTimer? {
@@ -140,11 +152,15 @@ class CountdownService {
                     
                         syncHistoryRepository.saveSyncHistoryStamp(entity: table)
                     
-                    case .failure(_): throw NetworkError.serializationError
+                    case .failure(_):
+                        if response.response?.statusCode == 430 {
+                            print("CountdownTimer: NothingToSync")
+                            throw NetworkError.NothingToSync
+                        } else {
+                            throw NetworkError.unknown
+                        }
                 }
                 
-            } catch {
-                print(error)
             }
         }
     }
@@ -209,7 +225,7 @@ class CountdownService {
                     .validate()
                     .response { response in
                         switch response.result {
-                        case .success: print("Daten erfolgreich gesendet!")
+                        case .success: print("Alle CountdownTimer erfolgreich gesendet!")
                         case .failure(let error): print("Fehler beim Senden der Daten: \(error)")
                         }
                     }
@@ -263,9 +279,7 @@ class CountdownService {
                                         updatedAt: serverTimer.updatedAt
                                     )
                                 )
-                            }
-                            
-                            syncHistoryRepository.saveSyncHistoryStamp(entity: table)
+                            } 
                         }
                         
                         syncHistoryRepository.saveSyncHistoryStamp(entity: table)
@@ -278,11 +292,4 @@ class CountdownService {
         }
         
     }
-    
-    
-    
-    
-    
-    
 }
-

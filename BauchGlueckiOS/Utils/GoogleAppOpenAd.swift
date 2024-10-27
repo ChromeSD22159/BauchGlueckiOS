@@ -95,7 +95,7 @@ enum GoogleAppStartrequest {
         return (timeStamp, "6 hours")
     }
     
-    static var adId = "ca-app-pub-3940256099942544/5575463023"
+    static var adId = "ca-app-pub-5150691613384490/5937311907"
 }
 
 func requestTrackingPermission() {

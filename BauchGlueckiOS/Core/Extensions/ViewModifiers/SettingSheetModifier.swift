@@ -15,7 +15,7 @@ struct SettingSheet: ViewModifier {
     var services: Services
     
     @StateObject var viewModel: SettingViewModel
-
+    
     var isSettingSheet: Binding<Bool>
   
     var onDismiss: () -> Void
@@ -63,6 +63,22 @@ struct SettingSheet: ViewModifier {
                                 }
        
                                 SettingRowItem(image: .iconStromach, text: "Bypass since:", surgeryDateBinding: viewModel.surgeryDateBinding)
+                                
+                                Toggle(isOn: viewModel.SyncingBinding, label: {
+                                    HStack {
+                                        ZStack {
+                                            Circle()
+                                                .fill(theme.backgroundGradient)
+                                                .frame(width: 30, height: 30)
+                                            
+                                            Image(systemName: "arrow.triangle.2.circlepath")
+                                                .padding(10)
+                                                .foregroundStyle(theme.onPrimary)
+                                        }
+                                        Text("Backend Syncing")
+                                    }
+                                    .font(.callout)
+                                })
                                 
                             } header: {
                                 Text("Profile")

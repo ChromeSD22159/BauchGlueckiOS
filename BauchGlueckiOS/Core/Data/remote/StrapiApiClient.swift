@@ -285,4 +285,5 @@ enum NetworkError: Error {
     case unauthorized
     case conflict
     case unknown
+    case NothingToSync
 }

@@ -9,6 +9,9 @@ import SwiftData
 var localDataScource: ModelContainer = {
     let schema = Schema([
         CountdownTimer.self,
+        Node.self,
+        WaterIntake.self,
+        Weight.self,
         SyncHistory.self
     ])
     
@@ -28,6 +31,7 @@ enum Entitiy: String {
     case COUNTDOWN_TIMER = "countdownTimer"
     case SYNC_HISTORY = "syncHistory"
     case WEIGHT = "weight"
+    case NODE = "node"
     case WATER_INTAKE = "waterIntake"
     case MEDICATION = "medication"
     case Meal, Recipe = "meal"

@@ -125,6 +125,15 @@ class SettingViewModel: ObservableObject {
         )
     }
     
+    var SyncingBinding: Binding<Bool> {
+        Binding(
+            get: { self.authManager.userProfile?.syncData ?? true },
+            set: { newValue in
+                self.authManager.userProfile?.syncData = newValue
+            }
+        )
+    }
+    
     func updateProfile() {
         guard
             let user = Auth.auth().currentUser

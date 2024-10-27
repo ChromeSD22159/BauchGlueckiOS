@@ -68,6 +68,10 @@ struct HomeScreen: View, PageIdentifier {
                                 }
                             )
                         
+                        if let intakeTarget = firebase.userProfile?.waterDayIntake {
+                            WaterIntakeCard(intakeTarget: intakeTarget)
+                        }
+                        
                         ImageCard()
                             .navigateTo(
                                 firebase: firebase,
@@ -100,10 +104,17 @@ struct HomeScreen: View, PageIdentifier {
             openOnboardingSheetWhenNoProfileIsGiven()
         })
         .fullScreenCover(isPresented: $isUserProfileSheet, onDismiss: {
-            services.countdownService.fetchTimerFromBackend()
+            services.fetchFrombackend()
         }, content: {
             OnBoardingUserProfileSheet(isUserProfileSheet: $isUserProfileSheet)
         })
+        .onAppLifeCycle(
+            appear: {
+                services.fetchFrombackend()
+            }, active: {
+                services.fetchFrombackend()
+            }
+        )
         .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, services: services, onDismiss: {})
     }
     

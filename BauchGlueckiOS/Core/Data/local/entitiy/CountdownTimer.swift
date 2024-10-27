@@ -55,14 +55,6 @@ class CountdownTimer: Identifiable {
     }
 }
 
-func dateStringToMilliseconds(_ dateString: String) -> Int64 {
-    let formatter = ISO8601DateFormatter()
-    if let date = formatter.date(from: dateString) {
-        return Int64(date.timeIntervalSince1970 * 1000)
-    }
-    return 0
-}
-
 extension TimerState {
     var toTimerStateString: String {
         return self.value
@@ -101,20 +93,6 @@ extension CountdownTimer {
     func update() {
         self.updatedAtOnDevice = Date().timeIntervalSince1970Milliseconds
     }
-    
-    /*
-    var remainingTime: TimeInterval {
-        let now = Date().timeIntervalSince1970Milliseconds
-
-        if let endDate = self.endDate, endDate > now {
-            print("END DATE: \(endDate - now)")
-            
-            return TimeInterval(endDate - now)
-        } else {
-            return 0
-        }
-    }
-     */
 }
 
 enum TimerState: String, CaseIterable {

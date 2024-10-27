@@ -15,6 +15,7 @@ struct UserProfile: Codable {
     var mainMeals: Int = 3
     var betweenMeals: Int = 3
     var profileImageURL: String? = nil
+    var syncData: Bool = true
     var startWeight: Double = 100.0
     var waterIntake: Double = 0.25
     var waterDayIntake: Double = 2.0

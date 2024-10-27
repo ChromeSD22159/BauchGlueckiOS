@@ -40,12 +40,6 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
                                     GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
                                 })
-                                
-                                fetchDataFromBackend()
-                            }
-                            .onAppEnterForeground {
-                                try await firebase.markUserOnline()
-                                fetchDataFromBackend()
                             }
                 }
             }
@@ -80,6 +74,8 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                         handleNavigation(screen: .Home)
                         Task {
                             try await firebase.markUserOnline()
+                            
+                            try await services.apiService.sendDeviceTokenToBackend()
                         }
                     } else {
                         handleNavigation(screen: .Login)
@@ -97,12 +93,6 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     private func checkBackendIsReachable() {
         Task {
             backendIsReachable = try await services.apiService.isServerReachable()
-        }
-    }
-    
-    private func fetchDataFromBackend() {
-        if backendIsReachable && Auth.auth().currentUser?.uid != nil {
-            services.countdownService.fetchTimerFromBackend()
         }
     }
 }
