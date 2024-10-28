@@ -12,6 +12,7 @@ enum Destination {
     case timer
     case profile
     case settings
+    case addNode
 
     var screen: Page {
         return switch self {
@@ -19,6 +20,7 @@ enum Destination {
             case .profile: Page(title: "Profile", route: "/profile")
             case .timer: Page(title: "Countdown Timer", route: "/countdownTimer")
             case .settings: Page(title: "Einstellungen", route: "/settings")
+            case .addNode: Page(title: "Notiz hinzufügen", route: "/addNode")
         }
     }
 }

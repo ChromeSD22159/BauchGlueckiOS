@@ -68,9 +68,7 @@ struct HomeScreen: View, PageIdentifier {
                                 }
                             )
                         
-                        if let intakeTarget = firebase.userProfile?.waterDayIntake {
-                            WaterIntakeCard(intakeTarget: intakeTarget)
-                        }
+                        
                         
                         ImageCard()
                             .navigateTo(
@@ -81,6 +79,10 @@ struct HomeScreen: View, PageIdentifier {
                                     Image(systemName: "figure")
                                 }
                             )
+                        
+                        if let intakeTarget = firebase.userProfile?.waterDayIntake {
+                            WaterIntakeCard(intakeTarget: intakeTarget)
+                        }
                     }.padding(.top, 10)
                 }
                 .toolbar {

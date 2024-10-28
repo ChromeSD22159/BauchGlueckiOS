@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ImageCard: View {
+    @EnvironmentObject var firebase: FirebaseService
+    @Environment(\.modelContext) var modelContext
     private let theme = Theme.shared
     var iconLeft: String = "🤪"
     var iconRight: String = "🥳"
@@ -41,6 +43,14 @@ struct ImageCard: View {
                     ZStack {
                         Text("Notiz eintragen")
                             .font(.footnote)
+                            .navigateTo(
+                                firebase: firebase,
+                                destination: Destination.addNode,
+                                target: { AddNode(modelContext: modelContext) },
+                                toolbarItems: {
+                                    //Image(systemName: "figure")
+                                }
+                            )
                     }
                     .padding(.vertical, 6)
                     .padding(.horizontal, 10)
