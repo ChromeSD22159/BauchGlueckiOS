@@ -58,19 +58,23 @@ struct FillableGlassView: View {
         .onAppLifeCycle(
             appear: {
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(animationDelay) / 10, execute: {
-                    if isFilled {
-                        fillLevel = 0.8
-                        bubbles = BubbleService.generateBubbles(glassWidth: defaultSize * 0.8, glassHeight: defaultSize * 0.8, numBubbles: 5)
-                        startBubbleAnimation()
+                    withAnimation(.easeInOut) {
+                        if isFilled {
+                            fillLevel = 0.8
+                            bubbles = BubbleService.generateBubbles(glassWidth: defaultSize * 0.8, glassHeight: defaultSize * 0.8, numBubbles: 5)
+                            startBubbleAnimation()
+                        }
                     }
                 })
             },
             active: {
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(animationDelay) / 10, execute: {
-                    if isFilled {
-                        fillLevel = 0.8
-                        bubbles = BubbleService.generateBubbles(glassWidth: defaultSize * 0.8, glassHeight: defaultSize * 0.8, numBubbles: 5)
-                        startBubbleAnimation()
+                    withAnimation(.easeInOut) {
+                        if isFilled {
+                            fillLevel = 0.8
+                            bubbles = BubbleService.generateBubbles(glassWidth: defaultSize * 0.8, glassHeight: defaultSize * 0.8, numBubbles: 5)
+                            startBubbleAnimation()
+                        }
                     }
                 })
             },
@@ -79,15 +83,17 @@ struct FillableGlassView: View {
             }
         )
         .onTapGesture {
-            if (isActive) {
-                self.fillLevel = 0.8
-                onClick()
-            } else if !isFilled {
-                self.fillLevel = 0.8
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-                    self.fillLevel = 0.1
-                })
+            withAnimation(.easeInOut) {
+                if (isActive) {
+                    self.fillLevel = 0.8
+                    onClick()
+                } else if !isFilled {
+                    self.fillLevel = 0.8
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                        self.fillLevel = 0.1
+                    })
+                }
             }
         }
         .frame(width: defaultSize, height: defaultSize)
@@ -143,7 +149,6 @@ struct FillableGlassView: View {
                       width: defaultSize,
                       height: defaultSize * filled.wrappedValue
                 )
-                .animation(.easeInOut, value: filled.wrappedValue)
              
             
             Rectangle()

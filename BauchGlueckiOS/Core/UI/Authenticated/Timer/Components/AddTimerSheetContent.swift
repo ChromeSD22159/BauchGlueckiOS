@@ -23,14 +23,18 @@ struct AddTimerSheet: View {
         .sheet(isPresented:$isSheet, onDismiss: {}, content: {
             let config = AppConfig.shared.timerConfig
             let _ = print(config.stepsInSeconds)
-            AddTimerSheetContent(
-                durationRange: config.durationRange,
-                stepsEach: config.stepsEach,
-                steps: config.stepsInSeconds
-            ) .presentationDragIndicator(.visible)
+            
+            SheetHolder(title: "Timer anlegen") {
+                AddTimerSheetContent(
+                    durationRange: config.durationRange,
+                    stepsEach: config.stepsEach,
+                    steps: config.stepsInSeconds
+                )
+            }
         })
     }
 }
+
 
 struct AddTimerSheetContent: View {
     @Environment(\.modelContext) var modelContext

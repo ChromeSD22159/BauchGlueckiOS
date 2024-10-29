@@ -12,6 +12,7 @@ var localDataScource: ModelContainer = {
         Node.self,
         WaterIntake.self,
         Weight.self,
+        Medication.self,
         SyncHistory.self
     ])
     

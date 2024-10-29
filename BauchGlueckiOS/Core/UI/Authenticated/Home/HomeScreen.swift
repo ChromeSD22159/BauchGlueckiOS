@@ -21,6 +21,7 @@ struct HomeScreen: View, PageIdentifier {
     @State var isSettingSheet: Bool = false
     @State var isUserProfileSheet: Bool = false
     
+    @Environment(\.modelContext) var modelContext
     @EnvironmentObject var firebase: FirebaseService
     @EnvironmentObject var services: Services
     
@@ -72,11 +73,23 @@ struct HomeScreen: View, PageIdentifier {
                         
                         ImageCard()
                         
+                        NextMedicationCard()
+                            .navigateTo(
+                                firebase: firebase,
+                                destination: Destination.medication,
+                                target: { MedicationScreen() },
+                                toolbarItems: {
+                                    AddMedicationSheet()
+                                }
+                            )
+                        
                         if let intakeTarget = firebase.userProfile?.waterDayIntake {
                             WaterIntakeCard(intakeTarget: intakeTarget)
                                 .sectionShadow(margin: theme.padding)
                         }
-                    }.padding(.top, 10)
+                    }
+                    .padding(.top, 10)
+                    
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -123,3 +136,5 @@ struct HomeScreen: View, PageIdentifier {
         }
     }
 }
+
+

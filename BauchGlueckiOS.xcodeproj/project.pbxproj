@@ -103,6 +103,7 @@
 		B664D4B02CC148220092FE3E /* Exceptions for "BauchGlueckiOS" folder in "BauchGlueckiOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/UI/Authenticated/Medication/Untitled.swift,
 				Info.plist,
 			);
 			target = B664D46A2CC1007B0092FE3E /* BauchGlueckiOS */;

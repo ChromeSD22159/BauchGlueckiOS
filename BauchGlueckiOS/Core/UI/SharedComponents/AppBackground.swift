@@ -35,5 +35,6 @@ struct AppBackground<Content: View>: View {
             content()
         }
         .edgesIgnoringSafeArea(.all)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
