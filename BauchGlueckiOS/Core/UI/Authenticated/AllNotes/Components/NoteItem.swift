@@ -21,13 +21,14 @@ struct NoteItem: View {
     
     init(note: Node) {
        self._note = State(initialValue: note)
-   }
+    }
     
     var body: some View {
+        
         VStack(spacing: 12) {
             HStack {
                 Spacer()
-                Text(formattedDate(note.date.toDate))
+                Text(formattedDateTimer(note.date.toDate))
                     .font(.footnote)
             }
             
@@ -54,15 +55,12 @@ struct NoteItem: View {
         }
         .sectionShadow(innerPadding: theme.padding, margin: theme.padding)
         .sheet(isPresented: $sheet, onDismiss: {}, content: {
-            EditNoteSheet(note: $note, allMoods: $allMoods, theme: theme, maxCharacters: maxCharacters)
+            NavigationView {
+                EditNoteSheet(note: $note, allMoods: $allMoods, theme: theme, maxCharacters: maxCharacters)
+                    .navigationTitle("🗒️ Notiz vom \(formattedDate(note.date.toDate))")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDragIndicator(.visible)
         })
-    }
-    
-    func formattedDate(_ date: Date = Date()) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "de_DE")
-        formatter.dateFormat = "dd.MM.yyyy HH:mm"
-        
-        return formatter.string(from: date)
     }
 }

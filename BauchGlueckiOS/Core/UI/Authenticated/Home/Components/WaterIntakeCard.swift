@@ -69,11 +69,6 @@ struct WaterIntakeCard: View {
                 VStack(spacing: theme.padding) {
                     Text("Wassereinnahme")
                         .font(theme.headlineTextSmall)
-                        .onTapGesture {
-                            intakes.forEach { intake in
-                                modelContext.delete(intake)
-                            }
-                        }
                     
                     Text(String(format: "Dein Ziel: %.1f L Wasser", intakeTarget))
                         .font(.footnote)
