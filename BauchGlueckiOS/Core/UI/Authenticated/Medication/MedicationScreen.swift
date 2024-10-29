@@ -28,7 +28,7 @@ struct MedicationScreen: View {
                     .pickerStyle(.segmented)
                     
                     if tab == .intake {
-                        if medi.count > 0 {
+                        if medi.count == 0 {
                             NoMedCard()
                         } else {
                             ForEach(medi.indices, id: \.self) { index in
@@ -43,14 +43,13 @@ struct MedicationScreen: View {
                     }
                     
                     if tab == .history {
-                        if medi.count > 0 {
+                        if medi.count == 0 {
                             NoMedCard()
                         } else {
                             ForEach(medi.indices, id: \.self) { index in
                                 MedicationHistoryCard(medication: medi[index])
                             }
                         }
-                        
                     }
                     
                 }
