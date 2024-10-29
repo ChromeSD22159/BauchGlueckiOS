@@ -264,9 +264,3 @@ struct AddMedicationSheet: View {
         case medikationExist = "Ein Medikament mit dem Namen existiert bereits."
     }
 }
-
-struct IntakeTimeEntry: Identifiable {
-    var id: UUID
-    var hour: Int
-    var minute: Int
-}

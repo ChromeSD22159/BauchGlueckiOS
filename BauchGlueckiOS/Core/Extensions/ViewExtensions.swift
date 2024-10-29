@@ -98,4 +98,8 @@ extension View {
     ) -> some View {
         modifier(AppLifeCycle(appear: {}, active: {}, inactive: {}, background: background))
     }
+    
+    func cardStyle() -> some View {
+        modifier(CardStyle())
+    }
 }

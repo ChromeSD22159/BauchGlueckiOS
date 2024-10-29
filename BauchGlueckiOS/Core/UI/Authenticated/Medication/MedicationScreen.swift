@@ -29,7 +29,7 @@ struct MedicationScreen: View {
                     
                     if tab == .intake {
                         if medi.count > 0 {
-                            
+                            NoMedCard()
                         } else {
                             ForEach(medi.indices, id: \.self) { index in
                                 MedicationCard(
@@ -44,7 +44,7 @@ struct MedicationScreen: View {
                     
                     if tab == .history {
                         if medi.count > 0 {
-                            
+                            NoMedCard()
                         } else {
                             ForEach(medi.indices, id: \.self) { index in
                                 MedicationHistoryCard(medication: medi[index])
@@ -63,6 +63,3 @@ struct MedicationScreen: View {
         case intake, history
     }
 }
-
-
-
