@@ -9,8 +9,10 @@ import SwiftUI
 struct SectionShadow: ViewModifier {
     let theme: Theme = Theme.shared
     var margin: CGFloat
+    var innerPadding: CGFloat
     func body(content: Content) -> some View {
         content
+            .padding(.all, innerPadding)
             .frame(maxWidth: .infinity, alignment: .center)
             .background(theme.surface)
             .cornerRadius(theme.radius)

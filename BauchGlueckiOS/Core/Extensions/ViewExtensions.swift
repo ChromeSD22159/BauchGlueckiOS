@@ -68,8 +68,8 @@ extension View {
         self.modifier(OnAppEnterBackground(action: action))
     }
     
-    func sectionShadow(margin: CGFloat = 0) -> some View {
-        self.modifier(SectionShadow(margin: margin))
+    func sectionShadow(innerPadding: CGFloat = 0, margin: CGFloat = 0) -> some View {
+        self.modifier(SectionShadow(margin: margin, innerPadding: innerPadding))
     }
     
     func onAppLifeCycle(

@@ -71,17 +71,10 @@ struct HomeScreen: View, PageIdentifier {
                         
                         
                         ImageCard()
-                            .navigateTo(
-                                firebase: firebase,
-                                destination: Destination.timer,
-                                target: { TimerScreen() },
-                                toolbarItems: {
-                                    Image(systemName: "figure")
-                                }
-                            )
                         
                         if let intakeTarget = firebase.userProfile?.waterDayIntake {
                             WaterIntakeCard(intakeTarget: intakeTarget)
+                                .sectionShadow(margin: theme.padding)
                         }
                     }.padding(.top, 10)
                 }

@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import SwiftData
+import FirebaseAuth
 
 @Observable
 class AddNodeViewModel: ObservableObject {
@@ -20,7 +21,7 @@ class AddNodeViewModel: ObservableObject {
     var currentNote: Node? = nil
     
     var textFieldDisplayLength: String {
-        "\(message.count)/\(self.maxCharacters)"
+        "\(node.count)/\(self.maxCharacters)"
     }
     
     init(modelContext: ModelContext) {
@@ -44,19 +45,22 @@ class AddNodeViewModel: ObservableObject {
         do {
             let jsonData = try JSONEncoder().encode(currentMoods)
             
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
+            if
+                let jsonString = String(data: jsonData, encoding: .utf8),
+                let userID = Auth.auth().currentUser {
+                let newNote = Node(
+                    id: UUID(),
+                    text: node,
+                    userID: userID.uid,
+                    date: Date().timeIntervalSince1970Milliseconds,
+                    moodsRawValue: jsonString
+                )
+                
+                print(String("newNote"))
                 
                 Task {
-                    modelContext.insert(
-                        Node(
-                            id: UUID(),
-                            text: node,
-                            userID: UUID().uuidString,
-                            date: Date().timeIntervalSince1970Milliseconds,
-                            moodsRawValue: jsonString
-                        )
-                    )
-                    
+                    modelContext.insert(newNote)
+                    try modelContext.save()
                     showMessage(error: "Gespeichert")
                     
                     sleep(1_000_000)

@@ -8,10 +8,10 @@ import SwiftUI
 import SwiftData
 
 #Preview{    
-    AddNode(modelContext: localDataScource.mainContext)
+    AddNote(modelContext: localDataScource.mainContext)
 }
 
-struct AddNode: View {
+struct AddNote: View {
     let theme = Theme.shared
     
     @StateObject private var vm: AddNodeViewModel
@@ -33,7 +33,7 @@ struct AddNode: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: theme.padding * 3) {
                         
-                        ImputField()
+                        InputField()
                         
                         ControllButton()
                         
@@ -52,7 +52,7 @@ struct AddNode: View {
         }
     }
     
-    @ViewBuilder func ImputField() -> some View {
+    @ViewBuilder func InputField() -> some View {
         VStack {
             HStack {
                 Text(vm.formattedDate())
@@ -61,7 +61,7 @@ struct AddNode: View {
             }
             VStack {
                 HStack {
-                    TextEditor(text: $vm.message)
+                    TextEditor(text: $vm.node)
                         .background(theme.surface)
                         .cornerRadius(theme.radius)
                         .shadow(radius: 2)
@@ -93,7 +93,7 @@ struct AddNode: View {
                 overlay = true
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: {
-                    //vm.saveNode()
+                    vm.saveNode()
                     overlay = false
                 })
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.8, execute: {
@@ -110,6 +110,10 @@ struct AddNode: View {
         VStack(spacing: 20) {
             ProgressView()
             Text("Speichern")
+            
+            Text(vm.message)
+                .font(.footnote)
+                .foregroundStyle(.red)
         }
         .frame(width: geo.size.width * 0.5, height: geo.size.width * 0.5)
         .background(Material.ultraThinMaterial)
@@ -141,7 +145,8 @@ struct AddNode: View {
                         .padding(.horizontal, 10)
                         .lineLimit(1, reservesSpace: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background( Material.ultraThickMaterial.opacity(vm.currentMoodListContainsMood(mood: mood) ? 1.0 : 0.3) )
+                        .foregroundStyle(theme.onBackground)
+                        .background(vm.currentMoodListContainsMood(mood: mood) ? theme.primary : theme.surface )
                         .cornerRadius(100)
                         .onTapGesture { vm.onClickOnMood(mood: mood) }
                 }

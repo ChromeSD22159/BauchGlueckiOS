@@ -11,16 +11,24 @@ import Foundation
 @Model
 class Node {
     @Attribute(.unique) var id: UUID
-    var text: String = ""
-    var nodeId: String = UUID().uuidString
-    var userID: String = ""
-    var date: Int64 = Date().timeIntervalSince1970Milliseconds
-    var moodsRawValue: String = "[]"
+    var text: String
+    var userID: String
+    var nodeId: String
+    var date: Int64
+    var moodsRawValue: String
     
-    init(id: UUID, text: String, userID: String, date: Int64, moodsRawValue: String) {
+    init(
+        id: UUID = UUID(),
+        text: String = "",
+        userID: String = UUID().uuidString,
+        nodeId: String = UUID().uuidString,
+        date: Int64 = Date().timeIntervalSince1970Milliseconds,
+        moodsRawValue: String = "[]"
+    ) {
         self.id = id
         self.text = text
         self.userID = userID
+        self.nodeId = nodeId
         self.date = date
         self.moodsRawValue = moodsRawValue
     }
