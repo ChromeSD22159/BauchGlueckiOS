@@ -46,4 +46,11 @@ class DateRepository {
         dateFormatter.locale = Locale(identifier: "de_DE")
         return dateFormatter.string(from: date)
     }
+    
+    static func formatDateDDMM(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM"
+        dateFormatter.locale = Locale(identifier: "de_DE")
+        return dateFormatter.string(from: date)
+    }
 }

@@ -58,6 +58,9 @@ struct HomeScreen: View, PageIdentifier {
                                 destination: Destination.timer,
                                 target: { TimerScreen() }
                             )
+                        
+                        HomeWeightMockCard()
+                            .padding(.horizontal, 10)
 
                         HomeCountdownTimerWidgetCard()
                             .navigateTo(

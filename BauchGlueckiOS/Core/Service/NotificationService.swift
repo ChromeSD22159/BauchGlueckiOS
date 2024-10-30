@@ -137,6 +137,7 @@ class NotificationService {
         }
     }
 
+    // MARK: - Update Live Avtivity for CountdownTimer
     func liveActivityUpdate(timer: CountdownTimer, remainingDuration: Int) async {
         @AppStorage("activityID") var activityID: String = ""
         guard let startDate = timer.startDate, let endDate = timer.endDate else {
