@@ -8,7 +8,7 @@ import SwiftUI
 
 struct AuthImageHeader: View {
     
-    private let theme = Theme.shared
+    let theme: Theme = Theme.shared
     
     var headline: String
     var description: String

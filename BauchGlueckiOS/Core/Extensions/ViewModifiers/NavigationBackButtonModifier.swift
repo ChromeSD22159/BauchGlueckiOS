@@ -19,7 +19,7 @@ struct NavigationBackButton<T: View>: ViewModifier {
     @Environment(\.dismiss) var dismiss
     @State var isSettingSheet: Bool = false
     
-    let theme: Theme = Theme.shared
+    let theme = Theme.shared
     
     func body(content: Content) -> some View {
         content

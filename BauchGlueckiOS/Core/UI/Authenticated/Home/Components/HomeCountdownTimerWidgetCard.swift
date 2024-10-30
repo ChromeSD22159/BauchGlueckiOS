@@ -82,7 +82,7 @@ struct HomerTimerCard: View {
     @State var remainingTime: Int = 0
     @State var job: AnyCancellable?
 
-    private let theme = Theme.shared
+    let theme = Theme.shared
     
     var body: some View {
         VStack {

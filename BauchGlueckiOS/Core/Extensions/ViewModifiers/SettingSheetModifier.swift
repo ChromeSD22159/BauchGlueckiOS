@@ -9,7 +9,7 @@ import SwiftUI
 import StoreKit
 
 struct SettingSheet: ViewModifier {
-    private let theme: Theme = Theme.shared
+    let theme: Theme = Theme.shared
     
     @EnvironmentObject var authManager: FirebaseService
     var services: Services
@@ -174,7 +174,7 @@ struct SettingRowItem: View {
     var action: () -> Void
     var toggle: Binding<Bool>?
     
-    private let theme: Theme = Theme.shared
+    let theme = Theme.shared
     
     init(icon: String? = "", image: ImageResource? = nil, text: LocalizedStringKey) {
         self.icon = icon

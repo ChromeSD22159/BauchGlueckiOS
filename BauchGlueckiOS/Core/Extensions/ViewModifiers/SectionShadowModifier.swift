@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct SectionShadow: ViewModifier {
-    let theme: Theme = Theme.shared
+    let theme = Theme.shared
     var margin: CGFloat
     var innerPadding: CGFloat
     func body(content: Content) -> some View {

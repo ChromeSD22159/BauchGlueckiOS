@@ -9,9 +9,9 @@ import SwiftData
 
 struct EditMedicationSheet: View {
     @Bindable var medication: Medication
+    
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
-    
     let theme = Theme.shared
    
     @FocusState private var focusedField: FocusedField?
@@ -238,7 +238,7 @@ struct EditMedicationSheet: View {
         let minute = calendar.component(.minute, from: Date())
 
         let clampedHour = max(0, min(hour, 23))
-        let clampedMinute = max(0, min(hour, 59))
+        let clampedMinute = max(0, min(minute, 59))
 
         let formattedHour = String(clampedHour).padding(toLength: 2, withPad: "0", startingAt: 0)
         let formattedMinute = String(clampedMinute).padding(toLength: 2, withPad: "0", startingAt: 0)

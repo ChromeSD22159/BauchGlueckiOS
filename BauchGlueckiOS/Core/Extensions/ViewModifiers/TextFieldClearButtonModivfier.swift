@@ -11,7 +11,7 @@ struct TextFieldClearButton: ViewModifier {
     
     @State private var iconName: String = "xmark.seal.fill"
     
-    private let theme: Theme = Theme.shared
+    let theme = Theme.shared
     
     private var isValidTxt: Bool {
         text.count >= 3

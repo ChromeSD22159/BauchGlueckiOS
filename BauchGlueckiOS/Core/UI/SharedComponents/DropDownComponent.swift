@@ -10,7 +10,7 @@ import SwiftUI
     options: [DropDownOption] = [],
     onClick: @escaping (DropDownOption) -> Void = {_ in }
 ) -> some View {
-    let theme = Theme.shared
+    let theme: Theme = Theme.shared
     Menu(content: {
         ForEach(options, id: \.displayText) { item in
             Button(action: {

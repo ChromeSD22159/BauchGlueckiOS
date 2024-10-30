@@ -10,8 +10,7 @@ import SwiftUI
 
 struct ProfileEditView: View {
     @StateObject var viewModel: SettingViewModel
-
-    private let theme = Theme.shared
+    let theme = Theme.shared
     
     var body: some View {
         Form {

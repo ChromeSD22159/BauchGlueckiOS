@@ -64,24 +64,21 @@ var previewDataScource: ModelContainer = {
                 intakeStatuses: []
             )
         ]
-        
-        let calendar = Calendar.current
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: Date())!
-        let yesterdayMilliseconds = Int64(yesterday.timeIntervalSince1970 * 1000)
+
         let intakeStatuses = [
             IntakeStatus(
                 intakeStatusId: UUID().uuidString,
                 intakeTimeId: intakeTimes[0].intakeTimeId,
-                date: yesterdayMilliseconds,
+                date: DateRepository.yesterday.timeIntervalSince1970Milliseconds,
                 isTaken: true,
-                isDeleted: false,
+                isDeleted: true,
                 updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
                 intakeTime: intakeTimes[0]
             ),
             IntakeStatus(
                 intakeStatusId: UUID().uuidString,
                 intakeTimeId: intakeTimes[1].intakeTimeId,
-                date: yesterdayMilliseconds,
+                date: DateRepository.today.timeIntervalSince1970Milliseconds,
                 isTaken: false,
                 isDeleted: false,
                 updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,

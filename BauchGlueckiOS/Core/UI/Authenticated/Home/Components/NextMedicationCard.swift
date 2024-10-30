@@ -8,41 +8,22 @@ import SwiftUI
 import SwiftData
 
 #Preview {
-    NextMedicationCard()
+    NextMedication()
         .modelContainer(previewDataScource)
 }
 
-struct NextMedicationCard: View {
-    @Query() var medications: [Medication]
+struct NextMedication: View {
+    let theme: Theme = Theme.shared
     
-    var nextMedicationCard: Medication? {
-        getNextMedicationCard(medications: medications)
-    }
+    @Query() var medications: [Medication]
     
     var body: some View {
         VStack {
-            
-            if let nextMedicationCard = nextMedicationCard {
-                Text("Next: \(nextMedicationCard.name) \(nextMedicationCard.intakeTimes.count)")
-                ForEach(nextMedicationCard.intakeTimes) { time in
-                    Text("Intakes: \(time.intakeStatuses.count)")
-                }
+            if medications.count > 0 {
+                NextMedicationCard()
+            } else {
+                NoMedication()
             }
-            
-            
-            Text("\n\n")
-            
-            Text("MEDICATION: \(medications.count)")
-            
-            ForEach(medications) { med in
-                Text("Intakes: \(med.intakeTimes.count)")
-                
-                ForEach(med.intakeTimes) { time in
-                    Text("Times: \(time.intakeStatuses.count)")
-                }
-            }
-            
-            NoMedication()
         }
     }
     
@@ -67,18 +48,97 @@ struct NextMedicationCard: View {
 
 }
 
-struct NoMedication: View {
+struct NextMedicationCard: View {
     let theme: Theme = Theme.shared
+    @Query() var medications: [Medication]
+    @State var nextMedication: NextMedicationForToday? = nil
+    
     var body: some View {
-        VStack {
-            Text("Medikamente für \(formattedDate(Date()))")
-                .font(theme.headlineTextSmall)
+        VStack(spacing: 20) {
+            VStack {
+                Text("Medikamente für \(formattedDate(Date()))")
+                    .font(theme.headlineTextSmall)
+                
+                
+                
+                if let next = nextMedication {
+                    VStack {
+                        Text("Nachstes Medikament für Heute:")
+                            .font(.footnote)
+                        
+                        Text("\(next.medication.name) um \(DateRepository.formatTimeToHHmm(date: next.intakeTime)) Uhr")
+                            .font(.footnote)
+                    }
+                } else {
+                    VStack {
+                        Text("Du hast bereits alles Eingenommen!")
+                            .font(.footnote)
+                    }
+                }
+            }
             
-            Text("Du hast heute keine Medikamente zum einnehmen.")
-                .font(.footnote)
+            VStack(spacing: 10) {
+                ForEach(medications) { medication in
+                    HStack {
+                        Text(medication.name)
+                            .font(.footnote)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        let sortedIntakeTimes = medication.intakeTimes.sorted(by: {
+                            $0.intakeTime.toDate! < $1.intakeTime.toDate!
+                        })
+                        
+                        let formattedIntakeTimes = sortedIntakeTimes.map { "\($0.intakeTime)" }.joined(separator: ", ") + " Uhr"
+                        
+                        Text(formattedIntakeTimes)
+                            .font(.footnote)
+                    }
+                }
+            }
         }
         .padding(theme.padding)
         .foregroundStyle(theme.onBackground)
         .sectionShadow(margin: theme.padding)
+        .onAppear {
+            findNextMedicationIntake()
+        }
+        .onChange(of: medications) {
+            findNextMedicationIntake()
+        }
+    }
+    
+    private func findNextMedicationIntake() {
+        var nextEntries: [NextMedicationForToday] = []
+
+        medications.forEach { medication in
+            medication.intakeTimes.forEach { intakeTime in
+                guard let timeOfIntake = intakeTime.intakeTime.toDate else {
+                    return
+                }
+
+                // Alle Status für heute filtern
+                let status = intakeTime.intakeStatuses.filter { status in
+                    Calendar.current.isDate(status.date.toDate, inSameDayAs: Date())
+                }
+
+                // Intake-Zeit ist relevant, wenn kein Status vorhanden ist oder isTaken == false
+                if status.isEmpty || status.contains(where: { !$0.isTaken }) {
+                    let nextMedication = NextMedicationForToday(medication: medication, intakeTime: timeOfIntake)
+                    nextEntries.append(nextMedication)
+                }
+            }
+        }
+
+        // Alle offenen Einnahmezeiten nach der Zeit sortieren
+        nextEntries.sort { $0.intakeTime < $1.intakeTime }
+
+        // Setze den nächsten Eintrag, falls vorhanden
+        if let nextIntake = nextEntries.first {
+            self.nextMedication = nextIntake
+        } else {
+            self.nextMedication = nil
+        }
     }
 }

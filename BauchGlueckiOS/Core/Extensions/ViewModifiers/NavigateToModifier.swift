@@ -14,7 +14,7 @@ struct NavigateTo<Target: View, Toolbar: View>: ViewModifier {
     @ViewBuilder var target: () -> Target
     @ViewBuilder var toolbarItems: () -> Toolbar
     
-    let theme: Theme = Theme.shared
+    let theme = Theme.shared
     
     func body(content: Content) -> some View {
         NavigationLink {

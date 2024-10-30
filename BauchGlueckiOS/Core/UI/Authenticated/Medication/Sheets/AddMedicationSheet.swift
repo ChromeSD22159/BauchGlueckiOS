@@ -11,7 +11,6 @@ import FirebaseAuth
 struct AddMedicationSheet: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
-    
     let theme = Theme.shared
     @State private var isSheet = false
    

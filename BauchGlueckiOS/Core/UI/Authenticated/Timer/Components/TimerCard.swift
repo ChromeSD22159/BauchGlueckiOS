@@ -11,14 +11,13 @@ import Combine
 struct TimerCard: View {
     @EnvironmentObject var services: Services
     @Environment(\.modelContext) var modelContext
-
+    let theme: Theme = Theme.shared
     @Bindable var timer: CountdownTimer
     
     @State var remainingTime: Int = 0
     @State var job: AnyCancellable?
     @State var showEditAlert = false
     @State var showDeleteAlert = false
-    let theme = Theme.shared
     
     let options = [
         DropDownOption(icon: "pencil", displayText: "Bearbeiten"),
@@ -289,3 +288,5 @@ struct TimerCard: View {
             .stroke(theme.primary, lineWidth: 1)
     )
 }
+
+

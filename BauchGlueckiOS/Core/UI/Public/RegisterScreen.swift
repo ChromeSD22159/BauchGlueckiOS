@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct RegisterScreen: View, Navigable {
-    
-    private let theme = Theme.shared
+    let theme = Theme.shared
     
     var navigate: (Screen) -> Void
     

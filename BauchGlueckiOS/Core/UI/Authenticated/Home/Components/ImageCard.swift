@@ -10,7 +10,8 @@ import SwiftUI
 struct ImageCard: View {
     @EnvironmentObject var firebase: FirebaseService
     @Environment(\.modelContext) var modelContext
-    private let theme = Theme.shared
+    let theme = Theme.shared
+    
     var iconLeft: String = "🤪"
     var iconRight: String = "🥳"
     var body: some View {

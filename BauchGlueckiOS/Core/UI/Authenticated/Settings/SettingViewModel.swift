@@ -180,8 +180,14 @@ class SettingViewModel: ObservableObject {
     }
 }
 
+// TODO: REFACTOR
 extension String {
-    func translate(with values: [CVarArg]) -> String {
-        return String(format: NSLocalizedString(self, comment: ""), arguments: values)
+    var toDate: Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        dateFormatter.timeZone = TimeZone.current
+        dateFormatter.locale = Locale.current
+        
+        return dateFormatter.date(from: self)
     }
 }

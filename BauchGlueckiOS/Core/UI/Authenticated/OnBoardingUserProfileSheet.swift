@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct OnBoardingUserProfileSheet: View {
-    private let theme: Theme = Theme.shared
+    let theme = Theme.shared
     
     @Binding var isUserProfileSheet: Bool
     @EnvironmentObject var firebase: FirebaseService

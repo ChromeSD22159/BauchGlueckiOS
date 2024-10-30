@@ -8,7 +8,7 @@ import SwiftUI
 
 struct LaunchScreen: View {
     
-    private let theme = Theme.shared
+    let theme = Theme.shared
     
     var body: some View {
         AppBackground(color: theme.background) {

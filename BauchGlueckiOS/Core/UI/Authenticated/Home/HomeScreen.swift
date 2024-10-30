@@ -10,7 +10,7 @@ import FirebaseAuth
 import SwiftData
 
 struct HomeScreen: View, PageIdentifier {
-    private let theme: Theme = Theme.shared
+    let theme = Theme.shared
     
     func navigate(to destination: Destination) {
         path.append(destination)
@@ -73,7 +73,7 @@ struct HomeScreen: View, PageIdentifier {
                         
                         ImageCard()
                         
-                        NextMedicationCard()
+                        NextMedication()
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.medication,
