@@ -70,25 +70,43 @@ struct AddMedicationSheet: View {
                 .padding(.horizontal, 10)
                 
                 ForEach(intakeTimeEntries.indices, id: \.self) { index in
+                    
                     HStack {
+                        
                         TextField("Stunde", value: Binding(
                             get: { intakeTimeEntries[index].hour },
-                            set: { intakeTimeEntries[index].hour = $0 }
+                            set: { intakeTimeEntries[index].hour = $0 > 23 ? 23 : $0 }
                         ), format: .number)
-                            .keyboardType(.numberPad)
-                            .submitLabel(.done)
-                            .frame(width: 30)
+                        .keyboardType(.numberPad)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Fertig") {
+                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                                }
+                                .foregroundColor(.primary)
+                            }
+                        }
+                        .frame(width: 30)
 
                         Text(":")
 
                         TextField("Minute", value: Binding(
                             get: { intakeTimeEntries[index].minute },
-                            set: { intakeTimeEntries[index].minute = $0 }
+                            set: { intakeTimeEntries[index].minute = $0 > 59 ? 59 : $0 }
                         ), format: .number)
-                            .keyboardType(.numberPad)
-                            .submitLabel(.done)
-                            .frame(width: 30)
-
+                        .keyboardType(.numberPad)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Fertig") {
+                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                                }
+                                .foregroundColor(.primary)
+                            }
+                        }
+                        .frame(width: 30)
+                         
                         ZStack(alignment: .topTrailing) {
                             Button(action: { deleteTimeEntry(intakeTimeEntries[index]) }) {
                                 Image(systemName: "xmark")
@@ -217,7 +235,18 @@ struct AddMedicationSheet: View {
                     )
 
                     newMedication.intakeTimes.append(intakeTime)
+                    
+                    NotificationService.shared.scheduleRecurringMedicationNotification(
+                        medicationId: intakeTimeId.uuidString,
+                        title: "BauchGlück Reminder",
+                        body: "Erinnerung: \(newMedication.name) sollte jetzt (\(intakeTimeEntry.hour):\(intakeTimeEntry.minute) Uhr) eingenommen werden.",
+                        hour: intakeTimeEntry.hour,
+                        minute: intakeTimeEntry.minute
+                    )
                 }
+
+               
+
                 
                 dismiss()
             } catch let error {

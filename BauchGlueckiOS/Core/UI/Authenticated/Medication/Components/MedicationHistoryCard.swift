@@ -88,5 +88,3 @@ struct MedicationHistoryCard: View {
         }
     }
 }
-
-

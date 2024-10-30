@@ -159,4 +159,27 @@ class NotificationService {
             }
         }
     }
+    
+    // MARK: - Repeating Medication Notifications
+    func scheduleRecurringMedicationNotification(medicationId: String, title: String, body: String, hour: Int, minute: Int) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = UNNotificationSound.default
+        
+        var dateComponents = DateComponents()
+        dateComponents.hour = hour
+        dateComponents.minute = minute
+        
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        let request = UNNotificationRequest(identifier: medicationId, content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling recurring notification: \(error.localizedDescription)")
+            } else {
+                print("Recurring notification scheduled successfully for medication ID: \(medicationId)")
+            }
+        }
+    }
 }
