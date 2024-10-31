@@ -34,14 +34,13 @@ struct HomeWeightMockCard: View {
                     VStack(spacing: 15) {
                         Spacer()
                         
-                        HStack(alignment: .bottom){
-                            Spacer()
+                        HStack(alignment: .bottom) {
                             Capsule()
                                 .frame(width: 25, height: calculateHeight(input: week.avgValue) )
                                 .foregroundStyle(theme.primary)
                         }
                         
-                        HStack(alignment: .bottom){
+                        HStack(alignment: .bottom) {
                             Text(week.week)
                                 .font(.caption2)
                                 .multilineTextAlignment(.center)
@@ -52,7 +51,7 @@ struct HomeWeightMockCard: View {
                     }
                 }
             }
-            .frame(height: 300)
+            .frame(height: 280)
             
             HStack {
                 Text("In einigen Tagen siehst du hier deine Statistik")
@@ -64,36 +63,32 @@ struct HomeWeightMockCard: View {
         .background(gradient)
         .cornerRadius(theme.radius)
         .onAppLifeCycle(appearAndActive: {
-            let calendar = Calendar.current
-            let today = Date()
-            let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
-            for i in (0..<7).reversed() {
-                if let newDate = calendar.date(byAdding: .day, value: -(i * 7), to: startOfWeek) {
-                    withAnimation(.easeIn) {
-                        mockList.append(WeeklyAverage(avgValue: 0, week: DateRepository.formatDateDDMM(date: newDate))) // Double.random(in: 50...100)
-                    }
+            loadData()
+        })
+    }
+    
+    private func loadData() {
+        mockList = []
+        let calendar = Calendar.current
+        let today = Date()
+        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
+        for i in (0..<7).reversed() {
+            if let newDate = calendar.date(byAdding: .day, value: -(i * 7), to: startOfWeek) {
+                withAnimation(.easeIn) {
+                    mockList.append(WeeklyAverage(avgValue: 10, week: DateRepository.formatDateDDMM(date: newDate)))
                 }
             }
-            
-            sleep(UInt32(0.5))
-            
-            for i in 0..<mockList.count {
-               DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.1) {
-                   withAnimation(.easeIn(duration: 0.25)) {
-                       mockList[i].avgValue = Double.random(in: 50...100)
-                   }
+        }
+        
+        sleep(UInt32(0.5))
+        
+        for i in 0..<mockList.count {
+           DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.1) {
+               withAnimation(.easeIn(duration: 0.25)) {
+                   mockList[i].avgValue = Double.random(in: 50...100)
                }
            }
-        })
-        .onAppLifeCycle(inactive: {
-            mockList = []
-        })
-        .onAppLifeCycle(background: {
-            mockList = []
-        })
-        .onDisappear {
-            mockList = []
-        }
+       }
     }
     
     private func calculateHeight(input: Double) -> Double {

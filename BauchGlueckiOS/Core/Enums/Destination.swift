@@ -15,6 +15,7 @@ enum Destination {
     case addNote
     case notes
     case medication
+    case weight
 
     var screen: Page {
         return switch self {
@@ -25,6 +26,7 @@ enum Destination {
             case .addNote: Page(title: "Notiz hinzufügen", route: "/addNote")
             case .notes: Page(title: "Notizen", route: "/Notes")
             case .medication: Page(title: "Medikation", route: "/medication")
+            case .weight: Page(title: "Gewichtskontrolle", route: "/weights")
         }
     }
 }

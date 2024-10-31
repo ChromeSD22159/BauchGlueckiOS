@@ -59,8 +59,18 @@ struct HomeScreen: View, PageIdentifier {
                                 target: { TimerScreen() }
                             )
                         
-                        HomeWeightMockCard()
-                            .padding(.horizontal, 10)
+                        if let startWeight = firebase.userProfile?.startWeight {
+                            WeightChart()
+                                .navigateTo(
+                                    firebase: firebase,
+                                    destination: Destination.weight,
+                                    target: { WeightsScreen(startWeight: startWeight) },
+                                    toolbarItems: {
+                                        AddWeightSheet(startWeight: startWeight)
+                                    }
+                                )
+                        }
+                       
 
                         HomeCountdownTimerWidgetCard()
                             .navigateTo(
