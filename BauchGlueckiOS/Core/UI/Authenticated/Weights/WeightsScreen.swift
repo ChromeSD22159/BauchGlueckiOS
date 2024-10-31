@@ -13,6 +13,8 @@ struct WeightsScreen: View {
     @Environment(\.modelContext) var modelContext: ModelContext
     @State private var currentWeight: Double = 0.0
     @State private var weeklyAverage: [WeeklyAverageData] = []
+    @State private var highestWeightLost: (differenceString: String, difference: Double, startDate: Date, endDate: Date)? = nil
+    @State private var lowestWeightLost: (differenceString: String, difference: Double, startDate: Date, endDate: Date)? = nil
     
     @Query() var weights: [Weight]
     
@@ -21,7 +23,7 @@ struct WeightsScreen: View {
     private var totalWeightLost: Double {
         self.startWeight - self.currentWeight
     }
-    
+
     init(startWeight: Double) {
         self.startWeight = startWeight
         
@@ -39,7 +41,10 @@ struct WeightsScreen: View {
     
     var body: some View {
         ScreenHolder() {
-            SectionVStack(header: "Totaler Gewichtsverlust") {
+            SectionVStack (
+                header: "Totaler Gewichtsverlust",
+                infoText: "Die Berechnung des Gesamtverlusts basiert auf Ihrem Startgewicht, das in den Einstellungen unter 'Profil' angepasst werden kann."
+            ) {
                 HStack {
                     Text("Totaler Gewichtsverlust:")
                     Spacer()
@@ -47,54 +52,91 @@ struct WeightsScreen: View {
                 }
             }
 
-            SectionVStack(header: "Totaler Gewichtsverlust" ) {
-                VStack {
-                    HStack {
-                        Text("Differenz:")
-                        Spacer()
-                        Text(String(format: "%.1fkg", totalWeightLost))
+            if let highest = highestWeightLost {
+                SectionVStack(
+                    header: "Größter Gewichtsverlust",
+                    infoText: "Dies ist der größte gemessene Gewichtsverlust innerhalb eines Wochenintervalls. Er zeigt an, wie viel Gewicht Sie in der erfolgreichsten Woche verloren haben."
+                ) {
+                    VStack {
+                        HStack {
+                            Text("Differenz:")
+                            Spacer()
+                            Text(String(format: "%.1fkg", highest.difference))
+                        }
+                        
+                        HStack {
+                            let from = DateRepository.formatDateDDMM(date: highest.startDate)
+                            let till = DateRepository.formatDateDDMM(date: highest.endDate)
+                            Text(String(format: "Von: \(from) zu \(till)"))
+                                .font(.footnote)
+                            Spacer()
+                        }
                     }
-                    
-                    HStack {
-                        Text(String(format: "Von: 18.10 zu 25.10"))
-                            .font(.footnote)
-                        Spacer()
+                }
+            }
+
+            if let lowest = lowestWeightLost {
+                SectionVStack(
+                    header: "Niedrigster Gewichtsverlust",
+                    infoText: "Dies ist der niedrigste gemessene Gewichtsverlust innerhalb eines Wochenintervalls. Er zeigt die Woche, in der Ihr Fortschritt am geringsten war."
+                ) {
+                    VStack {
+                        HStack {
+                            Text("Differenz:")
+                            Spacer()
+                            Text(String(format: "%.1fkg", lowest.difference))
+                        }
+                        
+                        HStack {
+                            let from = DateRepository.formatDateDDMM(date: lowest.startDate)
+                            let till = DateRepository.formatDateDDMM(date: lowest.endDate)
+                            Text(String(format: "Von: \(from) zu \(till)"))
+                                .font(.footnote)
+                            Spacer()
+                        }
                     }
                 }
             }
             
             SectionVStack(header: "Gewichtsverlust Historie") {
-                ForEach(weeklyAverage.indices, id: \.self) { index in
-                    let (differenceString, difference) = calcDifferenceToWeekBefore(index: index)
-                    let start = DateRepository.formatDateDDMM(date: weeklyAverage[index].startOfWeek)
-                    let end = DateRepository.formatDateDDMM(date: weeklyAverage[index].endOfWeek)
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text("Von: \(start) zu \(end):")
-                            Spacer()
-                            Text(" Ø \(String(format: "%.1f kg", difference))")
-                        }
-                        if index > 0 {
-                            Text("Differenz zur Vorwoche: \(differenceString)")
-                                .font(.footnote)
-                                .foregroundColor(difference >= 0 ? .green : .red)
-                        } else {
-                            Text("Differenz zur Vorwoche: \(differenceString)")
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                VStack(spacing: theme.padding + 5) {
+                    ForEach(weeklyAverage.indices, id: \.self) { index in
+                        let (differenceString, difference, _,_) = calcDifferenceToWeekBefore(index: index)
+                        let start = DateRepository.formatDateDDMM(date: weeklyAverage[index].startOfWeek)
+                        let end = DateRepository.formatDateDDMM(date: weeklyAverage[index].endOfWeek)
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text("Von: \(start) zu \(end):")
+                                Spacer()
+                                Text(" Ø \(String(format: "%.1f kg", difference))")
+                            }
+                            if index > 0 {
+                                Text("Differenz zur Vorwoche: \(differenceString)")
+                                    .font(.footnote)
+                                    .foregroundColor(difference >= 0 ? .green : .red)
+                            } else {
+                                Text("Differenz zur Vorwoche: \(differenceString)")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
                         }
                     }
                 }
             }
         }
         .onAppear {
-            getLastWeight()
-            calculateWeeklyAverage()
+            self.getLastWeight()
+            
+            let lastSevenWeeksData = self.calculateWeeklyAverage(weeks: 7)
+            let lastFourteenWeeksData = self.calculateWeeklyAverage(weeks: 7)
+            
+            self.weeklyAverage = lastSevenWeeksData
+            self.findLowestAndHeighestWeightLost(data: lastFourteenWeeksData)
         }
     }
     
-    private func calcDifferenceToWeekBefore(index: Int) -> (differenceString: String, difference: Double) {
-        let nan = (differenceString: "N/A", difference: 0.0)
+    private func calcDifferenceToWeekBefore(index: Int) -> (differenceString: String, difference: Double, startDate: Date, endDate: Date) {
+        let nan = (differenceString: "N/A", difference: 0.0, startDate: Date(), endDate: Date())
         guard index < weeklyAverage.count, index >= 0 else {
             return nan
         }
@@ -105,7 +147,7 @@ struct WeightsScreen: View {
             let previousAverage = weeklyAverage[index - 1].avgValue
             let diff = average.avgValue - previousAverage
             let formattedDiff = String(format: "%.1f", diff)
-            return diff >= 0 ? (differenceString: "+\(formattedDiff) kg", difference: diff)  : (differenceString: "\(formattedDiff) kg", difference: diff)
+            return diff >= 0 ? (differenceString: "+\(formattedDiff) kg", difference: diff, startDate: weeklyAverage[index - 1].startOfWeek, endDate: weeklyAverage[index - 1].endOfWeek)  : (differenceString: "\(formattedDiff) kg", difference: diff , startDate: weeklyAverage[index - 1].startOfWeek, endDate: weeklyAverage[index - 1].endOfWeek)
         } else {
             return nan
         }
@@ -120,19 +162,31 @@ struct WeightsScreen: View {
         self.currentWeight = sortedWeights.first?.value ?? self.startWeight
     }
     
-    private func calculateWeeklyAverage() {
+    private func findLowestAndHeighestWeightLost(data: [WeeklyAverageData]) {
+        var differences: [(differenceString: String, difference: Double, startDate: Date, endDate: Date)] = []
+        for (index, _) in data.enumerated() {
+            differences.append(calcDifferenceToWeekBefore(index: index))
+        }
+        
+        let descending = differences.sorted(by: { $0.difference > $1.difference })
+        highestWeightLost = descending.first
+        let ascending = differences.sorted(by: { $0.difference < $1.difference })
+        lowestWeightLost = ascending.first
+    }
+    
+    private func calculateWeeklyAverage(weeks: Int) -> [WeeklyAverageData] {
         let calendar = Calendar.current
 
         // Finde den nächsten Sonntag (Ende der Woche)
         let today = Date()
         guard let endOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))?.addingTimeInterval(6 * 24 * 60 * 60) else {
-            return
+            return []
         }
 
         // Erstelle eine leere Liste für die letzten 7 Wochen beginnend von heute
         var weeklyData: [Date: [Double]] = [:]
         
-        for weekOffset in 0..<7 {
+        for weekOffset in 0..<weeks {
             if let weekStartDate = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: endOfWeek),
                let mondayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weekStartDate)) {
                 weeklyData[mondayOfWeek] = []
@@ -170,7 +224,7 @@ struct WeightsScreen: View {
         let sortedWeeklyAverages = weeklyAverages.sorted { $0.startOfWeek < $1.startOfWeek }
         
         // Ausgabe der Ergebnisse mit formatiertem Datum
-        self.weeklyAverage = sortedWeeklyAverages.map { weeklyAverage in
+        return sortedWeeklyAverages.map { weeklyAverage in
             WeeklyAverageData(avgValue: weeklyAverage.avgValue, startOfWeek: weeklyAverage.startOfWeek, endOfWeek: weeklyAverage.endOfWeek)
         }
     }
@@ -181,7 +235,6 @@ struct WeeklyAverageData {
     var startOfWeek: Date
     var endOfWeek: Date
 }
-
 struct SectionOutterHeader: View {
     private var theme: Theme
     private var text: String
@@ -203,23 +256,26 @@ struct SectionOutterHeader: View {
 struct SectionVStack<Content: View>: View {
     private var theme: Theme
     private var header: String?
-    private var content: () -> Content
+    private var content: (() -> Content)
+    private var infoText: String?
     private var horizontalPadding: CGFloat
     
     init(
         theme: Theme = Theme.shared,
         header: String? = nil,
+        infoText: String? = nil,
         horizontalPadding: CGFloat = 10,
         content: @escaping () -> Content
     ) {
         self.header = header
         self.theme = theme
         self.content = content
+        self.infoText = infoText
         self.horizontalPadding = horizontalPadding
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 8) {
             if let header = header {
                 SectionOutterHeader(text: header)
             }
@@ -231,7 +287,16 @@ struct SectionVStack<Content: View>: View {
             }
             .padding(theme.padding)
             .sectionShadow()
+            
+            if let infoText = infoText {
+                HStack {
+                    Label(infoText, systemImage: "info")
+                        .font(.caption2)
+                    Spacer()
+                }.padding(.horizontal, theme.padding + 5)
+            }
         }
         .padding(.horizontal, horizontalPadding)
     }
 }
+

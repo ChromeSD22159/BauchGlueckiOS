@@ -15,15 +15,36 @@ struct HomeWeightMockCard: View {
     ], startPoint: .top, endPoint: .bottom)
     
     @State var mockList: [WeeklyAverage] = []
-    
-    let aufsteigend = true
+
+    var isAscendingTrend: Bool {
+        guard mockList.count == 7 else {
+            return false
+        }
+        
+        var ascendingCount = 0
+        var descendingCount = 0
+ 
+        for i in 0..<mockList.count - 1 {
+            if mockList[i].avgValue < mockList[i + 1].avgValue {
+                ascendingCount += 1
+            } else if mockList[i].avgValue > mockList[i + 1].avgValue {
+                descendingCount += 1
+            }
+        }
+ 
+        if ascendingCount > descendingCount {
+            return true
+        }  else {
+            return false
+        }
+    }
     
     var body: some View {
         VStack {
             HStack {
-                Image(systemName: aufsteigend ? "arrow.up.forward.circle.fill" : "arrow.down.forward.circle.fill")
+                Image(systemName: isAscendingTrend ? "arrow.up.forward.circle.fill" : "arrow.down.forward.circle.fill")
                 
-                Text(aufsteigend ? "Aufsteigender" : "Absteigender" + " Trend")
+                Text(isAscendingTrend ? "Aufsteigender" : "Absteigender" + " Trend")
                     .font(.footnote)
                  
                 Spacer()
