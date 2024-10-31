@@ -40,7 +40,7 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: { TimerScreen() }
+                                target: { TimerScreenButton() }
                             )
                         
                         SectionImageCard(image: .icKochhut,title: "Rezepte",description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.")
@@ -48,7 +48,7 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: { TimerScreen() }
+                                target: { TimerScreenButton() }
                             )
                         
                         SectionImageCard(image: .icCartMirrored,title: "Shoppinglist",description: "Erstelle aus deinem Mealplan eine Shoppingliste.")
@@ -56,7 +56,7 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: { TimerScreen() }
+                                target: { TimerScreenButton() }
                             )
                         
                         if let startWeight = firebase.userProfile?.startWeight {
@@ -66,7 +66,7 @@ struct HomeScreen: View, PageIdentifier {
                                     destination: Destination.weight,
                                     target: { WeightsScreen(startWeight: startWeight) },
                                     toolbarItems: {
-                                        AddWeightSheet(startWeight: startWeight)
+                                        AddWeightSheetButton(startWeight: startWeight)
                                     }
                                 )
                         }
@@ -76,7 +76,7 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.timer,
-                                target: { TimerScreen() },
+                                target: { TimerScreenButton() },
                                 toolbarItems: {
                                     AddTimerSheet()
                                 }

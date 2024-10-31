@@ -11,7 +11,7 @@ import SwiftData
 import Combine
 import FirebaseAuth
 
-struct TimerScreen: View {
+struct TimerScreenButton: View {
     @EnvironmentObject var services: Services
     
     private let theme: Theme = Theme.shared

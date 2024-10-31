@@ -32,9 +32,7 @@ struct WeightOmeterGaugeStyle: GaugeStyle {
 
             VStack {
                 configuration.currentValueLabel
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(theme.onPrimary)
+                   
                 
                 Text("KG")
                     .font(.system(.body, design: .rounded))

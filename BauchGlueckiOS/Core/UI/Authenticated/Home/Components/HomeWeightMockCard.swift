@@ -41,7 +41,7 @@ struct HomeWeightMockCard: View {
                         }
                         
                         HStack(alignment: .bottom) {
-                            Text(week.week)
+                            Text(DateRepository.formatDateDDMM(date: week.week))
                                 .font(.caption2)
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(theme.onBackground)
@@ -75,7 +75,7 @@ struct HomeWeightMockCard: View {
         for i in (0..<7).reversed() {
             if let newDate = calendar.date(byAdding: .day, value: -(i * 7), to: startOfWeek) {
                 withAnimation(.easeIn) {
-                    mockList.append(WeeklyAverage(avgValue: 10, week: DateRepository.formatDateDDMM(date: newDate)))
+                    mockList.append(WeeklyAverage(avgValue: 10, week: newDate))
                 }
             }
         }

@@ -8,5 +8,5 @@ import SwiftUI
 
 struct WeeklyAverage {
     var avgValue: Double
-    let week: String
+    let week: Date
 }

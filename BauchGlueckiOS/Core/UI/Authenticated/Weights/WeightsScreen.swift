@@ -10,344 +10,228 @@ import FirebaseAuth
 import SwiftData
 
 struct WeightsScreen: View {
-    let theme: Theme = Theme.shared
-    var startWeight: Double
-    
+    @Environment(\.modelContext) var modelContext: ModelContext
     @State private var currentWeight: Double = 0.0
+    @State private var weeklyAverage: [WeeklyAverageData] = []
     
-    var totalWeightLost: Double {
+    @Query() var weights: [Weight]
+    
+    private let theme: Theme = Theme.shared
+    private var startWeight: Double
+    private var totalWeightLost: Double {
         self.startWeight - self.currentWeight
+    }
+    
+    init(startWeight: Double) {
+        self.startWeight = startWeight
+        
+        let userID = Auth.auth().currentUser?.uid ?? ""
+        
+        let predicate = #Predicate<Weight> { weight in
+            weight.userID == userID
+        }
+        
+        self._weights = Query(
+            filter: predicate,
+            sort: \Weight.weighed
+        )
     }
     
     var body: some View {
         ScreenHolder() {
-            VStack(spacing: theme.padding) {
-                // Totaler gewichts Verlust: 46.00 KG
-                
-                Text(String(format: "Totaler Gewichtsverlust: %.1fkg", totalWeightLost))
-                
-                // Differenz:
-            }.padding(.horizontal, theme.padding)
+            SectionVStack(header: "Totaler Gewichtsverlust") {
+                HStack {
+                    Text("Totaler Gewichtsverlust:")
+                    Spacer()
+                    Text(String(format: "%.1fkg", totalWeightLost))
+                }
+            }
+
+            SectionVStack(header: "Totaler Gewichtsverlust" ) {
+                VStack {
+                    HStack {
+                        Text("Differenz:")
+                        Spacer()
+                        Text(String(format: "%.1fkg", totalWeightLost))
+                    }
+                    
+                    HStack {
+                        Text(String(format: "Von: 18.10 zu 25.10"))
+                            .font(.footnote)
+                        Spacer()
+                    }
+                }
+            }
+            
+            SectionVStack(header: "Gewichtsverlust Historie") {
+                ForEach(weeklyAverage.indices, id: \.self) { index in
+                    let (differenceString, difference) = calcDifferenceToWeekBefore(index: index)
+                    let start = DateRepository.formatDateDDMM(date: weeklyAverage[index].startOfWeek)
+                    let end = DateRepository.formatDateDDMM(date: weeklyAverage[index].endOfWeek)
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Text("Von: \(start) zu \(end):")
+                            Spacer()
+                            Text(" Ø \(String(format: "%.1f kg", difference))")
+                        }
+                        if index > 0 {
+                            Text("Differenz zur Vorwoche: \(differenceString)")
+                                .font(.footnote)
+                                .foregroundColor(difference >= 0 ? .green : .red)
+                        } else {
+                            Text("Differenz zur Vorwoche: \(differenceString)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                }
+            }
+        }
+        .onAppear {
+            getLastWeight()
+            calculateWeeklyAverage()
         }
     }
     
-    private func loadLastWeight() {
-        let userID = Auth.auth().currentUser?.uid ?? ""
-        let weight = Query(filter: #Predicate<Weight> { weight in
-            weight.userID == userID
-        }, sort: \.weighed)
-        
-        let lastWeight = weight.wrappedValue.sorted(by: { first, second in
+    private func calcDifferenceToWeekBefore(index: Int) -> (differenceString: String, difference: Double) {
+        let nan = (differenceString: "N/A", difference: 0.0)
+        guard index < weeklyAverage.count, index >= 0 else {
+            return nan
+        }
+
+        let average = weeklyAverage[index]
+
+        if index > 0 {
+            let previousAverage = weeklyAverage[index - 1].avgValue
+            let diff = average.avgValue - previousAverage
+            let formattedDiff = String(format: "%.1f", diff)
+            return diff >= 0 ? (differenceString: "+\(formattedDiff) kg", difference: diff)  : (differenceString: "\(formattedDiff) kg", difference: diff)
+        } else {
+            return nan
+        }
+    }
+    
+    private func getLastWeight() {
+        let sortedWeights = self.weights.sorted(by: { first, second in
             guard let firstDate = ISO8601DateFormatter().date(from: first.weighed), let secondDate = ISO8601DateFormatter().date(from: second.weighed) else { return false }
             return firstDate > secondDate
         })
         
-        self.currentWeight = lastWeight.first?.value ?? self.startWeight
+        self.currentWeight = sortedWeights.first?.value ?? self.startWeight
+    }
+    
+    private func calculateWeeklyAverage() {
+        let calendar = Calendar.current
+
+        // Finde den nächsten Sonntag (Ende der Woche)
+        let today = Date()
+        guard let endOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))?.addingTimeInterval(6 * 24 * 60 * 60) else {
+            return
+        }
+
+        // Erstelle eine leere Liste für die letzten 7 Wochen beginnend von heute
+        var weeklyData: [Date: [Double]] = [:]
+        
+        for weekOffset in 0..<7 {
+            if let weekStartDate = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: endOfWeek),
+               let mondayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weekStartDate)) {
+                weeklyData[mondayOfWeek] = []
+            }
+        }
+
+        // Filtere die abgerufenen Einträge nach dem Zeitraum der letzten 7 Wochen
+        weights.forEach { weight in
+            if let weighedDate = ISO8601DateFormatter().date(from: weight.weighed) {
+                // Finde den Start der Woche (Montag)
+                guard let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weighedDate)) else {
+                    return
+                }
+
+                // Berechne den Startdatum der letzten 7 Wochen
+                if let sevenWeeksAgo = calendar.date(byAdding: .weekOfYear, value: -7, to: endOfWeek),
+                   weighedDate >= sevenWeeksAgo && weighedDate <= endOfWeek {
+                    
+                    // Füge den Gewichtseintrag zur richtigen Woche hinzu
+                    weeklyData[startOfWeek, default: []].append(weight.value)
+                }
+            }
+        }
+
+        // Berechne das durchschnittliche Gewicht pro Woche und erstelle WeeklyAverage-Einträge
+        let weeklyAverages: [WeeklyAverageData] = weeklyData.map { weekStart, weights in
+            let avgWeight = weights.isEmpty ? 0.0 : weights.reduce(0, +) / Double(weights.count)
+            let cal = Calendar.current
+            let startOfNextWeek = cal.date(byAdding: .day, value: +7, to: weekStart)!
+            let endOfWeek = cal.date(byAdding: .second, value: -1, to: startOfNextWeek)!
+            return WeeklyAverageData(avgValue: avgWeight, startOfWeek: weekStart, endOfWeek: endOfWeek)
+        }
+        
+        // Sortiere die Wochen nach Datum
+        let sortedWeeklyAverages = weeklyAverages.sorted { $0.startOfWeek < $1.startOfWeek }
+        
+        // Ausgabe der Ergebnisse mit formatiertem Datum
+        self.weeklyAverage = sortedWeeklyAverages.map { weeklyAverage in
+            WeeklyAverageData(avgValue: weeklyAverage.avgValue, startOfWeek: weeklyAverage.startOfWeek, endOfWeek: weeklyAverage.endOfWeek)
+        }
     }
 }
 
-struct AddWeightSheet: View {
+struct WeeklyAverageData {
+    var avgValue: Double
+    var startOfWeek: Date
+    var endOfWeek: Date
+}
 
-    @State private var isSheet = false
+struct SectionOutterHeader: View {
+    private var theme: Theme
+    private var text: String
     
-    var startWeight: Double
+    init(text: String) {
+        self.theme = Theme.shared
+        self.text = text
+    }
     
     var body: some View {
-        Button(
-            action: {
-                isSheet = !isSheet
-            }, label: {
-                Image(systemName: "gauge.with.dots.needle.bottom.50percent.badge.plus")
-                    .foregroundStyle(Theme.shared.onBackground)
-            }
-        )
-        .sheet(isPresented:$isSheet, onDismiss: {}, content: {
-            let config = AppConfig.shared.weightConfig
-            let _ = print(config.stepsInSeconds)
-            
-            SheetHolder(title: "Gewicht eintragen") {
-                AddWeightSheetContent(
-                    durationRange: config.weightRange,
-                    stepsEach: config.stepsEach,
-                    steps: config.stepsInSeconds,
-                    startWeight: startWeight
-                )
-            }
-        })
+        HStack {
+            Text(text)
+            Spacer()
+        }
+        .font(.footnote)
+        .padding(.horizontal, theme.padding)
     }
 }
-
-#Preview {
-    let config = AppConfig.shared.weightConfig
-    AddWeightSheetContent(durationRange: config.weightRange, stepsEach: config.stepsEach, steps: config.stepsInSeconds, startWeight: 90.0)
-        .modelContainer(previewDataScource)
-}
-
-struct AddWeightSheetContent: View {
-    @Environment(\.modelContext) var modelContext: ModelContext
-    @Environment(\.dismiss) var dismiss
-    private let theme: Theme = Theme.shared
-    
-    // FormStates
-    @FocusState private var focusedField: FocusedField?
-    @State private var weight: Double = 90.0
-    @State private var error: String = ""
-    
-    var startWeight: Double
-    var durationRange: ClosedRange<Double>
-    var stepsEach: Double
-    var steps: [Double]
+struct SectionVStack<Content: View>: View {
+    private var theme: Theme
+    private var header: String?
+    private var content: () -> Content
+    private var horizontalPadding: CGFloat
     
     init(
-        durationRange: ClosedRange<Double>,
-        stepsEach: Double,
-        steps: [Double],
-        startWeight: Double
+        theme: Theme = Theme.shared,
+        header: String? = nil,
+        horizontalPadding: CGFloat = 10,
+        content: @escaping () -> Content
     ) {
-        self.durationRange = durationRange
-        self.stepsEach = stepsEach
-        self.steps = steps
-        self.weight = startWeight
-        self.startWeight = startWeight
-        loadLastWeight()
+        self.header = header
+        self.theme = theme
+        self.content = content
+        self.horizontalPadding = horizontalPadding
     }
     
     var body: some View {
-        VStack(spacing: 16) {
-            
-            VStack {
-                Image(.magen)
-                    .resizable()
-                    .frame(width: 150, height: 150)
-                
-                Text("Neues Gewicht hinzufügen")
-                    .font(theme.headlineText)
-                    .foregroundStyle(theme.primary)
+        VStack {
+            if let header = header {
+                SectionOutterHeader(text: header)
             }
             
-            ZStack(alignment: .bottom) {
+            VStack {
                 VStack {
-                    let weightDifferenceSigned = abs(weight - startWeight)
-                    let weightDifferenceUnsigned = weight - startWeight
-                                    
-                    Gauge(value: weightDifferenceSigned, in: 0...abs(startWeight)) {
-                        Image(systemName: "gauge.medium")
-                            .font(.system(size: 50.0))
-                    } currentValueLabel: {
-                        if weightDifferenceUnsigned == 0.0 {
-                            Text("\(weightDifferenceSigned.formatted(.number))")
-                        } else if weightDifferenceUnsigned > 0.0 {
-                            Text("\("+")\(weightDifferenceSigned.formatted(.number))")
-                        } else {
-                            Text("\("-")\(weightDifferenceSigned.formatted(.number))")
-                        }
-                    }
-                    .gaugeStyle(WeightOmeterGaugeStyle())
-                    Spacer()
-                }
-                
-                HStack {
-                    Button(action: {
-                        decreaseWeight()
-                    }, label: {
-                        Image(systemName: "minus")
-                            .font(.headline)
-                            .padding(theme.padding)
-                            .frame(height: 35)
-                    })
-                    .frame(minWidth: 60)
-                    .foregroundStyle(theme.onPrimary)
-                    .background(theme.backgroundGradient)
-                    .cornerRadius(100)
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        increaseWeight()
-                    }, label: {
-                        Image(systemName: "plus")
-                            .font(.headline)
-                            .padding(theme.padding)
-                            .frame(height: 35)
-                    })
-                    .frame(minWidth: 60)
-                    .foregroundStyle(theme.onPrimary)
-                    .background(theme.backgroundGradient)
-                    .cornerRadius(100)
+                    content()
                 }
             }
-            .padding(.vertical, 30)
-            
-            VStack {
-                HStack {
-                    Text("Schnellauswahl: ")
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHStack(spacing: 0) {
-                            ForEach(steps, id: \.self) { step in
-                                WeightItem(step: step, selected: weight, onTap: { selectedWeight in
-                                    withAnimation(.easeInOut) {
-                                        weight = selectedWeight
-                                    }
-                                })
-                            }
-                        }
-                    }
-                }.frame(maxHeight: 50)
-            }
-            
-            HStack {
-                Button(action: {
-                    dismiss()
-                }, label: {
-                    Text("Abbrechen")
-                        .padding(theme.padding)
-                })
-                .frame(height: 30)
-                .frame(minWidth: 100)
-                .foregroundStyle(theme.onPrimary)
-                .background(theme.backgroundGradient)
-                .cornerRadius(100)
-                
-                Spacer()
-                
-                Button(action: {
-                    insertWeight()
-                }, label: {
-                    Text("Speichern")
-                        .padding(theme.padding)
-                })
-                .frame(height: 30)
-                .frame(minWidth: 100)
-                .foregroundStyle(theme.onPrimary)
-                .background(theme.backgroundGradient)
-                .cornerRadius(100)
-            }
-            
-            HStack {
-                Text(error)
-                    .foregroundStyle(Color.red)
-                    .opacity(error.isEmpty ? 0 : 1)
-                    .font(.footnote)
-            }
+            .padding(theme.padding)
+            .sectionShadow()
         }
-        .padding(.horizontal, theme.padding)
-        .padding(.top, 30)
-    }
-    
-    enum FocusedField {
-        case name
-    }
-    
-    @ViewBuilder func FootLine(text: String) -> some View {
-        HStack {
-            Spacer()
-            Text(text)
-                .font(.footnote)
-                .foregroundStyle(Theme.shared.onBackground.opacity(0.5))
-        }
-    }
-    
-    func WeightItem(
-        step: Double,
-        selected: Double,
-        onTap: @escaping (Double) -> Void,
-        theme: Theme = Theme.shared
-    ) -> some View {
-        ZStack {
-            Text(String(format: "%.1f", step))
-                .onTapGesture {
-                    onTap(step)
-                }
-        }
-        .padding(5)
-        .background(
-            withAnimation {
-                selected == step ? theme.primary.opacity(0.15) : theme.primary.opacity(0)
-            }
-        )
-        .cornerRadius(20)
-        .padding(.horizontal, 5)
-    }
-    
-    private func insertWeight() {
-        Task {
-            
-            do {
-                if weight <= 30.0 {
-                    throw ValidationError.invalidWeight
-                }
-                
-                guard let user = Auth.auth().currentUser else {
-                    throw ValidationError.userNotFound
-                }
-                
-                let date = Date()
-                let weightID = UUID()
-                let newWeight = Weight(
-                    id: weightID,
-                    userID: user.uid,
-                    weightId: weightID.uuidString,
-                    value: weight,
-                    isDeleted: false,
-                    weighed: date.ISO8601Format(),
-                    updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds
-                )
-                
-                modelContext.insert(newWeight)
-                
-                dismiss()
-            } catch let error {
-                printError(error.localizedDescription)
-            }
-            
-        }
-    }
-    
-    private func increaseWeight() {
-        withAnimation(.easeInOut) {
-            weight -= 0.1
-        }
-    }
-    
-    private func decreaseWeight() {
-        withAnimation(.easeInOut) {
-            weight += 0.1
-        }
-    }
-    
-    private func printError(_ text: String) {
-        Task {
-            try await awaitAction(
-                seconds: 2,
-                startAction: {
-                    error = text
-                },
-                delayedAction: {
-                    error = ""
-                }
-            )
-        }
-    }
-    
-    private func loadLastWeight() {
-        let userID = Auth.auth().currentUser?.uid ?? ""
-        let weight = Query(filter: #Predicate<Weight> { weight in
-            weight.userID == userID
-        }, sort: \.weighed)
-        
-        let lastWeight = weight.wrappedValue.sorted(by: { first, second in
-            guard let firstDate = ISO8601DateFormatter().date(from: first.weighed), let secondDate = ISO8601DateFormatter().date(from: second.weighed) else { return false }
-            return firstDate > secondDate
-        })
-        
-        withAnimation(.easeInOut) {
-            self.weight = lastWeight.first?.value ?? self.startWeight
-        }
-    }
-    
-    enum ValidationError: String, Error {
-        case invalidWeight = "Der Name muss mindestens 3 Buchstaben beinhalten."
-        case userNotFound = "Ein Fehler mit deinem Profil ist aufgetreten. Kontaktiere den Entwickler."
+        .padding(.horizontal, horizontalPadding)
     }
 }
