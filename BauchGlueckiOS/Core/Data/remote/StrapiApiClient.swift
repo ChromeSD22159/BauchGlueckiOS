@@ -107,7 +107,6 @@ class GenericAPIService {
     
     var baseURL: String
     var bearerToken: String
-
     init(environment: EnvironmentVariables) {
         self.baseURL = ""
         self.bearerToken = ""
@@ -119,7 +118,7 @@ class GenericAPIService {
             print("Fehler: API_KEY oder API_BASEURL nicht korrekt in Info.plist konfiguriert.")
             return
         }
-
+        
         switch environment {
             case .production:
                 self.baseURL = urls["production"] ?? ""

@@ -50,7 +50,7 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.recipeCategories,
-                                target: { RecipeCategoryScreen() }
+                                target: { RecipeCategoryScreen(firebase: firebase) }
                             )
                         
                         SectionImageCard(image: .icCartMirrored,title: "Shoppinglist",description: "Erstelle aus deinem Mealplan eine Shoppingliste.")

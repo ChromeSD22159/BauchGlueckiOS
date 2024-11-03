@@ -16,7 +16,7 @@ enum Destination {
     case notes
     case medication
     case weight
-    case recipeCategories
+    case recipeCategories, searchRecipes
     case shoppingList
     case mealPlan
 
@@ -31,6 +31,7 @@ enum Destination {
             case .medication: Page(title: "Medikation", route: "/medication")
             case .weight: Page(title: "Gewichtskontrolle", route: "/weights")
             case .recipeCategories: Page(title: "Rezept Kategorien", route: "/recipeCategories")
+            case .searchRecipes: Page(title: "Rezepte Suchen", route: "/searchCategories")
             case .shoppingList: Page(title: "Shopping Listen", route: "/shoppingList")
             case .mealPlan: Page(title: "Mahlzeiten Planer", route: "/mealPlan")
         }
