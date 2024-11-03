@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import SwiftData
+import FirebaseAuth
 
 #Preview {
     NextMedication()
@@ -14,8 +15,8 @@ import SwiftData
 
 struct NextMedication: View {
     let theme: Theme = Theme.shared
-    
-    @Query() var medications: [Medication]
+    @Environment(\.modelContext) var modelContext
+    @State private var medications = [Medication]()
     
     var body: some View {
         VStack {
@@ -25,33 +26,25 @@ struct NextMedication: View {
                 NoMedication()
             }
         }
+        .onAppear {
+            medications = MedicationDataService.userHasMedication(context: modelContext)
+        }
     }
-    
-    func getNextMedicationCard(medications: [Medication]) -> Medication? {
-        let currentDate = Date()
-        let calendar = Calendar.current
-
-        return medications
-            .flatMap { (medication: Medication) -> [IntakeTime] in
-                medication.intakeTimes.compactMap { (intakeTime: IntakeTime) -> IntakeTime? in
-                    guard !intakeTime.isDeleted else { return nil }
-                    let todayStatuses = intakeTime.intakeStatuses.filter { (status: IntakeStatus) -> Bool in
-                        let statusDate = Date(timeIntervalSince1970: TimeInterval(status.date) / 1000)
-                        return calendar.isDate(statusDate, inSameDayAs: currentDate) && !status.isDeleted
-                    }
-                    return todayStatuses.isEmpty ? intakeTime : nil
-                }
-            }
-            .sorted { $0.intakeTime < $1.intakeTime }
-            .first?.medication
-    }
-
 }
 
 struct NextMedicationCard: View {
     let theme: Theme = Theme.shared
     @Query() var medications: [Medication]
     @State var nextMedication: NextMedicationForToday? = nil
+    
+    init() {
+        let userID = Auth.auth().currentUser?.uid ?? ""
+        _medications = Query(
+            filter: #Predicate<Medication> { med in
+                med.userId == userID
+            }
+        )
+    }
     
     var body: some View {
         VStack(spacing: 20) {
@@ -102,43 +95,10 @@ struct NextMedicationCard: View {
         .foregroundStyle(theme.onBackground)
         .sectionShadow(margin: theme.padding)
         .onAppear {
-            findNextMedicationIntake()
+            nextMedication = MedicationDataService.findNextMedicationIntake(medications: medications)
         }
         .onChange(of: medications) {
-            findNextMedicationIntake()
-        }
-    }
-    
-    private func findNextMedicationIntake() {
-        var nextEntries: [NextMedicationForToday] = []
-
-        medications.forEach { medication in
-            medication.intakeTimes.forEach { intakeTime in
-                guard let timeOfIntake = intakeTime.intakeTime.toDate else {
-                    return
-                }
-
-                // Alle Status für heute filtern
-                let status = intakeTime.intakeStatuses.filter { status in
-                    Calendar.current.isDate(status.date.toDate, inSameDayAs: Date())
-                }
-
-                // Intake-Zeit ist relevant, wenn kein Status vorhanden ist oder isTaken == false
-                if status.isEmpty || status.contains(where: { !$0.isTaken }) {
-                    let nextMedication = NextMedicationForToday(medication: medication, intakeTime: timeOfIntake)
-                    nextEntries.append(nextMedication)
-                }
-            }
-        }
-
-        // Alle offenen Einnahmezeiten nach der Zeit sortieren
-        nextEntries.sort { $0.intakeTime < $1.intakeTime }
-
-        // Setze den nächsten Eintrag, falls vorhanden
-        if let nextIntake = nextEntries.first {
-            self.nextMedication = nextIntake
-        } else {
-            self.nextMedication = nil
+            nextMedication = MedicationDataService.findNextMedicationIntake(medications: medications)
         }
     }
 }

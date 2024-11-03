@@ -13,7 +13,12 @@ var localDataScource: ModelContainer = {
         WaterIntake.self,
         Weight.self,
         Medication.self,
-        SyncHistory.self
+        SyncHistory.self,
+        
+        Recipe.self,
+        Ingredient.self,
+        MainImage.self, 
+        Category.self,
     ])
     
     let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)

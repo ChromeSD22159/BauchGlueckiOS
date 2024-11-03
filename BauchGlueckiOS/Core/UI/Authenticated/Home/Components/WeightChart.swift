@@ -73,7 +73,7 @@ struct WeightChart: View {
                     
                     HStack(alignment: .bottom, spacing: 10) {
                         ForEach(animatedWeeklyAverage, id: \.week) { week in
-                            VStack(spacing: 15) {
+                            VStack(spacing: 30) {
                                 Spacer()
                                 
                                 HStack(alignment: .bottom) {
@@ -94,8 +94,11 @@ struct WeightChart: View {
                             }
                         }
                     }
-                    .frame(height: 280)
+                    .opacity(0.5)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 300)
                 }
+                .padding(theme.padding)
                 .padding(theme.padding)
                 .background(gradient)
                 .cornerRadius(theme.radius)

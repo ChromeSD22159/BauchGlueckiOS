@@ -55,7 +55,8 @@ struct SettingSheet: ViewModifier {
                                             firebase: authManager,
                                             onDismissAction: {
                                                 viewModel.updateProfile()
-                                            }
+                                            },
+                                            showSettingButton: false
                                         )
                                 } label: {
                                     SettingRowItem(icon: "person.fill", text: "Profile")

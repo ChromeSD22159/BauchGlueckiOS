@@ -52,7 +52,7 @@ struct HomeWeightMockCard: View {
             
             HStack(alignment: .bottom, spacing: 15) {
                 ForEach(mockList, id: \.week) { week in
-                    VStack(spacing: 15) {
+                    VStack(spacing: 30) {
                         Spacer()
                         
                         HStack(alignment: .bottom) {
@@ -67,12 +67,14 @@ struct HomeWeightMockCard: View {
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(theme.onBackground)
                                 .rotationEffect(Angle(degrees: -90))
+                                .minimumScaleFactor(0.8)
                         }
                         .frame(height: 40)
                     }
                 }
             }
-            .frame(height: 280)
+            .opacity(0.25)
+            .frame(height: 300)
             
             HStack {
                 Text("In einigen Tagen siehst du hier deine Statistik")
@@ -80,6 +82,7 @@ struct HomeWeightMockCard: View {
                     .foregroundStyle(theme.onBackground)
             }
         }
+        .padding(theme.padding)
         .padding(theme.padding)
         .background(gradient)
         .cornerRadius(theme.radius)

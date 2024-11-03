@@ -28,7 +28,7 @@ class WaterIntakeService {
         self.syncHistoryRepository = SyncHistoryService(context: context)
     }
 
-    func insertOrUpdate(waterIntakeID: String, serverWaterIntake: WaterIntake) {
+    private func insertOrUpdate(waterIntakeID: String, serverWaterIntake: WaterIntake) {
         let localWaterIntake = getById(waterIntakeId: waterIntakeID)
         if let localWaterIntake = localWaterIntake {
             
@@ -40,7 +40,7 @@ class WaterIntakeService {
         } else {
             context.insert(
                 Weight(
-                    userID: serverWaterIntake.userID,
+                    userID: serverWaterIntake.userId,
                     weightId: serverWaterIntake.waterIntakeId,
                     value: serverWaterIntake.value,
                     isDeleted: serverWaterIntake.isDeleted,
@@ -49,30 +49,12 @@ class WaterIntakeService {
             )
         }
     }
-    
-    func getAll() async throws -> [WaterIntake] {
-        guard let userID = Auth.auth().currentUser?.uid else { return [] }
-        
-        let predicate = #Predicate { (waterIntake: WaterIntake) in
-            waterIntake.userID == userID
-        }
-        
-        let query = FetchDescriptor<WaterIntake>(
-            predicate: predicate
-        )
 
-        do {
-            return try context.fetch(query)
-        } catch {
-            return []
-        }
-    }
-    
-    func getAllUpdatedItems(timeStamp: Int64) -> [WaterIntake] {
-        guard let userID = Auth.auth().currentUser?.uid else { return [] }
+    private func getAllUpdatedItems(timeStamp: Int64) -> [WaterIntake] {
+        guard let userId = Auth.auth().currentUser?.uid else { return [] }
        
         let predicate = #Predicate { (waterIntake: WaterIntake) in
-            waterIntake.userID == userID && waterIntake.updatedAtOnDevice > timeStamp
+            waterIntake.userId == userId && waterIntake.updatedAtOnDevice > timeStamp
         }
         
         let query = FetchDescriptor<WaterIntake>(
@@ -86,7 +68,7 @@ class WaterIntakeService {
         }
     }
     
-    func getById(waterIntakeId: String) -> WaterIntake? {
+    private func getById(waterIntakeId: String) -> WaterIntake? {
         let predicate = #Predicate { (intake: WaterIntake) in
             intake.waterIntakeId == waterIntakeId
         }
@@ -101,30 +83,19 @@ class WaterIntakeService {
         
         return nil
     }
-    
-    func softDeleteMany(intakes: [WaterIntake]) async throws {
-        intakes.forEach { intake in
-            intake.isDeleted = true
-            intake.updatedAtOnDevice = Date().timeIntervalSince1970Milliseconds
-        }
-        
-        try context.save()
-        syncWaterIntakes()
-    }
-    
-    func insertGLass(
-        glassSize: Double = 0.25
-    ) {
+
+    func insertGLass() {
         guard let user = Auth.auth().currentUser else { return }
-        self.context.insert(
-            WaterIntake(
-                userID: user.uid,
-                value: glassSize
-            )
+        
+        let intake =  WaterIntake(
+            userId: user.uid,
+            value: 0.25
         )
+ 
+        self.context.insert( intake )
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-            //self.sendUpdatedWaterIntakesToBackend()
+            self.sendUpdatedWaterIntakesToBackend()
         })
         
         

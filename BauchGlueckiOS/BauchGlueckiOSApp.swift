@@ -9,6 +9,7 @@ import SwiftUI
 import GoogleSignIn
 import FirebaseAuth
 import FirebaseCore
+import SwiftData
 
 @main
 struct BauchGlueckiOSApp: App, HandleNavigation {
@@ -18,9 +19,11 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     @State var backendIsReachable = false
     @State var screen: Screen = Screen.Launch
     @StateObject var firebase: FirebaseService = FirebaseService()
-
+    
+    let launchDeay = 0.5
+    
     var services: Services {
-        Services(env: .production, firebase: firebase)
+        Services(env: .localSabina, firebase: firebase)
     }
         
     init() {
@@ -30,18 +33,25 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     var body: some Scene {
         WindowGroup {
             ZStack {
+                
                 switch screen {
                     case .Launch: LaunchScreen()
                     case .Login: LoginScreen(navigate: handleNavigation)
                     case .Register: RegisterScreen(navigate: handleNavigation)
                     case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
                     case .Home: HomeScreen(page: .home)
-                            .onAppear{
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
-                                    GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
-                                })
-                            }
+                                    .onAppear {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
+                                            GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
+                                        })
+                                        
+                                        RecipesDataService.fetchRecipesFromBackend(
+                                            context: localDataScource.mainContext,
+                                            apiService: StrapiApiClient(environment: .production)
+                                        )
+                                    }
                 }
+                
             }
             .onOpenURL { url in
                 GIDSignIn.sharedInstance.handle(url)
@@ -52,7 +62,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
             .onAppEnterForeground { checkBackendIsReachable() }
             .onAppear {
                 checkBackendIsReachable()
-                markUserOnlineOnStart(launchDelay: 1.5)
+                markUserOnlineOnStart(launchDelay: launchDeay)
             }
             .environmentObject(firebase)
             .environmentObject(services)
@@ -93,6 +103,8 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     private func checkBackendIsReachable() {
         Task {
             backendIsReachable = try await services.apiService.isServerReachable()
+            
+            
         }
     }
 }

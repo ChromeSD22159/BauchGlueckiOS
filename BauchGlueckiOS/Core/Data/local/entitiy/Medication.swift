@@ -10,12 +10,12 @@ import SwiftData
 @Model
 class Medication {
     @Attribute(.unique) var id: UUID
-    var medicationId: String
-    var userId: String
-    var name: String
-    var dosage: String
-    var isDeleted: Bool
-    var updatedAtOnDevice: Int64
+    @Attribute var medicationId: String
+    @Attribute var userId: String
+    @Attribute var name: String
+    @Attribute var dosage: String
+    @Attribute var isDeleted: Bool
+    @Attribute var updatedAtOnDevice: Int64
     
     @Relationship(deleteRule: .cascade) var intakeTimes: [IntakeTime]
     

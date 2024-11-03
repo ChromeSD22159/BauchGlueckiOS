@@ -11,7 +11,7 @@ import Foundation
 @Model
 class WaterIntake: Identifiable, Codable {
     @Attribute(.unique) var id: UUID
-    var userID: String
+    var userId: String
     var waterIntakeId: String
     var value: Double
     var isDeleted: Bool
@@ -19,14 +19,14 @@ class WaterIntake: Identifiable, Codable {
     
     init(
         id: UUID = UUID(),
-        userID: String = "",
+        userId: String,
         waterIntakeId: String = UUID().uuidString,
-        value: Double = 0.0,
+        value: Double,
         isDeleted: Bool = false,
         updatedAtOnDevice: Int64 = Date().timeIntervalSince1970Milliseconds
     ) {
         self.id = id
-        self.userID = userID
+        self.userId = userId
         self.waterIntakeId = waterIntakeId
         self.value = value
         self.isDeleted = isDeleted
@@ -35,7 +35,7 @@ class WaterIntake: Identifiable, Codable {
 
     enum CodingKeys: String, CodingKey {
         case id
-        case userID
+        case userId
         case waterIntakeId
         case value
         case isDeleted
@@ -53,7 +53,7 @@ class WaterIntake: Identifiable, Codable {
             throw DecodingError.dataCorruptedError(forKey: .id, in: container, debugDescription: "ID could not be decoded")
         }
         
-        self.userID = (try? container.decode(String.self, forKey: .userID)) ?? ""
+        self.userId = (try? container.decode(String.self, forKey: .userId)) ?? ""
         self.waterIntakeId = (try? container.decode(String.self, forKey: .waterIntakeId)) ?? ""
         self.value = (try? container.decode(Double.self, forKey: .value)) ?? 0.0
         self.isDeleted = (try? container.decode(Bool.self, forKey: .isDeleted)) ?? false
@@ -64,9 +64,9 @@ class WaterIntake: Identifiable, Codable {
         do {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(id, forKey: .id)
-            try container.encode(userID, forKey: .userID)
+            try container.encode(userId, forKey: .userId)
             try container.encode(waterIntakeId, forKey: .waterIntakeId)
-            try container.encode(value, forKey: .value)
+            try container.encode(Float(value), forKey: .value)
             try container.encode(isDeleted, forKey: .isDeleted)
             try container.encode(updatedAtOnDevice, forKey: .updatedAtOnDevice)
         } catch {

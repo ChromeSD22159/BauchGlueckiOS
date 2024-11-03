@@ -90,7 +90,7 @@ struct OLDWaterIntakeCard: View {
                             isFilled: .constant(isFilled),
                             onClick: {
                                 if !isFilled {
-                                    services.waterIntakeService.insertGLass(glassSize: glassSize)
+                                    services.waterIntakeService.insertGLass()
                                 }
                             },
                             animationDelay: index
@@ -173,6 +173,11 @@ struct WaterIntakeCard: View {
                 VStack(spacing: theme.padding) {
                     Text("Wassereinnahme")
                         .font(theme.headlineTextSmall)
+                        .onTapGesture {
+                            intakes.forEach {
+                                modelContext.delete($0)
+                            } 
+                        }
                     
                     Text(String(format: "Dein Ziel: %.1f L Wasser", intakeTarget))
                         .font(.footnote)
@@ -193,7 +198,7 @@ struct WaterIntakeCard: View {
                             isFilled: .constant(isFilled),
                             onClick: {
                                 if !isFilled {
-                                    services.waterIntakeService.insertGLass(glassSize: glassSize)
+                                    services.waterIntakeService.insertGLass()
                                 }
                             },
                             animationDelay: index

@@ -6,38 +6,25 @@
 //
 import SwiftUI
 import SwiftData
+import FirebaseAuth
 
 struct MedicationScreen: View {
     let theme: Theme = Theme.shared
 
     @Query(sort: \Medication.name, order: .forward) var medication: [Medication]
     
-    var filterIntakeTimeStatusesForToday: [Medication] {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        
-        let new = medication.map { medi in
-            // Filter intakeTimes for each medication
-            let intakeTimes = medi.intakeTimes.map { time in
-                let updatedTime = time
-                updatedTime.intakeStatuses = time.intakeStatuses.filter { status in
-                    !status.isDeleted && calendar.isDate(status.date.toDate, inSameDayAs: today)
-                }
-                return updatedTime
-            }
-            
-            // Rückgabe des Medikaments mit den gefilterten intakeTimes
-            let updatedMedication = medi
-            updatedMedication.intakeTimes = intakeTimes
-            return updatedMedication
-        }
-        
-        return new
-    }
-    
     @State private var tab: Tab = .intake
     @Environment(\.modelContext) var modelContext
  
+    init() {
+        let userID = Auth.auth().currentUser?.uid ?? ""
+        _medication = Query(
+            filter: #Predicate<Medication> { med in
+                med.userId == userID
+            }
+        )
+    }
+    
     var body: some View {
         ZStack {
             theme.background.ignoresSafeArea()
@@ -58,7 +45,9 @@ struct MedicationScreen: View {
                             ForEach(medication.indices, id: \.self) { index in
                                 MedicationCard(
                                     medication: medication[index],
-                                    onDelete: { delete(index: index) }
+                                    onDelete: {
+                                        MedicationDataService.delete(context: modelContext, medication: medication[index])
+                                    }
                                 )
                             }
                         }
@@ -72,10 +61,6 @@ struct MedicationScreen: View {
                 .padding(theme.padding)
             }
         }
-    }
-    
-    func delete(index: Int) {
-        modelContext.delete(medication[index])
     }
     
     enum Tab {

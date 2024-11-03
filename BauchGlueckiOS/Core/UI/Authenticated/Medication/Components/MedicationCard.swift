@@ -5,6 +5,8 @@
 //  Created by Frederik Kohler on 29.10.24.
 //
 import SwiftUI
+import SwiftData
+import FirebaseAuth
 
 struct MedicationCard: View {
 
@@ -36,8 +38,7 @@ struct MedicationCard: View {
     }
     
     // Header view for MedicationCard
-    @ViewBuilder
-    private func headerView() -> some View {
+    @ViewBuilder private func headerView() -> some View {
         HStack {
             Image(systemName: "pills.fill")
                 .font(.title)
@@ -58,26 +59,27 @@ struct MedicationCard: View {
     }
     
     // View for displaying intake times
-    @ViewBuilder
-    private func intakeTimesView() -> some View {
+    @ViewBuilder private func intakeTimesView() -> some View {
         HStack {
             Spacer()
             
-            let sortedMedicationIntakeTimes = $medication.intakeTimes.sorted(by: {
-                $0.intakeTime.wrappedValue.toDate! < $1.intakeTime.wrappedValue.toDate!
+            let sortedMedicationIntakeTimes = medication.intakeTimes.sorted(by: {
+                $0.intakeTime.toDate! < $1.intakeTime.toDate!
             })
             
-            ForEach(sortedMedicationIntakeTimes) { $intakeTime in
-                intakeTimeView(intakeTime: $intakeTime)
+            ForEach(sortedMedicationIntakeTimes) { intakeTime in
+                intakeTimeView(intakeTime: intakeTime)
             }
         }
     }
     
     // View for a single intake time
-    @ViewBuilder
-    private func intakeTimeView(intakeTime: Binding<IntakeTime>) -> some View {
-        let isTaken = intakeTime.wrappedValue.intakeStatuses.contains { $0.isTaken }
-    
+    @ViewBuilder private func intakeTimeView(@Bindable intakeTime: IntakeTime) -> some View {
+        
+        let isTaken = intakeTime.intakeStatuses.filter { status in
+            return !status.isTaken && !status.isDeleted && Calendar.current.isDate(status.date.toDate, inSameDayAs: Date())
+        }
+        
         VStack {
             ZStack {
                 Circle()
@@ -87,13 +89,13 @@ struct MedicationCard: View {
                     .fill(theme.backgroundGradient)
                     .frame(width: 50)
             }
-            .opacity(isTaken ? 1.0 : 0.5)
+            .opacity(isTaken.count > 0 ? 0.5 : 1.0)
             
-            Text(intakeTime.intakeTime.wrappedValue)
+            Text(intakeTime.intakeTime)
                 .font(.caption2)
         }
         .onTapGesture {
-            toggleIntakeStatus(for: intakeTime)
+            MedicationDataService.toggleIntakeStatus(for: intakeTime)
         }
     }
     
@@ -111,30 +113,6 @@ struct MedicationCard: View {
             }
         }
     }
-    
-    // Toggles the intake status for a given intake time
-    private func toggleIntakeStatus(for intakeTime: Binding<IntakeTime>) {
-        if let index = intakeTime.wrappedValue.intakeStatuses.firstIndex(where: {
-            Calendar.current.isDate($0.date.toDate, inSameDayAs: Date())
-        }) {
-            // Update existing intake status
-            print("update")
-            let state = intakeTime.wrappedValue.intakeStatuses[index].isTaken
-            intakeTime.wrappedValue.intakeStatuses[index].isTaken = !state
-            intakeTime.wrappedValue.intakeStatuses[index].updatedAtOnDevice = Date().timeIntervalSince1970Milliseconds
-        } else {
-            // Create new intake status for today
-            print("create")
-            let newStatus = IntakeStatus(
-                intakeStatusId: UUID().uuidString,
-                intakeTimeId: intakeTime.wrappedValue.intakeTimeId,
-                date: Date().timeIntervalSince1970Milliseconds,
-                isTaken: true,
-                isDeleted: false,
-                updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
-                intakeTime: intakeTime.wrappedValue
-            )
-            intakeTime.wrappedValue.intakeStatuses.append(newStatus)
-        }
-    }
 }
+
+

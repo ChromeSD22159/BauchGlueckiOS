@@ -27,6 +27,8 @@ struct HomeScreen: View, PageIdentifier {
     
     @State private var path: [Destination] = []
     
+    @Query() var recipes: [Recipe]
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -39,24 +41,24 @@ struct HomeScreen: View, PageIdentifier {
                             .sectionShadow(margin: theme.padding)
                             .navigateTo(
                                 firebase: firebase,
-                                destination: Destination.timer,
-                                target: { TimerScreenButton() }
+                                destination: Destination.mealPlan,
+                                target: { MealPlanScreen() }
                             )
                         
                         SectionImageCard(image: .icKochhut,title: "Rezepte",description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.")
                             .sectionShadow(margin: theme.padding)
                             .navigateTo(
                                 firebase: firebase,
-                                destination: Destination.timer,
-                                target: { TimerScreenButton() }
+                                destination: Destination.recipeCategories,
+                                target: { RecipeCategoryScreen() }
                             )
                         
                         SectionImageCard(image: .icCartMirrored,title: "Shoppinglist",description: "Erstelle aus deinem Mealplan eine Shoppingliste.")
                             .sectionShadow(margin: theme.padding)
                             .navigateTo(
                                 firebase: firebase,
-                                destination: Destination.timer,
-                                target: { TimerScreenButton() }
+                                destination: Destination.shoppingList,
+                                target: { ShoppingListScreen() }
                             )
                         
                         if let startWeight = firebase.userProfile?.startWeight {

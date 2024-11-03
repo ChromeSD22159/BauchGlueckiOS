@@ -20,12 +20,12 @@ struct MedicationHistoryCard: View {
                 CalendarView(cellSize: geo.size.width / 20)
                 Legend(cellSize: geo.size.width / 20, steps: medication.intakeTimes.count)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(theme.padding)
+            .frame(maxWidth: .infinity)
             .background(theme.surface)
             .cornerRadius(theme.radius)
             .shadow(radius: 3)
-        }
+        }.frame(height: 260)
     }
     
     @ViewBuilder func Header() -> some View {
@@ -49,13 +49,12 @@ struct MedicationHistoryCard: View {
         HStack(spacing: 3) {
             ForEach(calendarDates, id: \.self) { (week: [Date]) in
                 VStack(spacing: 3) {
-                    ForEach(week, id: \.self) { (day: Date) in
+                    ForEach(week, id: \.self) { (dayDate: Date) in
                         GridDayItem(
                             cellSize: cellSize,
-                            timesCount: medication.intakeTimes.count,
-                            intakeCount: intakeStatus(for: day)
+                            percent: intakeStatusPercent(for: dayDate)
                         )
-                        .opacity(day > Date() ? 0.0 : 1.0)
+                        .opacity(dayDate > Date() ? 0.0 : 1.0)
                     }
                 }
             }
@@ -72,19 +71,25 @@ struct MedicationHistoryCard: View {
             
             HStack(spacing: 3) {
                 ForEach(percents, id: \.self) { percent in
-                    GridDayItem(cellSize: cellSize, percent: percent)
+                    GridDayItem(cellSize: cellSize, percent: Int(percent))
                 }
             }
         }
     }
     
-    private func intakeStatus(for date: Date) -> Int {
-        medication.intakeTimes.reduce(0) { count, intakeTime in
-            count + intakeTime.intakeStatuses.filter { status in
-                status.isTaken &&
-                !status.isDeleted &&
-                Calendar.current.isDate(status.date.toDate, inSameDayAs: date)
-            }.count
+    private func intakeStatusPercent(for date: Date) -> Int {
+        let totalIntakes = medication.intakeTimes.count
+
+        let takenIntakes = medication.intakeTimes.filter { intakeTime in
+            intakeTime.intakeStatuses.contains { status in
+                status.isTaken && !status.isDeleted && Calendar.current.isDate(status.date.toDate, inSameDayAs: date)
+            }
         }
+
+        let percentage = Double(takenIntakes.count) / Double(totalIntakes) * 100
+
+        return Int(percentage)
     }
 }
+
+
