@@ -7,64 +7,14 @@
 
 import SwiftUI
 import SwiftData
-
-
-#Preview {
-    
-    let recipe = Recipe(
-        id: 4,
-        mealId: "c6187c8f-7b1b-4b61-b266-661cc325d4a8",
-        userId: "ipEn4nWseaU3IHrMV9Wy4Nio4wF2",
-        name: "Frittata mit Spinat und Schinken",
-        recipeDescription: "Mit diesem Rezept zauberst du im Handumdrehen kleine, herzhafte Spinat-Quiches, die sowohl kalt als auch warm schmecken. Die Kombination aus Blätterteig, Spinat, Schinken und der cremigen Füllung macht diese Quiches zu einem echten Genuss. Perfekt für alle, die schnelle und leckere Rezepte lieben.",
-        preparation: "1. Ein Muffinblech, mit 12 Mulden, mit etwas Margarine bestreichen. Den Backofen vorheizen.\n2. 4 Filoteigblätter in 9 Quadrate schneiden und in jede Mulde 3 Quadrate legen.\n3. Den Spinat fein hacken und auf die Mulden verteilen.\n4. Den Schinken würfeln und auf den Spinat geben.\n5. Die Eier, Ziegenjoghurt und Gewürze mit dem Schneebesen zu einer Eiermilch verrühren und gleichmäßig verteilen.\n6. Lauchzwiebel in feine Ringe schneiden und auf die Eiermilch geben.\n7. Backzeit: 30 Minuten, mittlere Schiene, Ober/Unterhitze bei 180 Grad",
-        preparationTimeInMinutes: 20,
-        protein: 8,
-        fat: 4,
-        sugar: 5,
-        kcal: 88,
-        isSnack: false,
-        isPrivate: false,
-        isDeleted: false,
-        updatedAtOnDevice: "1728634606862",
-        ingredients: [
-            Ingredient(id: 1, component: "", name: "Filoteig", amount: "4", unit: "Blätter"),
-            Ingredient(id: 2, component: "", name: "Spinat", amount: "240", unit: "g"),
-            Ingredient(id: 3, component: "", name: "Lauchzwiebeln", amount: "3", unit: "Stk"),
-            Ingredient(id: 4, component: "", name: "Schinken", amount: "90", unit: "g"),
-            Ingredient(id: 5, component: "", name: "Eier", amount: "5", unit: "Stk"),
-            Ingredient(id: 6, component: "", name: "griechischer Joghurt", amount: "200", unit: "g")
-        ],
-        category: Category(id: 4, categoryId: "hauptgericht", name: "Hauptgericht")
-    )
-    
-    NavigationStack {
-    
-        List {
-            NavigationLink(destination: {
-                DetailView(recipe: recipe)
-                   
-            }, label: {
-                Text("Link")
-            })
-            
-            NavigationLink(destination: DetailView(recipe: recipe), label: {
-                Text("Link")
-            })
-        }
-        .listStyle(.plain)
-        .navigationTitle("<Category> Rezepte")
-        
-    }
-}
-
+ 
 struct DetailView: View {
     
     @State var scrollOffset: CGPoint = .zero
     
     private var imageOpacity: CGFloat {
         let minScrollOffset: CGFloat = 75
-        let maxScrollOffset: CGFloat = 192
+        let maxScrollOffset: CGFloat = 170
 
         // Begrenze den ScrollOffset-Wert zwischen den maximalen und minimalen Werten
         let clampedOffset = min(max(scrollOffset.y, minScrollOffset), maxScrollOffset)
@@ -75,7 +25,7 @@ struct DetailView: View {
     
     private var imageScale: CGFloat {
         let minScrollOffset: CGFloat = 75
-        let maxScrollOffset: CGFloat = 192
+        let maxScrollOffset: CGFloat = 170
 
         // Begrenze den ScrollOffset-Wert zwischen den maximalen und minimalen Werten
         let clampedOffset = min(max(scrollOffset.y, minScrollOffset), maxScrollOffset)
@@ -90,21 +40,20 @@ struct DetailView: View {
     
     private var toolbarColor: Color {
         let minScrollOffset: CGFloat = 75
-        let maxScrollOffset: CGFloat = 192
-
+        let maxScrollOffset: CGFloat = 170
+        
         // Begrenze den ScrollOffset-Wert zwischen den maximalen und minimalen Werten
         let clampedOffset = min(max(scrollOffset.y, minScrollOffset), maxScrollOffset)
 
         // Interpolation, um den progressiven Wert zwischen 0 und 1 zu berechnen
         let normalizedValue = (clampedOffset - minScrollOffset) / (maxScrollOffset - minScrollOffset)
 
-        // Verwende die Interpolation zwischen Weiß (bei 0) und Schwarz (bei 1)
         return Color(red: normalizedValue, green: normalizedValue, blue: normalizedValue)
     }
-    
+ 
     private var toolbarBGOpacity: CGFloat {
         let minScrollOffset: CGFloat = 75
-        let maxScrollOffset: CGFloat = 192
+        let maxScrollOffset: CGFloat = 170
 
         // Begrenze den ScrollOffset-Wert zwischen den maximalen und minimalen Werten
         let clampedOffset = min(max(scrollOffset.y, minScrollOffset), maxScrollOffset)
@@ -113,8 +62,6 @@ struct DetailView: View {
         let normalizedValue = (clampedOffset - minScrollOffset) / (maxScrollOffset - minScrollOffset)
 
         appearance.backgroundColor = theme.background.opacity(normalizedValue).toUIColor
-        
-        // Verwende die Interpolation zwischen Weiß (bei 0) und Schwarz (bei 1)
         return normalizedValue
     }
     
@@ -149,9 +96,9 @@ struct DetailView: View {
                 ZStack {
                     
                     VStack(spacing: 25) {
-                        Text("recipe.name")
+                        Text(recipe.name)
                             .font(theme.headlineTextSmall)
-                            .foregroundStyle(.black)
+                            .foregroundStyle(theme.onBackground)
                         
                         IconRow(
                             kcal: 22.0,
@@ -178,7 +125,7 @@ struct DetailView: View {
                         
                     }
                     .padding()
-                    .background(Color.white.ignoresSafeArea())
+                    .background(theme.background.ignoresSafeArea())
                     .clipShape(RoundedCornersShape(radius: 15, corners: [.topLeft, .topRight]))
                 }
             }
@@ -205,7 +152,7 @@ struct DetailView: View {
             
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 16) {
-                    Image(systemName: "figure")
+                    Image(systemName: "plus")
                         .font(.body)
                 }
                 .foregroundStyle(toolbarColor)
@@ -293,7 +240,7 @@ struct DetailView: View {
             }
             
             Text(String(format: "%.0fg", nutrin))
-                .foregroundStyle(.black)
+                .foregroundStyle(theme.onBackground)
                 .font(.footnote)
         }
     }
@@ -339,53 +286,51 @@ struct DetailView: View {
     }
 }
 
-extension Color {
-    var toUIColor: UIColor {
-        UIColor(self)
-    }
-}
-
-private extension ScrollView {
-    func withOffsetTracking(
-        action: @escaping (_ offset: CGPoint) -> Void
-    ) -> some View {
-        self.coordinateSpace(name: ScrollOffsetNamespace.namespace)
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self, perform: action)
-    }
-}
-
-struct ScrollViewOffsetTracker: View {
-    var body: some View {
-        GeometryReader { geo in
-            Color.clear
-                .preference(
-                    key: ScrollOffsetPreferenceKey.self,
-                    value: geo
-                        .frame(in: .named(ScrollOffsetNamespace.namespace))
-                        .origin
-                )
+#Preview {
+    
+    let recipe = Recipe(
+        id: 4,
+        mealId: "c6187c8f-7b1b-4b61-b266-661cc325d4a8",
+        userId: "ipEn4nWseaU3IHrMV9Wy4Nio4wF2",
+        name: "Frittata mit Spinat und Schinken",
+        recipeDescription: "Mit diesem Rezept zauberst du im Handumdrehen kleine, herzhafte Spinat-Quiches, die sowohl kalt als auch warm schmecken. Die Kombination aus Blätterteig, Spinat, Schinken und der cremigen Füllung macht diese Quiches zu einem echten Genuss. Perfekt für alle, die schnelle und leckere Rezepte lieben.",
+        preparation: "1. Ein Muffinblech, mit 12 Mulden, mit etwas Margarine bestreichen. Den Backofen vorheizen.\n2. 4 Filoteigblätter in 9 Quadrate schneiden und in jede Mulde 3 Quadrate legen.\n3. Den Spinat fein hacken und auf die Mulden verteilen.\n4. Den Schinken würfeln und auf den Spinat geben.\n5. Die Eier, Ziegenjoghurt und Gewürze mit dem Schneebesen zu einer Eiermilch verrühren und gleichmäßig verteilen.\n6. Lauchzwiebel in feine Ringe schneiden und auf die Eiermilch geben.\n7. Backzeit: 30 Minuten, mittlere Schiene, Ober/Unterhitze bei 180 Grad",
+        preparationTimeInMinutes: 20,
+        protein: 8,
+        fat: 4,
+        sugar: 5,
+        kcal: 88,
+        isSnack: false,
+        isPrivate: false,
+        isDeleted: false,
+        updatedAtOnDevice: "1728634606862",
+        ingredients: [
+            Ingredient(id: 1, component: "", name: "Filoteig", amount: "4", unit: "Blätter"),
+            Ingredient(id: 2, component: "", name: "Spinat", amount: "240", unit: "g"),
+            Ingredient(id: 3, component: "", name: "Lauchzwiebeln", amount: "3", unit: "Stk"),
+            Ingredient(id: 4, component: "", name: "Schinken", amount: "90", unit: "g"),
+            Ingredient(id: 5, component: "", name: "Eier", amount: "5", unit: "Stk"),
+            Ingredient(id: 6, component: "", name: "griechischer Joghurt", amount: "200", unit: "g")
+        ],
+        category: Category(id: 4, categoryId: "hauptgericht", name: "Hauptgericht")
+    )
+    
+    NavigationStack {
+    
+        List {
+            NavigationLink(destination: {
+                DetailView(recipe: recipe)
+                   
+            }, label: {
+                Text("Link")
+            })
+            
+            NavigationLink(destination: DetailView(recipe: recipe), label: {
+                Text("Link")
+            })
         }
-        .frame(height: 0)
-    }
-}
-
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-
-    static var defaultValue: CGPoint = .zero
-
-    static func reduce(value: inout CGPoint, nextValue: () -> CGPoint) {}
-}
-
-enum ScrollOffsetNamespace {
-    static let namespace = "scrollView"
-}
-
-struct RoundedCornersShape: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
-
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
-        return Path(path.cgPath)
+        .listStyle(.plain)
+        .navigationTitle("<Category> Rezepte")
+        
     }
 }
