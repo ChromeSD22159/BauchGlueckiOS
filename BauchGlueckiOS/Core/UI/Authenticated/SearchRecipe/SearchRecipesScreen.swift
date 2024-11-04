@@ -37,7 +37,13 @@ struct SearchRecipesScreen: View {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(recipes, id: \.self) { recipe in
-                        RecipePreviewCard(mainImage: recipe.mainImage, name: recipe.name, fat: recipe.fat, protein: recipe.protein)
+                        
+                        NavigationLink(destination: {
+                            DetailView(recipe: recipe)
+                        }, label: {
+                            RecipePreviewCard(mainImage: recipe.mainImage, name: recipe.name, fat: recipe.fat, protein: recipe.protein)
+                        })
+                        
                     }
                 }
                 .padding(theme.padding)
@@ -85,18 +91,28 @@ struct RecipePreviewCard: View {
                 VStack(alignment: .leading) {
                     Text(name)
                         .lineLimit(1)
-                        .font(.footnote)
+                        .font(theme.headlineTextSmall)
                     
                     HStack {
-                        Text(String(format: "%0.1fg", protein))
-                            .font(.footnote)
+                        HStack {
+                            Image(uiImage: .fatDrop)
+                                .renderingMode(.template)
+                                .foregroundColor(theme.onBackground)
+                                .font(theme.headlineTextSmall)
+                            Text(String(format: "%0.1fg", protein))
+                        }
                         
                         Spacer()
                         
-                        Text(String(format: "%0.1fg", fat))
-                            .font(.footnote)
-                    }
+                        HStack {
+                            Image(systemName: "fish")
+                            Text(String(format: "%0.1fg", fat))
+                        }
+                        
+                    }.font(.footnote)
                 }
+                .font(theme.headlineTextSmall)
+                .foregroundStyle(theme.onBackground)
                 .padding(.vertical, theme.padding / 2)
                 .padding(.horizontal, theme.padding)
                 .frame(maxWidth: .infinity)

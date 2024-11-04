@@ -8,7 +8,7 @@ import SwiftUI
 
 struct SectionImageCard: View {
     private let theme = Theme.shared
-    var image: ImageResource
+    var image: UIImage
     var title: String
     var description: String
     
@@ -17,9 +17,11 @@ struct SectionImageCard: View {
             // HStack für das Bild rechts und Spacer links
             HStack {
                 Spacer()
-                Image(image)
+                
+                Image(uiImage: image)
                     .resizable()
-                    .foregroundStyle(theme.primary)
+                    .renderingMode(.template)
+                    .foregroundColor(theme.primary)
                     .opacity(0.25)
                     .frame(width: 170, height: 170)
                     .padding(.trailing, 20)

@@ -1,5 +1,5 @@
 {
-  "originHash" : "3430e206dc79cafbbf8f78d3876181f16ee055b76e86e57ac64148cf5b184fff",
+  "originHash" : "6eae28871e6a22f4bb00f92283b5656036136b3d9a795bc3769b20a14669b819",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -170,6 +170,15 @@
       "state" : {
         "revision" : "ebc7251dd5b37f627c93698e4374084d98409633",
         "version" : "1.28.2"
+      }
+    },
+    {
+      "identity" : "swiftsvg",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mchoe/SwiftSVG.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "88b9ee086b29019e35f6f49c8e30e5552eb8fa9d"
       }
     }
   ],
