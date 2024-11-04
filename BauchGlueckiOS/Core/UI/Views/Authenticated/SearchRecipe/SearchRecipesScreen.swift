@@ -39,7 +39,7 @@ struct SearchRecipesScreen: View {
                     ForEach(recipes, id: \.self) { recipe in
                         
                         NavigationLink(destination: {
-                            DetailView(recipe: recipe)
+                            DetailRecipeView(firebase: firebase, recipe: recipe)
                         }, label: {
                             RecipePreviewCard(mainImage: recipe.mainImage, name: recipe.name, fat: recipe.fat, protein: recipe.protein)
                         })

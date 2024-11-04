@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
  
-struct DetailView: View {
+struct DetailRecipeView: View {
     
     @State var scrollOffset: CGPoint = .zero
     
@@ -66,14 +66,15 @@ struct DetailView: View {
     }
     
     @State var appearance: UINavigationBarAppearance
+    
     var theme: Theme
-    
     var recipe: Recipe
+    var firebase: FirebaseService
     
-    init(recipe: Recipe) {
+    init(firebase: FirebaseService, recipe: Recipe) {
         self.theme = Theme.shared
         self.recipe = recipe
-        
+        self.firebase = firebase
         self.appearance = UINavigationBarAppearance()
         self.appearance.configureWithOpaqueBackground()
         self.appearance.backgroundColor = self.theme.background.opacity(0.0).toUIColor
@@ -127,6 +128,7 @@ struct DetailView: View {
                     .padding()
                     .background(theme.background.ignoresSafeArea())
                     .clipShape(RoundedCornersShape(radius: 15, corners: [.topLeft, .topRight]))
+                    .shadow(radius: 10, y: -5)
                 }
             }
             .withOffsetTracking(action: {
@@ -138,15 +140,20 @@ struct DetailView: View {
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                HStack(spacing: 16) {
-                    Image(systemName: "chevron.left")
-                        .font(.body)
-                    Text(Destination.recipeCategories.screen.title)
-                        .font(.callout)
-                }
-                .shadow(radius: 2)
-                .foregroundStyle(toolbarColor)
-                .onTapGesture {
+                if let category = recipe.category {
+                    HStack(spacing: 16) {
+                        Image(systemName: "chevron.left")
+                            .font(.body)
+                        Text(Destination.recipeCategories.screen.title)
+                            .font(.callout)
+                    }
+                    .navigateTo(
+                        firebase: firebase,
+                        destination: Destination.recipeCategories,
+                        target: { SearchRecipesScreen(firebase: firebase, category: category) }
+                    )
+                    .shadow(radius: 2)
+                    .foregroundStyle(toolbarColor)
                 }
             }
             
@@ -174,6 +181,7 @@ struct DetailView: View {
     ) -> some View {
         HStack {
             Text("\(ingredient.amount) \(ingredient.unit)")
+            Spacer()
             Text("\(ingredient.name)")
         }
         .padding(.vertical, 8)
@@ -319,13 +327,13 @@ struct DetailView: View {
     
         List {
             NavigationLink(destination: {
-                DetailView(recipe: recipe)
+                DetailRecipeView(firebase: FirebaseService(), recipe: recipe)
                    
             }, label: {
                 Text("Link")
             })
             
-            NavigationLink(destination: DetailView(recipe: recipe), label: {
+            NavigationLink(destination:  DetailRecipeView(firebase: FirebaseService(), recipe: recipe), label: {
                 Text("Link")
             })
         }

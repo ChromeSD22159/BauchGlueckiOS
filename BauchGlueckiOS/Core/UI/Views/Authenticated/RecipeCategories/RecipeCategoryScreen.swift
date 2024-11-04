@@ -17,7 +17,6 @@ struct RecipeCategoryScreen: View {
     
     var body: some View {
         ScreenHolder {
-            
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack {
                     ForEach(recipeCategorys) { category in
@@ -33,7 +32,6 @@ struct RecipeCategoryScreen: View {
                 }
                 .padding(theme.padding)
             }
-            
         }
     }
 }
@@ -51,7 +49,7 @@ struct RecipeCategoryScreen: View {
         }
         .contentMargins(.top, 10)
     }
-}
+} 
 
 struct RecipeImageCard: View {
     var image: ImageResource
