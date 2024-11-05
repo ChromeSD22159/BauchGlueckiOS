@@ -13,3 +13,11 @@ func formattedDate(_ date: Date = Date()) -> String {
     
     return formatter.string(from: date)
 }
+
+func formattedDateDDMM(_ date: Date = Date()) -> String {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "de_DE")
+    formatter.dateFormat = "dd.MM"
+    
+    return formatter.string(from: date)
+}
