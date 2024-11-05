@@ -81,7 +81,6 @@ struct DetailRecipeView: View {
         
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        
     }
     
     var body: some View {
