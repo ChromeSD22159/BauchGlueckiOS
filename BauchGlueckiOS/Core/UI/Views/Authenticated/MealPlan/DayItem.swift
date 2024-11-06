@@ -11,6 +11,8 @@ struct DayItem: View {
     let theme: Theme = Theme.shared
     var date: Date
     var selectedDate: Date
+    var currentMealCount: Int
+    var targetMealCount: Int
     var onTab: (Date) -> Void
     
     private var isToday: Bool {
@@ -22,7 +24,7 @@ struct DayItem: View {
             Text(formattedDateDDMM(date))
                 .font(theme.headlineTextSmall)
             
-            Text("0/0")
+            Text("\(currentMealCount)/\(targetMealCount)")
                 .font(.footnote)
         }
         .frame(width: 80, height: 80)

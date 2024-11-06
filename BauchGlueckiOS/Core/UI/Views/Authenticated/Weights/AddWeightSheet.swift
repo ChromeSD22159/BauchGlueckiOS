@@ -267,10 +267,12 @@ struct AddWeightSheetContent: View {
     private func insertWeight(close: () -> Void) {
         do {
             if currentWeight <= 30.0 {
+                printError(ValidationError.invalidWeight.rawValue)
                 throw ValidationError.invalidWeight
             }
             
             guard let user = Auth.auth().currentUser else {
+                printError(ValidationError.userNotFound.rawValue)
                 throw ValidationError.userNotFound
             }
             
@@ -290,7 +292,7 @@ struct AddWeightSheetContent: View {
             
             close()
         } catch let error {
-            printError(error.localizedDescription)
+            print(error.localizedDescription)
         }
     }
     

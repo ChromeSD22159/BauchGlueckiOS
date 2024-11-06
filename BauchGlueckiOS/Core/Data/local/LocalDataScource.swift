@@ -19,6 +19,8 @@ var localDataScource: ModelContainer = {
         Ingredient.self,
         MainImage.self, 
         Category.self,
+        MealPlanDay.self,
+        MealPlanSpot.self
     ])
     
     let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)

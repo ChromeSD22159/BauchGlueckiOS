@@ -32,11 +32,11 @@ struct CurrentCalorienLevel: View {
     }
   
     var body: some View {
-        VStack(alignment: .center, spacing: 10) {
+        VStack(alignment: .center, spacing: 20) {
             Text("Aktueller gebrauch: \(calcedLevel.kcal) (Kcal)")
                 .font(theme.headlineTextSmall)
             
-            VStack(spacing: 10) {
+            VStack(spacing: 20) {
                 HStack {
                     Item(title: "Protein", current: protein, max: calcedLevel.protein)
                     Item(title: "Kohlenhydrate", current: carbs, max: calcedLevel.carbs)
@@ -58,7 +58,7 @@ struct CurrentCalorienLevel: View {
         current: Int,
         max: Int
     ) -> some View {
-        VStack {
+        VStack(spacing: 7) {
             Text(title)
             LabeledGauge(current: Double(current), minValue: 0, maxValue: Double(max))
             Text("\(current)g/\(max)g" )

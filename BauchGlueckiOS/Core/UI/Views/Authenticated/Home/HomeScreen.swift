@@ -42,7 +42,7 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.mealPlan,
-                                target: { MealPlanScreen(firebase: firebase) }
+                                target: { MealPlanScreen(firebase: firebase, context: modelContext) }
                             )
                         
                         SectionImageCard(image: .icKochhut,title: "Rezepte",description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.")
