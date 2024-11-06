@@ -83,7 +83,7 @@ struct WeightChart: View {
                                 }
                                 
                                 HStack(alignment: .bottom) {
-                                    Text(DateRepository.formatDateDDMM(date: week.week))
+                                    Text(DateService.formatDateDDMM(date: week.week))
                                         .font(.caption2)
                                         .multilineTextAlignment(.center)
                                         .foregroundStyle(theme.onBackground)

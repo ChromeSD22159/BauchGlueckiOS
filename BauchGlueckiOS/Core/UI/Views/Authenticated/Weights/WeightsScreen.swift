@@ -65,8 +65,8 @@ struct WeightsScreen: View {
                         }
                         
                         HStack {
-                            let from = DateRepository.formatDateDDMM(date: highest.startDate)
-                            let till = DateRepository.formatDateDDMM(date: highest.endDate)
+                            let from = DateService.formatDateDDMM(date: highest.startDate)
+                            let till = DateService.formatDateDDMM(date: highest.endDate)
                             Text(String(format: "Von: \(from) zu \(till)"))
                                 .font(.footnote)
                             Spacer()
@@ -88,8 +88,8 @@ struct WeightsScreen: View {
                         }
                         
                         HStack {
-                            let from = DateRepository.formatDateDDMM(date: lowest.startDate)
-                            let till = DateRepository.formatDateDDMM(date: lowest.endDate)
+                            let from = DateService.formatDateDDMM(date: lowest.startDate)
+                            let till = DateService.formatDateDDMM(date: lowest.endDate)
                             Text(String(format: "Von: \(from) zu \(till)"))
                                 .font(.footnote)
                             Spacer()
@@ -102,8 +102,8 @@ struct WeightsScreen: View {
                 VStack(spacing: theme.padding + 5) {
                     ForEach(weeklyAverage.indices, id: \.self) { index in
                         let (differenceString, difference, _,_) = calcDifferenceToWeekBefore(index: index)
-                        let start = DateRepository.formatDateDDMM(date: weeklyAverage[index].startOfWeek)
-                        let end = DateRepository.formatDateDDMM(date: weeklyAverage[index].endOfWeek)
+                        let start = DateService.formatDateDDMM(date: weeklyAverage[index].startOfWeek)
+                        let end = DateService.formatDateDDMM(date: weeklyAverage[index].endOfWeek)
                         VStack(alignment: .leading) {
                             HStack {
                                 Text("Von: \(start) zu \(end):")

@@ -37,20 +37,7 @@ struct DetailRecipeView: View {
         // Verwende den invertierten Wert, um von 1.0 zu 0.5 zu skalieren
         return 1.0 + (1.2 - normalizedValue) * scaleRange
     }
-    
-    private var toolbarColor: Color {
-        let minScrollOffset: CGFloat = 75
-        let maxScrollOffset: CGFloat = 170
-        
-        // Begrenze den ScrollOffset-Wert zwischen den maximalen und minimalen Werten
-        let clampedOffset = min(max(scrollOffset.y, minScrollOffset), maxScrollOffset)
 
-        // Interpolation, um den progressiven Wert zwischen 0 und 1 zu berechnen
-        let normalizedValue = (clampedOffset - minScrollOffset) / (maxScrollOffset - minScrollOffset)
-
-        return Color(red: normalizedValue, green: normalizedValue, blue: normalizedValue)
-    }
- 
     private var toolbarBGOpacity: CGFloat {
         let minScrollOffset: CGFloat = 75
         let maxScrollOffset: CGFloat = 170
@@ -66,6 +53,9 @@ struct DetailRecipeView: View {
     }
     
     @State var appearance: UINavigationBarAppearance
+    
+    @State var isDateSheet = false
+    @State var selectedDate = Date()
     
     var theme: Theme
     var recipe: Recipe
@@ -88,7 +78,9 @@ struct DetailRecipeView: View {
         ZStack(alignment: .top) {
             theme.background.ignoresSafeArea()
            
-            ImageBG()
+            if let image = recipe.mainImage {
+                ImageBG(image: image)
+            }
 
             ScrollView {
                 ScrollViewOffsetTracker()
@@ -108,15 +100,20 @@ struct DetailRecipeView: View {
                         
                         PreperationTimeCategoryRow(
                             preparationTimeInMinutes: 25,
-                            recipeName: "String"
+                            recipeName: recipe.category?.name ?? "Nicht kategorisiert"
                         )
                         
                         TextWithTitlte(title: "Beschreibung:", text: recipe.recipeDescription)
                         
-                        
-                        ForEach(recipe.ingredients) { ingredient in
-                            IngredientItem(ingredient: ingredient)
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Zutaten:")
+                                .font(theme.headlineTextSmall)
+                            
+                            ForEach(recipe.ingredients) { ingredient in
+                                IngredientItem(ingredient: ingredient)
+                            }
                         }
+                        
                          
                         TextWithTitlte(title: "Zubereitung:", text: recipe.preparation)
                         
@@ -138,32 +135,12 @@ struct DetailRecipeView: View {
         }
         .navigationBarBackButtonHidden()
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                if let category = recipe.category {
-                    HStack(spacing: 16) {
-                        Image(systemName: "chevron.left")
-                            .font(.body)
-                        Text(Destination.recipeCategories.screen.title)
-                            .font(.callout)
-                    }
-                    .navigateTo(
-                        firebase: firebase,
-                        destination: Destination.recipeCategories,
-                        target: { SearchRecipesScreen(firebase: firebase, category: category) }
-                    )
-                    .shadow(radius: 2)
-                    .foregroundStyle(toolbarColor)
-                }
-            }
-            
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 16) {
-                    Image(systemName: "plus")
+                    Image(systemName: "calendar.badge.plus")
                         .font(.body)
                 }
-                .foregroundStyle(toolbarColor)
-                .onTapGesture {
-                }
+                .onTapGesture { isDateSheet.toggle() }
             }
         }
         .background(
@@ -171,7 +148,13 @@ struct DetailRecipeView: View {
                 .opacity(scrollOffset.y < -50 ? 1.0 : 0.0)
                 .animation(.easeInOut, value: scrollOffset)
         )
-        
+        .datePickerSheet(isSheet: $isDateSheet) { date in
+            selectedDate = date
+            
+            // TODO: -> SAVE RECIPE TO MEALPLAN
+            
+            // TODO: -> NAVIGATE TO
+        }
         
     }
     
@@ -189,16 +172,20 @@ struct DetailRecipeView: View {
         .sectionShadow()
     }
     
-    @ViewBuilder func ImageBG() -> some View {
+    @ViewBuilder func ImageBG(
+        image: MainImage
+    ) -> some View {
         GeometryReader { geometry in
-            Image(.beilage)
-                .resizable()
-                .renderingMode(.original)
-                .opacity(imageOpacity)
-                .aspectRatio(contentMode: .fill)
-                .scaleEffect(imageScale)
-                .frame(width: geometry.size.width, height: 300)
-                .clipped()
+            
+            CachedAsyncImage(url: URL(string: "https://bauchglueck.appsbyfrederikkohler.de" + image.url)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .scaleEffect(imageScale)
+                    .recipeImage(width: geometry.size.width, height: 300, opacity: imageOpacity)
+               
+            } placeholder: { }
+            
         }
         .frame(height: 300)
         .ignoresSafeArea()
@@ -321,22 +308,13 @@ let mockRecipe = Recipe(
 )
 
 #Preview {
-    NavigationStack {
-    
-        List {
-            NavigationLink(destination: {
-                DetailRecipeView(firebase: FirebaseService(), recipe: mockRecipe)
-                   
-            }, label: {
-                Text("Link")
-            })
+    GeometryReader { geometry in
+        Image(.beilage)
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .recipeImage(width: geometry.size.width, height: 300, opacity: 1.0)
             
-            NavigationLink(destination:  DetailRecipeView(firebase: FirebaseService(), recipe: mockRecipe), label: {
-                Text("Link")
-            })
-        }
-        .listStyle(.plain)
-        .navigationTitle("<Category> Rezepte")
-        
     }
 }
+
+

@@ -24,7 +24,7 @@ struct RecipeCategoryScreen: View {
                             RecipeImageCard(image: categoryImage.image, name: category.name)
                                 .navigateTo(
                                     firebase: firebase,
-                                    destination: Destination.searchRecipes,
+                                    destination: Destination.recipeCategories,
                                     target: { SearchRecipesScreen(firebase: firebase, category: category) }
                                 )
                         }

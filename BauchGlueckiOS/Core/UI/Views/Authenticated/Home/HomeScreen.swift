@@ -49,7 +49,7 @@ struct HomeScreen: View, PageIdentifier {
                             .sectionShadow(margin: theme.padding)
                             .navigateTo(
                                 firebase: firebase,
-                                destination: Destination.recipeCategories,
+                                destination: Destination.home,
                                 target: { RecipeCategoryScreen(firebase: firebase) }
                             )
                         

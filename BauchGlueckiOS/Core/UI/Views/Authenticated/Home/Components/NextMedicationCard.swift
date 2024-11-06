@@ -59,7 +59,7 @@ struct NextMedicationCard: View {
                         Text("Nachstes Medikament für Heute:")
                             .font(.footnote)
                         
-                        Text("\(next.medication.name) um \(DateRepository.formatTimeToHHmm(date: next.intakeTime)) Uhr")
+                        Text("\(next.medication.name) um \(DateService.formatTimeToHHmm(date: next.intakeTime)) Uhr")
                             .font(.footnote)
                     }
                 } else {

@@ -11,7 +11,7 @@ struct MedicationHistoryCard: View {
     
     var medication: Medication
     
-    var calendarDates: [[Date]] = DateRepository().lastSixteenWeeks.reversed()
+    var calendarDates: [[Date]] = DateService.lastSixteenWeeks.reversed()
 
     var body: some View {
         GeometryReader { geo in

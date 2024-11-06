@@ -16,10 +16,12 @@ class MealPlanViewModel {
     
     let firebase: FirebaseService
     let theme = Theme.shared
+    var dates: [Date]
     
     init(firebase: FirebaseService, context: ModelContext) {
         self.context = context
         self.firebase = firebase
+        self.dates = DateService.nextThirtyDays
         self.loadMealPlans()
     }
     
@@ -35,20 +37,6 @@ class MealPlanViewModel {
             return Calendar.current.isDate(plan.date, inSameDayAs: self.currentDate)
         }
         return plan.count
-    }
-    
-    var dates: [Date] {
-        let cal = Calendar.current
-        let today = Date()
-        
-        var dates: [Date] = []
-        
-        for i in 0..<30 {
-            let date = cal.date(byAdding: .day, value: i, to: today)!
-            dates.append(date)
-        }
-        
-        return dates
     }
     
     func loadMealPlans() {
@@ -82,8 +70,4 @@ class MealPlanViewModel {
     func setCurrentDate(date: Date) {
         currentDate = date
     }
-}
-
-enum NutritionType {
-    case protein, carbs, sugar, fat
 }
