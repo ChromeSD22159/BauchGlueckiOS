@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseAuth
 import Alamofire
+import UIKit
 
 class StrapiApiClient: GenericAPIService {
     
@@ -265,6 +266,71 @@ class GenericAPIService {
         
         task.resume()
     }
+    
+    func uploadImage(
+        endpoint: String,
+        image: UIImage,
+        completion: @escaping (Result<[MainImage], Error>) -> Void
+    ) {
+        let urlString = endpoint
+
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            completion(.failure(NSError(domain: "Image Conversion Failed", code: -2, userInfo: nil)))
+            return
+        }
+
+        // Set headers for the request
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(bearerToken)"
+        ]
+
+        // Multipart form data upload
+        AF.upload(
+            multipartFormData: { multipartFormData in
+                // Füge das Bild hinzu
+                let imageName = UUID().uuidString
+                multipartFormData.append(imageData, withName: "files", fileName: "\(imageName).jpg", mimeType: "image/jpeg")
+            }, to: urlString, headers: headers
+        )
+        .validate(statusCode: 200..<300)
+        .responseDecodable(of: [MainImage].self) { response in
+            switch response.result {
+            case .success(let uploadResponse):
+                completion(.success(uploadResponse))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    func uploadRecipe(
+        endpoint: String,
+        recipe: RecipeUpload,
+        completion: @escaping (Result<String, Error>) -> Void
+    ) {
+        let urlString = endpoint
+        let headers: HTTPHeaders = [
+            .authorization(bearerToken: self.bearerToken),
+            .contentType("application/json")
+        ]
+        do {
+            let jsonData = try JSONEncoder().encode(recipe)
+            let jsonString = String(data: jsonData, encoding: .utf8)
+
+            AF.request(urlString, method: .post, parameters: nil, encoding: JSONStringEncoding(jsonString!), headers: headers)
+                .validate()
+                .responseString { response in
+                    switch response.result {
+                    case .success(let responseString):
+                        completion(.success(responseString))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
+        } catch {
+            completion(.failure(error))
+        }
+    }
 }
 
 enum HTTPMethod: String {
@@ -285,4 +351,18 @@ enum NetworkError: Error {
     case conflict
     case unknown
     case NothingToSync
+}
+
+class JSONStringEncoding: ParameterEncoding {
+    private let jsonString: String
+
+    init(_ jsonString: String) {
+        self.jsonString = jsonString
+    }
+
+    func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
+        var request = try urlRequest.asURLRequest()
+        request.httpBody = jsonString.data(using: .utf8, allowLossyConversion: false)
+        return request
+    }
 }

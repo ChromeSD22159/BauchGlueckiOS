@@ -15,14 +15,16 @@ class Services: ObservableObject {
     let countdownService: CountdownService
     let weightService: WeightService
     let waterIntakeService: WaterIntakeService
+    let recipesService: RecipesDataService
     
     init(env: EnvironmentVariables = .localFrederik, firebase: FirebaseService) {
         let context: ModelContext = localDataScource.mainContext
         self.firebase = firebase
-        self.apiService = StrapiApiClient(environment: env)
+        self.apiService = StrapiApiClient(environment: env) 
         self.countdownService = CountdownService(context: context, apiService: self.apiService)
         self.weightService = WeightService(context: context, apiService: self.apiService)
         self.waterIntakeService = WaterIntakeService(context: context, apiService: self.apiService)
+        self.recipesService = RecipesDataService(context: context, apiService: self.apiService)
     }
     
     func fetchFrombackend() {

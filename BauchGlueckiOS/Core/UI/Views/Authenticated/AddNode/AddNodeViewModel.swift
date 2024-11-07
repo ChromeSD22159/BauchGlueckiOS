@@ -57,16 +57,14 @@ class AddNodeViewModel: ObservableObject {
                 )
                 
                 print(String("newNote"))
+                modelContext.insert(newNote)
+                try modelContext.save()
                 
-                Task {
-                    modelContext.insert(newNote)
-                    try modelContext.save()
-                    showMessage(error: "Gespeichert")
-                    
-                    sleep(1_000_000)
-                    
+                self.showMessage(error: "Gespeichert")
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {                     
                     finished()
-                }
+                })
                 
             }
         } catch {

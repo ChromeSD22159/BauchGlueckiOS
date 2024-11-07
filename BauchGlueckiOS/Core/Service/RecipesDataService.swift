@@ -8,17 +8,24 @@
 import SwiftData
 import Alamofire
 import SwiftUI
+import FirebaseAuth
 
 @MainActor
 struct RecipesDataService {
-    static func fetchRecipesFromBackend(
-        context: ModelContext,
-        table: Entitiy = .Recipe,
-        apiService: StrapiApiClient
+    var apiService: StrapiApiClient
+    var context: ModelContext
+    
+    init(context: ModelContext, apiService: StrapiApiClient) {
+        self.apiService = apiService
+        self.context = context
+    }
+    
+    func fetchRecipesFromBackend(
+        table: Entitiy = .Recipe
     ) {
         let syncHistoryRepository = SyncHistoryService(context: context)
         let headers: HTTPHeaders = [.authorization(bearerToken: apiService.bearerToken)]
-        
+  
         Task {
             do {
                 let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
@@ -34,6 +41,8 @@ struct RecipesDataService {
                 
                 switch response.result {
                 case .success(let recipes):
+                    
+                    print("<<< \(recipes.count) Recipes fetched")
                     
                     for recipeResponse in recipes {
                         
@@ -51,7 +60,6 @@ struct RecipesDataService {
                         recipe.ingredients = ingredients
                         
                         if let mainImageResponse = recipeResponse.mainImage {
-                            dump(recipeResponse.mainImage)
                             recipe.mainImage = insertOrUpdateImage(context: context, serverImage: mainImageResponse)
                         }
                         
@@ -77,7 +85,7 @@ struct RecipesDataService {
         }
     }
     
-    static func insertOrUpdateIngredient(context: ModelContext, serverIngredient: IngredientResponse) -> Ingredient? {
+    func insertOrUpdateIngredient(context: ModelContext, serverIngredient: IngredientResponse) -> Ingredient? {
         do {
             let existingIngredientDescriptor = FetchDescriptor<Ingredient>(
                 predicate: #Predicate<Ingredient> { $0.name == serverIngredient.name && $0.amount == serverIngredient.amount }
@@ -106,7 +114,7 @@ struct RecipesDataService {
         }
     }
     
-    static func insertOrUpdateRecipe(context: ModelContext, serverRecipe: RecipeResponse) -> Recipe? {
+    func insertOrUpdateRecipe(context: ModelContext, serverRecipe: RecipeResponse) -> Recipe? {
         do {
             let existingCategoryDescriptor = FetchDescriptor<Recipe>(
                 predicate: #Predicate<Recipe> { $0.mealId == serverRecipe.mealId }
@@ -156,7 +164,7 @@ struct RecipesDataService {
         }
     }
     
-    static func insertOrUpdateCategory(context: ModelContext, serverCategory: CategoryResponse) -> Category? {
+    func insertOrUpdateCategory(context: ModelContext, serverCategory: CategoryResponse) -> Category? {
         do {
             let existingCategoryDescriptor = FetchDescriptor<Category>(
                 predicate: #Predicate<Category> { $0.categoryId == serverCategory.categoryId }
@@ -177,7 +185,7 @@ struct RecipesDataService {
         }
     }
 
-    static func insertOrUpdateImage(context: ModelContext, serverImage: MainImageResponse) -> MainImage? {
+    func insertOrUpdateImage(context: ModelContext, serverImage: MainImageResponse) -> MainImage? {
         do {
             let existingImageDescriptor = FetchDescriptor<MainImage>(
                 predicate: #Predicate<MainImage> { $0.url == serverImage.url }
@@ -195,6 +203,76 @@ struct RecipesDataService {
         } catch {
             print(error.localizedDescription)
             return nil
+        }
+    }
+    
+    func uploadRequest(
+        recipeImage: UIImage,
+        recipeDescription: String,
+        recipeName: String,
+        recipePreperation: String,
+        recipePreperationTime: Int,
+        ingredients: [Ingredient],
+        selectedCategory: RecipeCategory,
+        successFullUploadet: @escaping (Result<String, Error>) -> Void
+    ) {
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+            
+        apiService.uploadImage(
+            endpoint: apiService.baseURL + "/api/upload/",
+            image: recipeImage
+        ) { result in
+            
+            switch result {
+                
+            case .success(let mainImage):
+                
+                if let image = mainImage.first {
+                    let recipeUpload = RecipeUpload(
+                        updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
+                        mealId: UUID().uuidString,
+                        userId: userID,
+                        description: recipeDescription,
+                        isDeleted: false,
+                        isPrivate: false,
+                        isSnack: false,
+                        name: recipeName,
+                        preparation: recipePreperation,
+                        preparationTimeInMinutes: recipePreperationTime,
+                        ingredients: ingredients.map { ingredient in
+                            IngredientResponse(id: ingredient.id, name: ingredient.name, amount: ingredient.amount, unit: ingredient.unit)
+                        },
+                        mainImage: MainImageUpload(id: image.id),
+                        category: CategoryUpload(name: selectedCategory.displayName),
+                        protein: 0.0,
+                        fat: 0.0,
+                        sugar: 0.0,
+                        kcal: 0.0
+                    )
+                    
+                    apiService.uploadRecipe(
+                        endpoint: apiService.baseURL + "/api/recipes/createRecipe",
+                        recipe: recipeUpload,
+                        completion: { res in
+                            
+                            switch res {
+                                case .success(_):
+                                
+                                fetchRecipesFromBackend()
+                                
+                                case .failure(let error): print("Error Fetching Recipes: \(error.localizedDescription)")
+                            }
+                            
+                            successFullUploadet(res)
+                        }
+                    )
+                }
+                
+                
+                
+                case .failure(let error): print(error)
+            }
+            
         }
     }
 }

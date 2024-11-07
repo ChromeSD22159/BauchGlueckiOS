@@ -23,7 +23,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     let launchDeay = 0.5
     
     var services: Services {
-        Services(env: .production, firebase: firebase)
+        Services(env: .localFrederik, firebase: firebase)
     }
         
     init() {
@@ -44,12 +44,10 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
                                             GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
                                         })
-                                        
-                                        RecipesDataService.fetchRecipesFromBackend(
-                                            context: localDataScource.mainContext,
-                                            apiService: StrapiApiClient(environment: .production)
-                                        )
                                     }
+                                    .onAppLifeCycle(appearAndActive: {
+                                        services.recipesService.fetchRecipesFromBackend()
+                                    })
                 }
                 
             }
@@ -103,8 +101,6 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     private func checkBackendIsReachable() {
         Task {
             backendIsReachable = try await services.apiService.isServerReachable()
-            
-            
         }
     }
-}
+} 

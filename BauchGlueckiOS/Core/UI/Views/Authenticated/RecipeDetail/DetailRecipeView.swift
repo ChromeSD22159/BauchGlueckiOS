@@ -161,7 +161,7 @@ struct DetailRecipeView: View {
     @ViewBuilder func IngredientItem(
         ingredient: Ingredient
     ) -> some View {
-        HStack {
+        HStack { 
             Text("\(ingredient.amount) \(ingredient.unit)")
             Spacer()
             Text("\(ingredient.name)")

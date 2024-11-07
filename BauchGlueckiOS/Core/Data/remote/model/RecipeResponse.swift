@@ -37,7 +37,7 @@ struct RecipeResponse: Codable {
 }
 
 struct IngredientResponse: Codable {
-    let component: String?
+    let component: String? = "recipe.single-ingredient"
     let id: Int
     let name: String
     let amount: String
