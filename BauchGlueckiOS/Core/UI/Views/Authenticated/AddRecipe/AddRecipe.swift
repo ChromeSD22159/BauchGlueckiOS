@@ -21,20 +21,17 @@ struct AddRecipeButtonWithPicker: View {
                 .foregroundStyle(Theme.shared.onBackground)
         })
         .sheet(isPresented: $isRecipeSheet, onDismiss: {}, content: {
-            AddRecipe(
-                dissmiss: { isRecipeSheet.toggle() },
-                onSave: { recipe in
-                }
-            )
+            AddRecipe(isPresented: $isRecipeSheet)
             .presentationDragIndicator(.visible)
         })
     }
 }
 
 struct AddRecipe: View {
+    
     @EnvironmentObject var service: Services
     @FocusState private var focusedField: FocusedField?
-
+    @Binding var isPresented: Bool
     // Recipe
     @State var recipeName: String = ""
     @State var recipeDescription: String = ""
@@ -47,20 +44,12 @@ struct AddRecipe: View {
     // ImagePicker
     @State var isImagePicker = false
     @State var recipeImage: UIImage = UIImage()
-    
-    @State var overlay: Bool = false
+
+    // OVERLAY
+    @State var animate = false
+    @State var phase: UploadRecipePhase = .notStarted
+    @State var timer: Timer? = nil
     @State var errorText = ""
-    
-    var dissmiss: () -> Void
-    var onSave: (Recipe) -> Void
-    
-    init(
-        dissmiss: @escaping () -> Void,
-        onSave: @escaping (Recipe) -> Void
-    ) {
-        self.dissmiss = dissmiss
-        self.onSave = onSave
-    }
     
     var body: some View {
         GeometryReader { geo in
@@ -75,15 +64,23 @@ struct AddRecipe: View {
                     }
                     .padding(.horizontal, Theme.shared.padding)
                 }
-                .opacity(overlay ? 0.5 : 1.0)
-                .animation(.easeInOut, value: overlay)
+                .opacity(animate ? 0.5 : 1.0)
+                .animation(.easeInOut, value: animate)
                 .contentMargins(.top, 20)
                 .sheet(isPresented: $isImagePicker) {
                     ImagePicker(sourceType: .photoLibrary, selectedImage: $recipeImage)
                 }
                 
-                if overlay {
-                    SaveOverlay(geo: geo)
+                if animate {
+                    VStack(alignment: .center, spacing: 10) {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            SaveOverlay(geo: geo, errorText: errorText, animate: $animate, phase: $phase)
+                            Spacer()
+                        }
+                        Spacer()
+                    }
                 }
             }
         }
@@ -256,31 +253,15 @@ struct AddRecipe: View {
             }
        }
     }
-    
-    @ViewBuilder func SaveOverlay(geo: GeometryProxy) -> some View {
-        VStack(spacing: 20) {
-            ProgressView()
-            Text("Speichern")
-            
-            Text(errorText)
-                .font(.footnote)
-                .foregroundStyle(.red)
-        }
-        .frame(width: geo.size.width * 0.8, height: geo.size.width * 0.8)
-        .background(Material.ultraThinMaterial)
-        .cornerRadius(geo.size.width * 0.8 / 10)
-        .shadow(radius: 20)
-        .animation(.easeInOut, value: overlay)
-    }
-    
+
     @ViewBuilder func Controll() -> some View {
         HStack {
             FullSizeButton(title: "Abbrechen"){
-                dissmiss()
+                closeOverlay()
             }
             
             FullSizeButton(title: "Speichern") {
-                overlay = true
+                animate = true
                 
                 guard let preparationTime = Int(recipePreperationTime) else { return showError(text: "Die Zeit darf nur als Zahl angegeben werden.") }
                 
@@ -306,14 +287,17 @@ struct AddRecipe: View {
                     ingredients: ingredients,
                     selectedCategory: selectedCategory
                 ) { result in
-                    switch result {
-                        case .success(_):
-                        
-                            dissmiss()
-                            closeOverlay()
-                        
-                        case .failure(_): print("Error")
-                    }
+                    
+                    DispatchQueue.main.async {
+                       switch result {
+                           case .success(let response):
+                                print(response.description)
+                                closeOverlay()
+                           case .failure(let error):
+                                print(error.localizedDescription)
+                                showError(text: "Speichern fehlgeschlagen: \(error.localizedDescription)")
+                       }
+                   }
                 }
             }
         }
@@ -321,25 +305,31 @@ struct AddRecipe: View {
     
     func showError(text: String) {
         errorText = text
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
             errorText = ""
-        })
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: {
-            overlay = false
-        })
+        }
+       
+        Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { _ in
+            animate = false
+        }
+        
+        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
+            isPresented = false
+        }
     }
     
     func closeOverlay() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: {
-            overlay = false
-        })
+        animate = false
+        
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+            isPresented = false
+        }
     }
     
     enum FocusedField {
         case name, description, preperation, preperationTime
     }
 }
-
 
 #Preview("Overlay") {
     @Previewable @State var animate = false

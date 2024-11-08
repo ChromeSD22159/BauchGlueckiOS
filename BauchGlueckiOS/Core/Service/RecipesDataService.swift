@@ -206,6 +206,7 @@ struct RecipesDataService {
         }
     }
     
+    /*
     func uploadRequest(
         recipeImage: UIImage,
         recipeDescription: String,
@@ -225,8 +226,80 @@ struct RecipesDataService {
             
             switch result {
                 
-            case .success(let mainImage):
+                case .success(let mainImage):
+                 
+                    if let image = mainImage.first {
+                        let recipeUpload = RecipeUpload(
+                            updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
+                            mealId: UUID().uuidString,
+                            userId: userID,
+                            description: recipeDescription,
+                            isDeleted: false,
+                            isPrivate: false,
+                            isSnack: false,
+                            name: recipeName,
+                            preparation: recipePreperation,
+                            preparationTimeInMinutes: recipePreperationTime,
+                            ingredients: ingredients.map { ingredient in
+                                IngredientResponse(id: ingredient.id, name: ingredient.name, amount: ingredient.amount, unit: ingredient.unit)
+                            },
+                            mainImage: MainImageUpload(id: image.id),
+                            category: CategoryUpload(name: selectedCategory.displayName),
+                            protein: 0.0,
+                            fat: 0.0,
+                            sugar: 0.0,
+                            kcal: 0.0
+                        )
+                        
+                        apiService.uploadRecipe(
+                            endpoint: apiService.baseURL + "/api/recipes/createRecipe",
+                            recipe: recipeUpload,
+                            completion: { res in
+                                
+                                switch res {
+                                    case .success(_):
+                                    
+                                    fetchRecipesFromBackend()
+                                    
+                                    case .failure(let error): print("Error Fetching Recipes: \(error.localizedDescription)")
+                                }
+                                
+                                successFullUploadet(res)
+                            }
+                        )
+                    }
                 
+                case .failure(let error): print("")
+                
+            }
+            
+        }
+    }
+     */
+    
+    func uploadRequest(
+        recipeImage: UIImage,
+        recipeDescription: String,
+        recipeName: String,
+        recipePreperation: String,
+        recipePreperationTime: Int,
+        ingredients: [Ingredient],
+        selectedCategory: RecipeCategory,
+        successFullUploadet: @escaping (Result<String, Error>) -> Void
+    ) {
+        guard let userID = Auth.auth().currentUser?.uid else {
+            successFullUploadet(.failure(NSError(domain: "Authentication Error", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authenticated."])))
+            return
+        }
+        
+        apiService.uploadImage(
+            endpoint: apiService.baseURL + "/api/upload/",
+            image: recipeImage
+        ) { result in
+            
+            switch result {
+                
+            case .success(let mainImage):
                 if let image = mainImage.first {
                     let recipeUpload = RecipeUpload(
                         updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
@@ -252,27 +325,32 @@ struct RecipesDataService {
                     
                     apiService.uploadRecipe(
                         endpoint: apiService.baseURL + "/api/recipes/createRecipe",
-                        recipe: recipeUpload,
-                        completion: { res in
-                            
+                        recipe: recipeUpload
+                    ) { res in
+                        
+                        DispatchQueue.main.async {
                             switch res {
-                                case .success(_):
-                                
+                            case .success(let response):
                                 fetchRecipesFromBackend()
-                                
-                                case .failure(let error): print("Error Fetching Recipes: \(error.localizedDescription)")
+                                successFullUploadet(.success(response))
+                            case .failure(let error):
+                                print("Error Fetching Recipes: \(error.localizedDescription)")
+                                successFullUploadet(.failure(error))
                             }
-                            
-                            successFullUploadet(res)
                         }
-                    )
+                    }
+                } else { 
+                    DispatchQueue.main.async {
+                        successFullUploadet(.failure(NSError(domain: "Image Upload Error", code: 500, userInfo: [NSLocalizedDescriptionKey: "No image returned from server."])))
+                    }
                 }
                 
-                
-                
-                case .failure(let error): print(error)
+            case .failure(let error):
+                print("Error Uploading Image: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    successFullUploadet(.failure(error))
+                }
             }
-            
         }
     }
 }
