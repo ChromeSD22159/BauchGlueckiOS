@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
  
 struct DetailRecipeView: View {
+    @EnvironmentObject var services: Services
     
     @State var scrollOffset: CGPoint = .zero
     
@@ -93,13 +94,14 @@ struct DetailRecipeView: View {
                             .foregroundStyle(theme.onBackground)
                         
                         IconRow(
-                            kcal: 22.0,
-                            fat: 5.0,
-                            protein: 22.0
+                            kcal: recipe.kcal,
+                            fat: recipe.fat,
+                            protein: recipe.protein,
+                            sugar: recipe.sugar
                         )
                         
                         PreperationTimeCategoryRow(
-                            preparationTimeInMinutes: 25,
+                            preparationTimeInMinutes: recipe.preparationTimeInMinutes,
                             recipeName: recipe.category?.name ?? "Nicht kategorisiert"
                         )
                         
@@ -163,7 +165,7 @@ struct DetailRecipeView: View {
     ) -> some View {
         GeometryReader { geometry in
             
-            CachedAsyncImage(url: URL(string: "https://bauchglueck.appsbyfrederikkohler.de" + image.url)) { image in
+            CachedAsyncImage(url: URL(string: services.apiService.baseURL + image.url)) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)

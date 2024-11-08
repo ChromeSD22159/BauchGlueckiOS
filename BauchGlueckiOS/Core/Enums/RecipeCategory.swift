@@ -36,9 +36,13 @@ enum RecipeCategory: String, CaseIterable {
         case .weicheKost: return "Weiche Kost"
         case .normaleKost: return "Normale Kost"
         case .proteinreich: return "Proteinreich"
-        case .lowFat: return "Low Fat"
-        case .lowCarb: return "Low Carb"
+        case .lowFat: return "Wenig Fett"
+        case .lowCarb: return "Wenig Kalorien"
         }
+    }
+    
+    static var allEntriesSortedByName: [RecipeCategory] {
+        RecipeCategory.allCases.sorted { $0.displayName < $1.displayName }
     }
 
     static func fromDisplayName(_ displayName: String) -> RecipeCategory? {
@@ -65,38 +69,3 @@ enum RecipeCategory: String, CaseIterable {
         RecipeCategory.allCases.first { $0.categoryID  == id }
     }
 }
-/*
-enum RecipeCategory: String, CaseIterable {
-    case snack = "snack"
-    case hauptgericht = "hauptgericht"
-    case beilage = "beilage"
-    case dessert = "dessert"
-    case fruehPhase = "frueh-phase"
-    case pueriertePhase = "puerierte-phase"
-    case weicheKost = "weiche-kost"
-    case normaleKost = "normale-kost"
-    case proteinreich = "proteinreich"
-    case lowFat = "low-fat"
-    case lowCarb = "low-carb"
-
-    var displayName: String {
-        switch self {
-        case .snack: return "Snack"
-        case .hauptgericht: return "Hauptgericht"
-        case .beilage: return "Beilage"
-        case .dessert: return "Dessert"
-        case .fruehPhase: return "Früh-Phase"
-        case .pueriertePhase: return "Pürierte Phase"
-        case .weicheKost: return "Weiche Kost"
-        case .normaleKost: return "Normale Kost"
-        case .proteinreich: return "Proteinreich"
-        case .lowFat: return "Low Fat"
-        case .lowCarb: return "Low Carb"
-        }
-    }
-
-    static func fromDisplayName(_ displayName: String) -> RecipeCategory? {
-        return RecipeCategory.allCases.first { $0.displayName.lowercased() == displayName.lowercased() }
-    }
-}
-*/

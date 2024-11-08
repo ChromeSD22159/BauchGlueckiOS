@@ -10,12 +10,14 @@ import SwiftUI
 struct NutrinIcon: View {
     let uiImage: UIImage?
     let systemName: String?
+    let icon: String?
     let nutrin: Double
     
-    init(uiImage: UIImage? = nil, systemName: String? = nil, nutrin: Double) {
+    init(uiImage: UIImage? = nil, systemName: String? = nil, icon: String? = nil, nutrin: Double) {
         self.nutrin = nutrin
         self.uiImage = uiImage
         self.systemName = systemName
+        self.icon = icon
     }
     
     var body: some View {
@@ -29,6 +31,12 @@ struct NutrinIcon: View {
             
             if let systemName = systemName {
                 Image(systemName: systemName)
+                    .font(.title3)
+                    .foregroundStyle(Theme.shared.primary)
+            }
+            
+            if let icon = icon {
+                Image(icon)
                     .font(.title3)
                     .foregroundStyle(Theme.shared.primary)
             }

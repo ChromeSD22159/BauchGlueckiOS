@@ -15,20 +15,26 @@ struct RecipeCategoryScreen: View {
     
     @Query(sort: \Category.name) var recipeCategorys: [Category]
     
+    var recipeCategorysSortedByName: [RecipeCategory] {
+        return recipeCategorys
+            .compactMap { RecipeCategory.fromCategoryID($0.categoryId) }
+            .sorted { $0.displayName < $1.displayName }
+    }
+    
     var body: some View {
         ScreenHolder {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack {
-                    ForEach(recipeCategorys) { category in
-                        let _ = print(category.categoryId)
-                        if let categoryImage = RecipeCategory.fromCategoryID(category.categoryId) {
-                            RecipeImageCard(image: categoryImage.image, name: category.name)
-                                .navigateTo(
-                                    firebase: firebase,
-                                    destination: Destination.recipeCategories,
-                                    target: { SearchRecipesScreen(firebase: firebase, category: category) }
-                                )
-                        }
+                    ForEach(recipeCategorysSortedByName, id: \.rawValue) { category in
+                        RecipeImageCard(image: category.image, name: category.displayName)
+                            .navigateTo(
+                                firebase: firebase,
+                                destination: Destination.recipeCategories,
+                                target: { SearchRecipesScreen(firebase: firebase, categoryId: category.categoryID) },
+                                toolbarItems: {
+                                    AddRecipeButtonWithPicker()
+                                }
+                            )
                     }
                 }
                 .padding(theme.padding)

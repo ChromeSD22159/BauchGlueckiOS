@@ -353,7 +353,8 @@ enum NetworkError: Error {
     case NothingToSync
 }
 
-class JSONStringEncoding: ParameterEncoding {
+
+struct JSONStringEncoding: ParameterEncoding {
     private let jsonString: String
 
     init(_ jsonString: String) {

@@ -9,9 +9,7 @@ import SwiftUI
 import SwiftData
 import FirebaseAuth
 
-#Preview {
-    AddRecipeButtonWithPicker()
-}
+
 
 struct AddRecipeButtonWithPicker: View {
     @State var isRecipeSheet = false
@@ -232,7 +230,7 @@ struct AddRecipe: View {
                 Text("Rezept Kategorie")
                 Spacer()
                 Picker("Rezept Kategorie", selection: $selectedCategory) {
-                    ForEach(RecipeCategory.allCases, id: \.self) { category in
+                    ForEach(RecipeCategory.allEntriesSortedByName, id: \.self) { category in
                         Text(category.displayName)
                             .tag(category)
                     }
@@ -268,7 +266,7 @@ struct AddRecipe: View {
                 .font(.footnote)
                 .foregroundStyle(.red)
         }
-        .frame(width: geo.size.width * 0.5, height: geo.size.width * 0.5)
+        .frame(width: geo.size.width * 0.8, height: geo.size.width * 0.8)
         .background(Material.ultraThinMaterial)
         .cornerRadius(geo.size.width * 0.8 / 10)
         .shadow(radius: 20)
@@ -342,113 +340,138 @@ struct AddRecipe: View {
     }
 }
 
-struct FullSizeButton: View {
-    let title: String
-    let onClick: () -> Void
-    var body: some View {
-        Button(action: {
-            onClick()
-        }, label: {
-            Text(title)
-        })
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, Theme.shared.padding)
-        .padding(.vertical, Theme.shared.padding.subtractGoldenRatio)
-        .foregroundStyle(Theme.shared.onPrimary)
-        .background(
-            Capsule()
-                .fill(Theme.shared.backgroundGradient)
-        )
-    }
-}
 
-struct FullSizeImageButton: View {
-    let icon: String
-    let title: String
-    let onClick: () -> Void
-    var body: some View {
-        Button(action: {
-            onClick()
-        }, label: {
-            HStack {
-                Image(systemName: icon)
-                Text(title)
+#Preview("Overlay") {
+    @Previewable @State var animate = false
+    @Previewable @State var phase: UploadRecipePhase = .notStarted
+    @Previewable @State var timer: Timer? = nil
+    @Previewable @State var errorText: String = ""
+    
+    GeometryReader { geo in
+        ZStack {
+            ScrollView(.vertical, showsIndicators: false) {
+                Button("Upload") {
+                    animate.toggle()
+                }
             }
-        })
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, Theme.shared.padding)
-        .padding(.vertical, Theme.shared.padding.subtractGoldenRatio)
-        .foregroundStyle(Theme.shared.onPrimary)
-        .background(
-            Capsule()
-                .fill(Theme.shared.backgroundGradient)
-        )
+            
+            if animate {
+                VStack(alignment: .center, spacing: 10) {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        SaveOverlay(geo: geo, errorText: errorText, animate: $animate, phase: $phase)
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
+        }
+       
     }
-} 
+    
+    
+}
 
+#Preview("AddRecipeButtonWithPicker") {
+    AddRecipeButtonWithPicker()
+}
 
-struct RecipeUpload: Codable {
-    let updatedAtOnDevice: Int64
-    let mealId: String
-    let userId: String
-    let description: String
-    let isDeleted: Bool
-    let isPrivate: Bool
-    let isSnack: Bool
-    let name: String
-    let preparation: String
-    let preparationTimeInMinutes: Int
-    let ingredients: [IngredientResponse]
-    let mainImage: MainImageUpload
-    let category: CategoryUpload
-    let protein: Double
-    let fat: Double
-    let sugar: Double
-    let kcal: Double
+struct SaveOverlay: View {
+    let geo: GeometryProxy
+    let errorText: String
+    @Binding var animate: Bool
+    @Binding var phase: UploadRecipePhase
+    @State private var timer: Timer?
+    @State private var rotationAngle: Double = 0.0
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            
+            if errorText.isEmpty {
+                Text("Dein Rezept wird gespeichert...")
+            } else {
+                Text("Dein Rezept konnte nicht gespeichert werden!")
+            }
+            
+            Spacer()
+            if errorText.isEmpty {
+                step(icon: phaseIcon(for: .uploadImage), text: "Bild Upload", isCompleted: phase.rawValue >= UploadRecipePhase.uploadImage.rawValue)
+                step(icon: phaseIcon(for: .nutrinGeneration), text: "Nährwerte generieren", isCompleted: phase.rawValue >= UploadRecipePhase.nutrinGeneration.rawValue)
+                step(icon: phaseIcon(for: .SaveRecipe), text: "Rezept speichern", isCompleted: phase.rawValue >= UploadRecipePhase.SaveRecipe.rawValue)
+            } else {
+                Text(errorText)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, Theme.shared.padding * 2)
+        .frame(width: geo.size.width * 0.8, height: geo.size.width * 0.8)
+        .background(Material.ultraThinMaterial)
+        .cornerRadius(geo.size.width * 0.8 / 10)
+        .shadow(radius: 20)
+        .onAppear {
+            if animate && errorText.isEmpty {
+                startTimer()
+            }
+            if animate && !errorText.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                    timer?.invalidate()
+                    phase = .notStarted
+                    animate.toggle()
+                })
+            }
+        }
+        .onDisappear {
+            timer?.invalidate()
+        }
+    }
+    
+    private func startTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            if phase == .done {
+                timer?.invalidate()
+                phase = .notStarted
+                animate.toggle()
+            } else {
+                phase = UploadRecipePhase(rawValue: phase.rawValue + 1) ?? .done
+            }
+        }
+    }
+ 
+    func phaseIcon(for targetPhase: UploadRecipePhase) -> String {
+        switch phase {
+            case targetPhase: return "ProgressView"
+            case _ where phase.rawValue > targetPhase.rawValue: return "checkmark.seal"
+            default: return "circle"
+        }
+    }
 
-    init(
-        updatedAtOnDevice: Int64,
-        mealId: String,
-        userId: String,
-        description: String,
-        isDeleted: Bool = false,
-        isPrivate: Bool = false,
-        isSnack: Bool = false,
-        name: String,
-        preparation: String,
-        preparationTimeInMinutes: Int,
-        ingredients: [IngredientResponse],
-        mainImage: MainImageUpload,
-        category: CategoryUpload,
-        protein: Double = 0.0,
-        fat: Double = 0.0,
-        sugar: Double = 0.0,
-        kcal: Double = 0.0
-    ) {
-        self.updatedAtOnDevice = updatedAtOnDevice
-        self.mealId = mealId
-        self.userId = userId
-        self.description = description
-        self.isDeleted = isDeleted
-        self.isPrivate = isPrivate
-        self.isSnack = isSnack
-        self.name = name
-        self.preparation = preparation
-        self.preparationTimeInMinutes = preparationTimeInMinutes
-        self.ingredients = ingredients
-        self.mainImage = mainImage
-        self.category = category
-        self.protein = protein
-        self.fat = fat
-        self.sugar = sugar
-        self.kcal = kcal
+    @ViewBuilder func step(icon: String, text: String, isCompleted: Bool) -> some View {
+        HStack {
+            ZStack {
+                if  icon == "ProgressView" {
+                        ProgressView()
+                } else {
+                    Image(systemName: icon)
+                        .foregroundColor(isCompleted ? .primary : .gray)
+                }
+            }.frame(width: 15, height: 15)
+            
+            Spacer()
+            
+            Text(text)
+                .foregroundColor(isCompleted ? .primary : .gray)
+        }
+        .font(.footnote)
+        .transition(.scale)
+        .animation(.easeInOut(duration: 0.5), value: isCompleted)
     }
 }
 
-struct MainImageUpload: Codable {
-    let id: Int
-}
-
-struct CategoryUpload: Codable {
-    let name: String
+enum UploadRecipePhase: Int {
+    case notStarted, uploadImage, nutrinGeneration, SaveRecipe, done
 }

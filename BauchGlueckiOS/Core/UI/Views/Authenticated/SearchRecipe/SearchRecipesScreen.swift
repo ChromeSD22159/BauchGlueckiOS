@@ -15,12 +15,12 @@ struct SearchRecipesScreen: View {
     
     @Query() var recipes: [Recipe]
     
-    init(firebase: FirebaseService, category: Category) {
+    init(firebase: FirebaseService, categoryId: String) {
         self.firebase = firebase
         
         let predicate = #Predicate<Recipe> { recipe in
             if let recipeCategory = recipe.category {
-                return recipeCategory.id == category.id
+                return recipeCategory.categoryId == categoryId
             }  else { return false }
         }
 
@@ -55,6 +55,8 @@ struct SearchRecipesScreen: View {
 }
 
 struct RecipePreviewCard: View {
+    @EnvironmentObject var services: Services 
+    
     var mainImage: MainImage?
     var name: String
     var fat: Double
@@ -74,7 +76,7 @@ struct RecipePreviewCard: View {
             VStack {
                 ZStack {
                     if let image = mainImage {
-                        CachedAsyncImage(url: URL(string: "https://bauchglueck.appsbyfrederikkohler.de" + image.url)) { image in
+                        CachedAsyncImage(url: URL(string: services.apiService.baseURL + image.url)) { image in
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
