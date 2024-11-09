@@ -15,8 +15,9 @@ struct MealPlanScreen: View {
     let firebase: FirebaseService
     
     @State var vm: MealPlanViewModel
+    @State var mealToAppOnMealPlan: Recipe? = nil
     
-    init(firebase: FirebaseService, context: ModelContext) {
+    init(firebase: FirebaseService, context: ModelContext, mealToAppOnMealPlan: Recipe? = nil) {
         self.firebase = firebase
         self.vm = MealPlanViewModel(firebase: firebase, context: context)
     }
@@ -73,6 +74,7 @@ struct MealPlanScreen: View {
                 
                 Spacer()
             }
+            .onAppear { print("mealToAppOnMealPlan: \(mealToAppOnMealPlan)") }
         }
         .contentMargins(.top, theme.padding)
     }

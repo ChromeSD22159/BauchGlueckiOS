@@ -9,7 +9,7 @@ import Foundation
 
 @Model
 class MealPlanDay {
-    @Attribute(.unique) var mealPlanDayID: Int
+    @Attribute(.unique) var mealPlanDayID: UUID
     @Attribute var userId: String
     @Attribute var date: Date
     @Attribute var isDeleted: Bool
@@ -17,7 +17,7 @@ class MealPlanDay {
     
     @Relationship(deleteRule: .noAction) var slots: [MealPlanSpot] = []
     
-    init(mealPlanDayID: Int, userId: String, date: Date, isDeleted: Bool, updatedAtOnDevice: Int64, slots: [MealPlanSpot] = []) {
+    init(mealPlanDayID: UUID = UUID(), userId: String, date: Date, isDeleted: Bool, updatedAtOnDevice: Int64, slots: [MealPlanSpot] = []) {
         self.mealPlanDayID = mealPlanDayID
         self.userId = userId
         self.date = date
@@ -29,16 +29,16 @@ class MealPlanDay {
 
 @Model
 class MealPlanSpot {
-    @Attribute(.unique) var MealPlanSpotId: Int
-    @Attribute var mealPlanDayId: Int
-    @Attribute var mealId: Int
+    @Attribute(.unique) var MealPlanSpotId: UUID
+    @Attribute var mealPlanDayId: String
+    @Attribute var mealId: String
     @Attribute var userId: String
     @Attribute var timeSlot: String
     @Attribute var isDeleted: Bool
     
     @Relationship(deleteRule: .noAction) var recipe: Recipe?
 
-    init(MealPlanSpotId: Int, mealPlanDayId: Int, mealId: Int, userId: String, timeSlot: String, isDeleted: Bool, recipe: Recipe? = nil) {
+    init(MealPlanSpotId: UUID = UUID(), mealPlanDayId: String, mealId: String, userId: String, timeSlot: String, isDeleted: Bool, recipe: Recipe? = nil) {
         self.MealPlanSpotId = MealPlanSpotId
         self.mealPlanDayId = mealPlanDayId
         self.mealId = mealId
@@ -48,15 +48,3 @@ class MealPlanSpot {
         self.recipe = recipe
     }
 }
-
-/*(
-    @PrimaryKey val mealPlanSpotId: String = "",
-    var mealPlanDayId: String = "",
-    val mealId: String = "",
-    val userId: String = "",
-    val timeSlot: String = "",
-    val isDeleted: Boolean = false,
-    var meal: String? = null,
-    val updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds()
-)
-*/

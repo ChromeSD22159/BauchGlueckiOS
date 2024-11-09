@@ -46,6 +46,7 @@ struct RecipesDataService {
                     
                     for recipeResponse in recipes {
                         
+                        
                         guard let recipe = insertOrUpdateRecipe(context: context, serverRecipe: recipeResponse) else {
                             print("Error processing recipe with ID \(recipeResponse.id)")
                             continue
@@ -205,78 +206,7 @@ struct RecipesDataService {
             return nil
         }
     }
-    
-    /*
-    func uploadRequest(
-        recipeImage: UIImage,
-        recipeDescription: String,
-        recipeName: String,
-        recipePreperation: String,
-        recipePreperationTime: Int,
-        ingredients: [Ingredient],
-        selectedCategory: RecipeCategory,
-        successFullUploadet: @escaping (Result<String, Error>) -> Void
-    ) {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
-            
-        apiService.uploadImage(
-            endpoint: apiService.baseURL + "/api/upload/",
-            image: recipeImage
-        ) { result in
-            
-            switch result {
-                
-                case .success(let mainImage):
-                 
-                    if let image = mainImage.first {
-                        let recipeUpload = RecipeUpload(
-                            updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
-                            mealId: UUID().uuidString,
-                            userId: userID,
-                            description: recipeDescription,
-                            isDeleted: false,
-                            isPrivate: false,
-                            isSnack: false,
-                            name: recipeName,
-                            preparation: recipePreperation,
-                            preparationTimeInMinutes: recipePreperationTime,
-                            ingredients: ingredients.map { ingredient in
-                                IngredientResponse(id: ingredient.id, name: ingredient.name, amount: ingredient.amount, unit: ingredient.unit)
-                            },
-                            mainImage: MainImageUpload(id: image.id),
-                            category: CategoryUpload(name: selectedCategory.displayName),
-                            protein: 0.0,
-                            fat: 0.0,
-                            sugar: 0.0,
-                            kcal: 0.0
-                        )
-                        
-                        apiService.uploadRecipe(
-                            endpoint: apiService.baseURL + "/api/recipes/createRecipe",
-                            recipe: recipeUpload,
-                            completion: { res in
-                                
-                                switch res {
-                                    case .success(_):
-                                    
-                                    fetchRecipesFromBackend()
-                                    
-                                    case .failure(let error): print("Error Fetching Recipes: \(error.localizedDescription)")
-                                }
-                                
-                                successFullUploadet(res)
-                            }
-                        )
-                    }
-                
-                case .failure(let error): print("")
-                
-            }
-            
-        }
-    }
-     */
-    
+ 
     func uploadRequest(
         recipeImage: UIImage,
         recipeDescription: String,

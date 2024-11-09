@@ -10,7 +10,7 @@ import SwiftData
  
 struct DetailRecipeView: View {
     @EnvironmentObject var services: Services
-    
+    @Environment(\.modelContext) var modelContext
     @State var scrollOffset: CGPoint = .zero
     
     private var imageOpacity: CGFloat {
@@ -57,6 +57,7 @@ struct DetailRecipeView: View {
     
     @State var isDateSheet = false
     @State var selectedDate = Date()
+    @State private var navigateToMealPlan = false
     
     var theme: Theme
     var recipe: Recipe
@@ -133,7 +134,6 @@ struct DetailRecipeView: View {
                 scrollOffset = $0
             })
             .contentMargins(.top, 170)
-            
         }
         .navigationBarBackButtonHidden()
         .toolbar {
@@ -152,12 +152,19 @@ struct DetailRecipeView: View {
         )
         .datePickerSheet(isSheet: $isDateSheet) { date in
             selectedDate = date
+  
             
-            // TODO: -> SAVE RECIPE TO MEALPLAN
-            
-            // TODO: -> NAVIGATE TO
+            navigateToMealPlan = true
         }
-        
+        .navigateTo(
+            destination: Destination.detailRecipes,
+            isActive: $navigateToMealPlan,
+            showSettingButton: false,
+            firebase: firebase,
+            target: {
+                MealPlanScreen(firebase: firebase, context: modelContext, mealToAppOnMealPlan: recipe)
+            }
+        )
     }
     
     @ViewBuilder func ImageBG(
@@ -178,6 +185,8 @@ struct DetailRecipeView: View {
         .frame(height: 300)
         .ignoresSafeArea()
     }
+    
+    
 }
  
 #Preview {
@@ -189,5 +198,5 @@ struct DetailRecipeView: View {
             
     }
 }
-
+ 
 

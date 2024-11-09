@@ -26,6 +26,23 @@ extension View {
         )
     }
     
+    func navigateTo<Target: View, Toolbar: View>(
+        destination: Destination,
+        isActive: Binding<Bool>,
+        showSettingButton: Bool,
+        firebase: FirebaseService,
+        @ViewBuilder target: @escaping () -> Target,
+        @ViewBuilder toolbarItems: @escaping () -> Toolbar = { EmptyView() }
+    ) -> some View {
+        modifier(NavigateToModifier(
+            destination: destination,
+            isActive: isActive,
+            firebase: firebase,
+            target: target,
+            toolbarItems: toolbarItems
+        ))
+    }
+    
     func settingSheet(isSettingSheet: Binding<Bool>, authManager: FirebaseService, services: Services, onDismiss: @escaping () -> Void) -> some View {
         modifier(SettingSheet(isSettingSheet: isSettingSheet, authManager: authManager, services: services, onDismiss: onDismiss))
     }
@@ -101,5 +118,32 @@ extension View {
     
     func cardStyle() -> some View {
         modifier(CardStyle())
+    }
+}
+
+struct NavigateToModifier<Target: View, Toolbar: View>: ViewModifier {
+    let destination: Destination
+    let isActive: Binding<Bool>
+    let showSettingButton: Bool = true
+    let firebase: FirebaseService
+    let target: () -> Target
+    let toolbarItems: () -> Toolbar
+    
+    func body(content: Content) -> some View {
+        ZStack {
+            content  
+            NavigationLink(
+                destination: target().navigationBackButton(
+                    color: Theme.shared.onBackground,
+                    destination: destination,
+                    firebase: firebase,
+                    showSettingButton: showSettingButton,
+                    toolbarItems: toolbarItems
+                ),
+                isActive: isActive
+            ) {
+                EmptyView()
+            }
+        }
     }
 }

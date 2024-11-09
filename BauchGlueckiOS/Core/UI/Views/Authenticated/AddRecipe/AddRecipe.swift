@@ -8,30 +8,13 @@
 import SwiftUI
 import SwiftData
 import FirebaseAuth
-
-
-
-struct AddRecipeButtonWithPicker: View {
-    @State var isRecipeSheet = false
-    var body: some View {
-        Button(action: {
-            isRecipeSheet.toggle()
-        }, label: {
-           Image(systemName: "plus")
-                .foregroundStyle(Theme.shared.onBackground)
-        })
-        .sheet(isPresented: $isRecipeSheet, onDismiss: {}, content: {
-            AddRecipe(isPresented: $isRecipeSheet)
-            .presentationDragIndicator(.visible)
-        })
-    }
-}
-
+ 
 struct AddRecipe: View {
     
     @EnvironmentObject var service: Services
     @FocusState private var focusedField: FocusedField?
     @Binding var isPresented: Bool
+    var navTitle: String
     // Recipe
     @State var recipeName: String = ""
     @State var recipeDescription: String = ""
@@ -53,36 +36,41 @@ struct AddRecipe: View {
     
     var body: some View {
         GeometryReader { geo in
-            ZStack {
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 10) {
-                        ImageChoose()
-                        
-                        Form()
-                        
-                        Controll()
+            NavigationStack {
+                ZStack {
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 10) {
+                            ImageChoose()
+                            
+                            Form()
+                            
+                            Controll()
+                        }
+                        .padding(.horizontal, Theme.shared.padding)
                     }
-                    .padding(.horizontal, Theme.shared.padding)
-                }
-                .opacity(animate ? 0.5 : 1.0)
-                .animation(.easeInOut, value: animate)
-                .contentMargins(.top, 20)
-                .sheet(isPresented: $isImagePicker) {
-                    ImagePicker(sourceType: .photoLibrary, selectedImage: $recipeImage)
-                }
-                
-                if animate {
-                    VStack(alignment: .center, spacing: 10) {
-                        Spacer()
-                        HStack {
+                    .opacity(animate ? 0.5 : 1.0)
+                    .animation(.easeInOut, value: animate)
+                    .contentMargins(.top, 20)
+                    .sheet(isPresented: $isImagePicker) {
+                        ImagePicker(sourceType: .photoLibrary, selectedImage: $recipeImage)
+                    }
+                    
+                    if animate {
+                        VStack(alignment: .center, spacing: 10) {
                             Spacer()
-                            SaveOverlay(geo: geo, errorText: errorText, animate: $animate, phase: $phase)
+                            HStack {
+                                Spacer()
+                                SaveOverlay(geo: geo, errorText: errorText, animate: $animate, phase: $phase)
+                                Spacer()
+                            }
                             Spacer()
                         }
-                        Spacer()
                     }
                 }
+                .navigationTitle(navTitle)
+                .navigationBarTitleDisplayMode(.inline)
             }
+           
         }
     }
     
@@ -329,42 +317,6 @@ struct AddRecipe: View {
     enum FocusedField {
         case name, description, preperation, preperationTime
     }
-}
-
-#Preview("Overlay") {
-    @Previewable @State var animate = false
-    @Previewable @State var phase: UploadRecipePhase = .notStarted
-    @Previewable @State var timer: Timer? = nil
-    @Previewable @State var errorText: String = ""
-    
-    GeometryReader { geo in
-        ZStack {
-            ScrollView(.vertical, showsIndicators: false) {
-                Button("Upload") {
-                    animate.toggle()
-                }
-            }
-            
-            if animate {
-                VStack(alignment: .center, spacing: 10) {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        SaveOverlay(geo: geo, errorText: errorText, animate: $animate, phase: $phase)
-                        Spacer()
-                    }
-                    Spacer()
-                }
-            }
-        }
-       
-    }
-    
-    
-}
-
-#Preview("AddRecipeButtonWithPicker") {
-    AddRecipeButtonWithPicker()
 }
 
 struct SaveOverlay: View {
