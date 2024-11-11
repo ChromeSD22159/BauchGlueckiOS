@@ -31,7 +31,6 @@ struct ShoppingListView: View {
             ForEach(sortedShoppingListItems, id: \.self) { item in
                 
                 ShoppingListCard(shoppingList: item)
-                    
                 
             }
             

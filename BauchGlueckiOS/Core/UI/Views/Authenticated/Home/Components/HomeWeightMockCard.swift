@@ -40,52 +40,53 @@ struct HomeWeightMockCard: View {
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                Image(systemName: isAscendingTrend ? "arrow.up.forward.circle.fill" : "arrow.down.forward.circle.fill")
+        ZStack {
+            VStack {
+                HStack {
+                    Image(systemName: isAscendingTrend ? "arrow.up.forward.circle.fill" : "arrow.down.forward.circle.fill")
+                    
+                    Text(isAscendingTrend ? "Aufsteigender" : "Absteigender" + " Trend")
+                        .font(.footnote)
+                     
+                    Spacer()
+                }   .foregroundStyle(theme.onBackground)
                 
-                Text(isAscendingTrend ? "Aufsteigender" : "Absteigender" + " Trend")
-                    .font(.footnote)
-                 
-                Spacer()
-            }   .foregroundStyle(theme.onBackground)
-            
-            HStack(alignment: .bottom, spacing: 15) {
-                ForEach(mockList, id: \.week) { week in
-                    VStack(spacing: 30) {
-                        Spacer()
-                        
-                        HStack(alignment: .bottom) {
-                            Capsule()
-                                .frame(width: 25, height: calculateHeight(input: week.avgValue) )
-                                .foregroundStyle(theme.primary)
+                HStack(alignment: .bottom, spacing: 15) {
+                    ForEach(mockList, id: \.week) { week in
+                        VStack(spacing: 30) {
+                            Spacer()
+                            
+                            HStack(alignment: .bottom) {
+                                Capsule()
+                                    .frame(width: 25, height: calculateHeight(input: week.avgValue) )
+                                    .foregroundStyle(theme.primary)
+                            }
+                            
+                            HStack(alignment: .bottom) {
+                                Text(DateService.formatDateDDMM(date: week.week))
+                                    .font(.caption2)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundStyle(theme.onBackground)
+                                    .rotationEffect(Angle(degrees: -90))
+                                    .minimumScaleFactor(0.8)
+                            }
+                            .frame(height: 40)
                         }
-                        
-                        HStack(alignment: .bottom) {
-                            Text(DateService.formatDateDDMM(date: week.week))
-                                .font(.caption2)
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(theme.onBackground)
-                                .rotationEffect(Angle(degrees: -90))
-                                .minimumScaleFactor(0.8)
-                        }
-                        .frame(height: 40)
                     }
                 }
+                .opacity(0.25)
+                .frame(height: 300)
             }
-            .opacity(0.25)
-            .frame(height: 300)
+            .padding(theme.padding)
+            .padding(theme.padding)
+            .background(gradient)
+            .cornerRadius(theme.radius)
             
-            HStack {
-                Text("In einigen Tagen siehst du hier deine Statistik")
-                    .font(.footnote)
+            VStack {
+                Text("In einigen Tagen siehst du hier deine Statistik") 
                     .foregroundStyle(theme.onBackground)
             }
         }
-        .padding(theme.padding)
-        .padding(theme.padding)
-        .background(gradient)
-        .cornerRadius(theme.radius)
         .onAppLifeCycle(appearAndActive: {
             loadData()
         })

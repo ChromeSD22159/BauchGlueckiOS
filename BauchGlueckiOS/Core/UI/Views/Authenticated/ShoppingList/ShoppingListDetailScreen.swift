@@ -39,7 +39,9 @@ struct ShoppingListDetailScreen: View {
                                 Text("\(item.amount) \(IngredientUnit.fromString(item.unit).unit)")
                             }
                             .padding(Theme.shared.padding)
-                            .foregroundStyle(Theme.shared.onBackground.opacity(!item.isComplete ? 1.0 : 0.2))
+                            .foregroundStyle(
+                                Theme.shared.onBackground.opacity(shoppingList.isComplete ? 0.2 : item.isComplete ?  0.2 : 1.0)
+                            )
                             .sectionShadow(innerPadding: 5)
                             .onTapGesture {
                                 withAnimation(.easeInOut) {

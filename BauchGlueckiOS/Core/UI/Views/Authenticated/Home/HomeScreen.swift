@@ -37,32 +37,44 @@ struct HomeScreen: View, PageIdentifier {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 24) {
                       
-                        SectionImageCard(image: .icMealPlan,title: "MealPlaner",description: "Erstelle deinen MealPlan, indifiduell auf deine bedürfnisse.")
-                            .sectionShadow(margin: theme.padding)
-                            .navigateTo(
-                                firebase: firebase,
-                                destination: Destination.home,
-                                target: { MealPlanScreen(firebase: firebase, services: services) }
-                            )
+                        SectionImageCard(
+                            image: .icAppleTableCard,
+                            title: "MealPlaner",
+                            description: "Erstelle deinen MealPlan, indifiduell auf deine bedürfnisse."
+                        )
+                        .sectionShadow(margin: theme.padding)
+                        .navigateTo(
+                            firebase: firebase,
+                            destination: Destination.home,
+                            target: { MealPlanScreen(firebase: firebase, services: services) }
+                        )
                         
-                        SectionImageCard(image: .icKochhut,title: "Rezepte",description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.")
-                            .sectionShadow(margin: theme.padding)
-                            .navigateTo(
-                                firebase: firebase,
-                                destination: Destination.home,
-                                target: { RecipeCategoryScreen(firebase: firebase) },
-                                toolbarItems: {
-                                    AddRecipeButtonWithPicker()
-                                }
-                            )
+                        SectionImageCard(
+                            image: .icCookingHutCard,
+                            title: "Rezepte",
+                            description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu."
+                        )
+                        .sectionShadow(margin: theme.padding)
+                        .navigateTo(
+                            firebase: firebase,
+                            destination: Destination.home,
+                            target: { RecipeCategoryScreen(firebase: firebase) },
+                            toolbarItems: {
+                                AddRecipeButtonWithPicker()
+                            }
+                        )
                         
-                        SectionImageCard(image: .icCartMirrored,title: "Shoppinglist",description: "Erstelle aus deinem Mealplan eine Shoppingliste.")
-                            .sectionShadow(margin: theme.padding)
-                            .navigateTo(
-                                firebase: firebase,
-                                destination: Destination.shoppingList,
-                                target: { ShoppingListScreen() }
-                            )
+                        SectionImageCard(
+                            image: .icChartCard,
+                            title: "Shoppinglist",
+                            description: "Erstelle aus deinem Mealplan eine Shoppingliste."
+                        )
+                        .sectionShadow(margin: theme.padding)
+                        .navigateTo(
+                            firebase: firebase,
+                            destination: Destination.shoppingList,
+                            target: { ShoppingListScreen() }
+                        )
                         
                         if let startWeight = firebase.userProfile?.startWeight {
                             WeightChart()
@@ -155,4 +167,10 @@ struct HomeScreen: View, PageIdentifier {
     }
 }
 
-
+#Preview {
+    SectionImageCard(
+        image: .icCookingHutCard,
+        title: "Shoppinglist",
+        description: "Erstelle aus deinem Mealplan eine Shoppingliste."
+    )
+}

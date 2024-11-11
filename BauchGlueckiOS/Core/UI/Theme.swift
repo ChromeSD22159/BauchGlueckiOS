@@ -15,6 +15,7 @@ struct Theme {
     var onPrimary: Color = Color.onPrimary
     var background: Color = Color.background
     var onBackground: Color = Color.primary
+    static var iconColor: Color = Color.icon
     var surface = Color.surface
     var padding: CGFloat = 10
     var radius: CGFloat = 10

@@ -6,6 +6,14 @@
 //
 import SwiftUI
 
+#Preview {
+    SectionImageCard(
+        image: .icAppleTableCard,
+        title: "Shoppinglist",
+        description: "Erstelle aus deinem Mealplan eine Shoppingliste."
+    )
+}
+
 struct SectionImageCard: View {
     private let theme = Theme.shared
     var image: UIImage
@@ -14,38 +22,37 @@ struct SectionImageCard: View {
     
     var body: some View {
         ZStack(alignment: .leading) {
-            // HStack für das Bild rechts und Spacer links
-            HStack {
-                Spacer()
-                
-                Image(uiImage: image)
-                    .resizable()
-                    .renderingMode(.template)
-                    .foregroundColor(theme.primary)
-                    .opacity(0.25)
-                    .frame(width: 170, height: 170)
-                    .padding(.trailing, 20)
-                    .rotationEffect(Angle(degrees: 15))
-                    .clipShape(Rectangle())
-            }
+            Image(uiImage: .cardBG)
+                .resizable()
+                .renderingMode(.template)
+                .aspectRatio(contentMode: .fit)
+                .foregroundColor(theme.primary)
+                .opacity(0.30)
+            
+            Image(uiImage: image)
+                .resizable()
+                .renderingMode(.template)
+                .aspectRatio(contentMode: .fit)
+                .foregroundColor(theme.primary)
+                .opacity(0.60)
             
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(theme.headlineTextSmall)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 10)
                 
                 Text(description)
                     .multilineTextAlignment(.leading)
                     .font(.footnote)
-                    .lineLimit(2)
+                    .lineLimit(2, reservesSpace: true)
+                    .padding(.horizontal, 10)
             }
-            .padding(.horizontal, 10)
         }
         .frame(maxHeight: 120)
         .foregroundStyle(theme.onBackground)
         .background(theme.surface)
         .cornerRadius(theme.radius)
-        .padding(.horizontal, 10)
         
     }
 }

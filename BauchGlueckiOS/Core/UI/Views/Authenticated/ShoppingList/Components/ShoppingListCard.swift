@@ -12,6 +12,8 @@ struct ShoppingListCard: View {
     @Bindable var shoppingList: ShoppingList
     var body: some View {
         HStack {
+            Image(systemName: !shoppingList.isComplete ? "exclamationmark.triangle.fill" : "checkmark.seal.fill")
+            
             Text("\(shoppingList.startDate) - \(shoppingList.endDate)")
                 .navigateTo(
                     firebase: firebase,
@@ -43,7 +45,7 @@ struct ShoppingListCard: View {
                 .frame(width: 25, height: 25)
             })
         }
-        .foregroundStyle(Theme.shared.onBackground)
+        .foregroundStyle(Theme.shared.onBackground.opacity(!shoppingList.isComplete ? 1.0 : 0.2))
         .sectionShadow(innerPadding: theme.padding, margin: theme.padding)
     }
 }
