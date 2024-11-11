@@ -44,7 +44,7 @@ let mockShoppingLists = [
     ShoppingList(
         id: UUID(),
         name: "Weekly Groceries",
-        shoppingListId: UUID().uuidString,
+        shoppingListId: "1",
         userId: "user1",
         descriptionText: "Groceries for the week",
         startDate: "2024-11-10",
@@ -58,7 +58,7 @@ let mockShoppingLists = [
     ShoppingList(
         id: UUID(),
         name: "Party Supplies",
-        shoppingListId: UUID().uuidString,
+        shoppingListId: "2",
         userId: "user2",
         descriptionText: "Shopping for the weekend party",
         startDate: "2024-11-11",

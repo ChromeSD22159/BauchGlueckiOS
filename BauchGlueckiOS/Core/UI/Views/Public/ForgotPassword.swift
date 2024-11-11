@@ -60,11 +60,8 @@ struct ForgotPassword: View, Navigable {
                             }
                         )
                     }
-                    
-                    // TODO: REFACTOR
-                    Text(firebase.error?.localizedDescription ?? "")
-                        .font(.callout)
-                        .foregroundStyle(Color.red)
+                     
+                    ErrorText(text: firebase.error?.localizedDescription ?? "")
                 }
                 .padding(.horizontal, theme.padding)
             }
@@ -83,7 +80,7 @@ struct ForgotPassword: View, Navigable {
         case email, password
     }
 }
-
+ 
 #Preview("Light") {
     ForgotPassword(navigate: {_ in })
         .environmentObject(FirebaseService())

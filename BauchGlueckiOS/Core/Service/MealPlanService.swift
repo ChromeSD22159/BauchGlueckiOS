@@ -63,50 +63,7 @@ class MealPlanService {
     func getMealPlanForDate(mealPlans: [MealPlanDay], date: Date) -> MealPlanDay? {
         return mealPlans.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) })
     }
-    
-    /*
-    func addToMealPlan(meal: Recipe, date: Date) {
-        let userID: String = Auth.auth().currentUser?.uid ?? ""
-        let currentTimestamp = Date().timeIntervalSince1970Milliseconds
-  
-        guard let foundMealPlan = loadMealPlan(date: date) else {
-            let mealPlanDay = MealPlanDay(
-                userId: userID,
-                date: date,
-                isDeleted: false,
-                updatedAtOnDevice: currentTimestamp
-            )
-             
-            let mealPlanSpot = MealPlanSpot(
-                mealPlanDayId: mealPlanDay.mealPlanDayID.uuidString,
-                mealId: meal.mealId,
-                userId: userID,
-                timeSlot: date.ISO8601Format(),
-                recipe: meal,
-                mealPlanDay: mealPlanDay
-            )
-            
-            mealPlanDay.slots.append(mealPlanSpot)
-            context.insert(mealPlanDay)
-            context.insert(mealPlanSpot)
-            
-            return
-        }
-        
-        let mealPlanSpot = MealPlanSpot(
-            mealPlanDayId: foundMealPlan.mealPlanDayID.uuidString,
-            mealId: meal.mealId,
-            userId: userID,
-            timeSlot: date.ISO8601Format(),
-            recipe: meal,
-            mealPlanDay: foundMealPlan
-        )
-        foundMealPlan.slots.append(mealPlanSpot)
-        context.insert(mealPlanSpot)
-        foundMealPlan.updatedAtOnDevice = currentTimestamp
-    }
-    */
-    
+
     func addToMealPlan(meal: Recipe, date: Date) {
         let userID: String = Auth.auth().currentUser?.uid ?? ""
         let currentTimestamp = Date().timeIntervalSince1970Milliseconds
@@ -185,4 +142,77 @@ class MealPlanService {
             case .fat: return Int(mealPlan.slots.compactMap { $0.recipe?.fat }.reduce(0, +))
         }
     }
+
+    private func reduceShoppingListItems(mealPlans: [MealPlanDay]) -> [ShoppingListItem] {
+        var ingredientSums: [String: Double] = [:] // Dictionary zum Summieren der Werte
+
+        for plan in mealPlans {
+            for slot in plan.slots {
+                guard let recipe = slot.recipe else { continue }
+                for ingredient in recipe.ingredients {
+                    let lowercasedName = ingredient.name.lowercased()
+                    ingredientSums[lowercasedName, default: 0.0] += ingredient.amountDouble ?? 0.0
+                }
+            }
+        }
+
+        // Convert dictionary to ShoppingListItem array with summed amounts
+        var finalList: [ShoppingListItem] = []
+        for (name, amount) in ingredientSums {
+            finalList.append(ShoppingListItem(name: name, amount: String(amount), unit: "", note: ""))
+        }
+
+        return finalList
+    }
+    
+    func calculateShoppingList(startDate: Date, endDate: Date, context: ModelContext, onComplete: @escaping (Result<[ShoppingListItem], Error>) -> Void) {
+        let foundMealPlans = loadMealPlans(start: startDate, end: endDate)
+        
+        guard !foundMealPlans.isEmpty else {
+            return onComplete(.failure(ShoppingListError.noMealPlansFound))
+        }
+        
+        guard startDate < endDate else {
+            return onComplete(.failure(ShoppingListError.invalidDateRange))
+        }
+        
+        let ingredientSums = foundMealPlans
+            .flatMap { $0.slots.compactMap { $0.recipe?.ingredients.count } }
+            .reduce(0, +)
+        
+        guard ingredientSums > 0 else {
+            return onComplete(.failure(ShoppingListError.noIngredientsFound))
+        }
+        
+        guard let userID = Auth.auth().currentUser?.uid else { return onComplete(.failure(ShoppingListError.noUserFound))}
+        
+        let shoppingListItems = reduceShoppingListItems(mealPlans: foundMealPlans)
+        
+        let newListId = UUID()
+        let newList = ShoppingList(
+            id: newListId,
+            name: "ShoppingList vom " + formattedDate(Date()),
+            shoppingListId: newListId.uuidString,
+            userId: userID,
+            descriptionText: "ShoppingList erstellt am: " + formattedDate(Date()),
+            startDate: formattedDate(startDate),
+            endDate: formattedDate(endDate),
+            note: "ShoppingList erstellt am: " + formattedDate(Date()),
+            isComplete: false,
+            isDeleted: false,
+            updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
+            items: shoppingListItems
+        )
+        
+        do {
+            context.insert(newList)
+            try context.save()
+        } catch {
+            onComplete(.failure(ShoppingListError.insertFailed))
+        }
+        
+        onComplete(.success(shoppingListItems))
+    }
 }
+
+

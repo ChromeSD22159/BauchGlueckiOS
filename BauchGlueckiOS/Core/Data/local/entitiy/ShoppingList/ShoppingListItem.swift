@@ -38,3 +38,9 @@ class ShoppingListItem {
         self.updatedAtOnDevice = updatedAtOnDevice
     }
 }
+
+extension ShoppingListItem {
+    var amountDouble: Double? {
+        Double(amount)
+    }
+}

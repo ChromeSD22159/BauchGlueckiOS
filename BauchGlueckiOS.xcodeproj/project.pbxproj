@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B615106D2CE240A000F3F737 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B615106C2CE240A000F3F737 /* README.md */; };
 		B6167C9B2CC94A8300451BAB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9A2CC94A8300451BAB /* WidgetKit.framework */; };
 		B6167C9D2CC94A8300451BAB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9C2CC94A8300451BAB /* SwiftUI.framework */; };
 		B6167CAA2CC94A8500451BAB /* BGWidgetExtentionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6167C992CC94A8300451BAB /* BGWidgetExtentionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -71,6 +72,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B615106C2CE240A000F3F737 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B6167C992CC94A8300451BAB /* BGWidgetExtentionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BGWidgetExtentionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6167C9A2CC94A8300451BAB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		B6167C9C2CC94A8300451BAB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -169,6 +171,7 @@
 			isa = PBXGroup;
 			children = (
 				B6167CBB2CC952E100451BAB /* BGWidgetExtentionExtension.entitlements */,
+				B615106C2CE240A000F3F737 /* README.md */,
 				B64864A22CC28B84007D7228 /* .gitignore */,
 				B664D46D2CC1007B0092FE3E /* BauchGlueckiOS */,
 				B6167C9E2CC94A8300451BAB /* BGWidgetExtention */,
@@ -317,6 +320,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B615106D2CE240A000F3F737 /* README.md in Resources */,
 				B64864A32CC28B88007D7228 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

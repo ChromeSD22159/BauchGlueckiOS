@@ -49,3 +49,9 @@ class Ingredient: Codable {
         try container.encode(unit, forKey: .unit)
     }
 }
+
+extension Ingredient {
+    var amountDouble: Double? {
+        Double(amount)
+    }
+}

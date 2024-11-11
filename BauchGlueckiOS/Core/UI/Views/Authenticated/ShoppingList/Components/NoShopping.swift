@@ -11,12 +11,17 @@ struct NoShopping: View {
     @State var startDate: Date
     @State var endDate: Date
     @State var showSheet: Bool = false
+    @Binding var saveOverlay: Bool
     
-    init() {
+    var hasError: (Error?) -> Void
+    
+    init(saveOverlay: Binding<Bool>, hasError: @escaping (Error?) -> Void) {
         let cal = Calendar.current
         self.startDate = Date().startOfDate()
         let endDate = cal.date(byAdding: .day, value: 1, to: Date().startOfDate())!
         self.endDate = endDate.endOfDay()
+        self._saveOverlay = saveOverlay
+        self.hasError = hasError
     }
     
     let dateRange: ClosedRange<Date> = {
@@ -34,7 +39,7 @@ struct NoShopping: View {
         }
         .sectionShadow(innerPadding: theme.padding, margin: theme.padding)
         .sheet(isPresented: $showSheet, content: {
-            SheetContentView(startDate: $startDate, endDate: $endDate)
+            SheetContentView(startDate: $startDate, endDate: $endDate, saveOverlay: $saveOverlay, hasError: hasError)
                 .presentationDragIndicator(.visible)
                 .presentationDetents([.medium, .large])
         })
@@ -57,5 +62,6 @@ struct NoShopping: View {
 }
  
 #Preview {
-    NoShopping()
-} 
+    @Previewable @State var saveOverlay: Bool = false
+    NoShopping(saveOverlay: $saveOverlay) { _ in }
+}

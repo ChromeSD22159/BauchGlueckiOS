@@ -24,8 +24,8 @@ struct AddRecipeButtonWithPicker: View {
         })
     }
 }
+
 #Preview("AddRecipeButtonWithPicker") {
     @Previewable @State var isRecipeSheet = false
-    
     AddRecipeButtonWithPicker(isRecipeSheet: isRecipeSheet)
 }

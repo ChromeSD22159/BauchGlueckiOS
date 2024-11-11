@@ -83,11 +83,8 @@ struct LoginScreen: View, Navigable {
                             }
                         }
                     }
-                    
-                    // TODO: REFACTOR
-                    Text(firebase.error?.localizedDescription ?? "")
-                        .font(.callout)
-                        .foregroundStyle(Color.red)
+                     
+                    ErrorText(text: firebase.error?.localizedDescription ?? "")
                     
                     HStack {
                         Text("Passwort vergessen?")

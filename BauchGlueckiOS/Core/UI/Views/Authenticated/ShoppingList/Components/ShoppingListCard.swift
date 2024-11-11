@@ -7,11 +7,18 @@
 import SwiftUI
 
 struct ShoppingListCard: View {
-    private let theme: Theme = Theme.shared 
+    private let theme: Theme = Theme.shared
+    @EnvironmentObject var firebase: FirebaseService
     @Bindable var shoppingList: ShoppingList
     var body: some View {
         HStack {
             Text("\(shoppingList.startDate) - \(shoppingList.endDate)")
+                .navigateTo(
+                    firebase: firebase,
+                    destination: Destination.shoppingList,
+                    target: { ShoppingListDetailScreen(shoppingListId: shoppingList.id) }
+                )
+            
             Spacer()
             
             Menu(content: {
@@ -30,7 +37,10 @@ struct ShoppingListCard: View {
                     Label("Löschen", systemImage: "trash")
                 }
             }, label: {
-                Image(systemName: "ellipsis")
+                ZStack {
+                    Image(systemName: "ellipsis")
+                }
+                .frame(width: 25, height: 25)
             })
         }
         .foregroundStyle(Theme.shared.onBackground)
@@ -40,4 +50,5 @@ struct ShoppingListCard: View {
 
 #Preview {
     ShoppingListCard(shoppingList: mockShoppingLists.first!)
+        .environmentObject(FirebaseService())
 }

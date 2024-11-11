@@ -43,11 +43,7 @@ struct AddNote: View {
                     .padding(.horizontal, 10)
                 }
                 .opacity(overlay ? 0.5 : 1.0)
-                .animation(.easeInOut, value: overlay)
-                
-                if overlay {
-                    SaveOverlay(geo: geo)
-                }
+                .animation(.easeInOut, value: overlay)  
             }
         }
     }
