@@ -9,8 +9,7 @@ import SwiftUI
 import SwiftData
  
 struct DetailRecipeView: View {
-    @EnvironmentObject var services: Services
-    @Environment(\.modelContext) var modelContext
+    @EnvironmentObject var services: Services 
     @State var scrollOffset: CGPoint = .zero
     
     private var imageOpacity: CGFloat {
@@ -56,17 +55,17 @@ struct DetailRecipeView: View {
     @State var appearance: UINavigationBarAppearance
     
     @State var isDateSheet = false
-    @State var selectedDate = Date()
     @State private var navigateToMealPlan = false
     
     var theme: Theme
     var recipe: Recipe
     var firebase: FirebaseService
-    
-    init(firebase: FirebaseService, recipe: Recipe) {
+    var date: Date?
+    init(firebase: FirebaseService, recipe: Recipe, date: Date? = nil) {
         self.theme = Theme.shared
         self.recipe = recipe
         self.firebase = firebase
+        self.date = date
         self.appearance = UINavigationBarAppearance()
         self.appearance.configureWithOpaqueBackground()
         self.appearance.backgroundColor = self.theme.background.opacity(0.0).toUIColor
@@ -150,9 +149,8 @@ struct DetailRecipeView: View {
                 .opacity(scrollOffset.y < -50 ? 1.0 : 0.0)
                 .animation(.easeInOut, value: scrollOffset)
         )
-        .datePickerSheet(isSheet: $isDateSheet) { date in
-            selectedDate = date
-  
+        .datePickerSheet(date: date, isSheet: $isDateSheet) { date in
+            services.mealPlanService.addToMealPlan(meal: recipe, date: date)
             
             navigateToMealPlan = true
         }
@@ -162,7 +160,7 @@ struct DetailRecipeView: View {
             showSettingButton: false,
             firebase: firebase,
             target: {
-                MealPlanScreen(firebase: firebase, context: modelContext, mealToAppOnMealPlan: recipe)
+                MealPlanScreen(firebase: firebase, services: services)
             }
         )
     }
@@ -187,6 +185,23 @@ struct DetailRecipeView: View {
     }
     
     
+}
+
+extension View {
+    func lazyView(isActive: Binding<Bool>) -> some View {
+        modifier(LazyView(isActive: isActive))
+    }
+}
+
+struct LazyView: ViewModifier {
+    let isActive: Binding<Bool>
+    func body(content: Content) -> some View {
+        if isActive.wrappedValue {
+            content
+        } else {
+            EmptyView()
+        }
+    }
 }
  
 #Preview {

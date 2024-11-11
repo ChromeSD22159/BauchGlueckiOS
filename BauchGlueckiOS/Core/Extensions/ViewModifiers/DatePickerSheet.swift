@@ -19,8 +19,8 @@ import SwiftUI
 }
 
 extension View {
-    func datePickerSheet(isSheet: Binding<Bool>, onDateSelect: @escaping (Date) -> Void) -> some View {
-        modifier(DatePickerSheet(isSheet: isSheet, onDateSelect: onDateSelect))
+    func datePickerSheet(date: Date? = nil, isSheet: Binding<Bool>, onDateSelect: @escaping (Date) -> Void) -> some View {
+        modifier(DatePickerSheet(date: date ?? Date(), isSheet: isSheet, onDateSelect: onDateSelect))
     }
 }
 
@@ -29,6 +29,12 @@ struct DatePickerSheet: ViewModifier {
     
     var isSheet: Binding<Bool>
     var onDateSelect: (Date) -> Void
+    
+    init(date: Date, isSheet: Binding<Bool>, onDateSelect: @escaping (Date) -> Void) {
+        self.date = date
+        self.isSheet = isSheet
+        self.onDateSelect = onDateSelect
+    }
     
     func body(content: Content) -> some View {
         content

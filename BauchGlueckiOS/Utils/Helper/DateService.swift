@@ -75,3 +75,15 @@ class DateService {
         return dateFormatter.string(from: date)
     }
 }
+
+extension Date {
+    func startOfDate() -> Date {
+        return Calendar.current.startOfDay(for: self)
+    }
+    
+    func endOfDay() -> Date {
+        let cal = Calendar.current
+        let tomorrowStart = cal.date(byAdding: .day, value: 1, to: self)!
+        return cal.date(byAdding: .second, value: -1, to: tomorrowStart)!
+    }
+}

@@ -14,8 +14,7 @@ class MealPlanDay {
     @Attribute var date: Date
     @Attribute var isDeleted: Bool
     @Attribute var updatedAtOnDevice: Int64
-    
-    @Relationship(deleteRule: .noAction) var slots: [MealPlanSpot] = []
+    @Relationship(deleteRule: .cascade) var slots: [MealPlanSpot]
     
     init(mealPlanDayID: UUID = UUID(), userId: String, date: Date, isDeleted: Bool, updatedAtOnDevice: Int64, slots: [MealPlanSpot] = []) {
         self.mealPlanDayID = mealPlanDayID
@@ -35,10 +34,11 @@ class MealPlanSpot {
     @Attribute var userId: String
     @Attribute var timeSlot: String
     @Attribute var isDeleted: Bool
+    @Relationship(inverse: \MealPlanDay.slots) var mealPlanDay: MealPlanDay
     
     @Relationship(deleteRule: .noAction) var recipe: Recipe?
 
-    init(MealPlanSpotId: UUID = UUID(), mealPlanDayId: String, mealId: String, userId: String, timeSlot: String, isDeleted: Bool, recipe: Recipe? = nil) {
+    init(MealPlanSpotId: UUID = UUID(), mealPlanDayId: String, mealId: String, userId: String, timeSlot: String, isDeleted: Bool = false, recipe: Recipe? = nil, mealPlanDay: MealPlanDay) {
         self.MealPlanSpotId = MealPlanSpotId
         self.mealPlanDayId = mealPlanDayId
         self.mealId = mealId
@@ -46,5 +46,6 @@ class MealPlanSpot {
         self.timeSlot = timeSlot
         self.isDeleted = isDeleted
         self.recipe = recipe
+        self.mealPlanDay = mealPlanDay
     }
 }

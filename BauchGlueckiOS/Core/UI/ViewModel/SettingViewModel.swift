@@ -178,16 +178,4 @@ class SettingViewModel: ObservableObject {
             }
         }
     }
-}
-
-// TODO: REFACTOR
-extension String {
-    var toDate: Date? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        dateFormatter.timeZone = TimeZone.current
-        dateFormatter.locale = Locale.current
-        
-        return dateFormatter.date(from: self)
-    }
-}
+} 

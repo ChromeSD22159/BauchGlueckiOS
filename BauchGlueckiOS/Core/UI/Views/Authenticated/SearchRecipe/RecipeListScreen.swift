@@ -8,7 +8,7 @@ import SwiftUI
 import SwiftData
 import Combine
 
-struct SearchRecipesScreen: View {
+struct RecipeListScreen: View {
     let theme = Theme.shared
     
     var firebase: FirebaseService
@@ -41,7 +41,7 @@ struct SearchRecipesScreen: View {
                         RecipePreviewCard(mainImage: recipe.mainImage, name: recipe.name, fat: recipe.fat, protein: recipe.protein)
                             .navigateTo(
                                 firebase: firebase,
-                                destination: Destination.searchRecipes,
+                                destination: Destination.recipeCategoryList,
                                 showSettingButton: false,
                                 target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
                             )

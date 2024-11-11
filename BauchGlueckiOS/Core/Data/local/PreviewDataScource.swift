@@ -6,6 +6,7 @@
 //
 import SwiftData
 import Foundation
+import SwiftUICore
 
 @MainActor
 var previewDataScource: ModelContainer = {
@@ -15,7 +16,17 @@ var previewDataScource: ModelContainer = {
         WaterIntake.self,
         Weight.self,
         Medication.self,
-        SyncHistory.self
+        SyncHistory.self,
+        
+        Recipe.self,
+        Ingredient.self,
+        MainImage.self,
+        Category.self,
+        MealPlanDay.self,
+        MealPlanSpot.self,
+        
+        ShoppingList.self,
+        ShoppingListItem.self
     ])
     
     let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
@@ -103,6 +114,15 @@ var previewDataScource: ModelContainer = {
         intakeStatuses.forEach { intakeStatus in
             context.insert(intakeStatus)
         }
+        
+        for recipe in mockRecipes {
+            context.insert(recipe)
+        }
+        
+        for shoppingList in mockShoppingLists {
+            context.insert(shoppingList)
+        }
+       
         
         return container
     } catch {

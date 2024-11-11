@@ -30,7 +30,7 @@ struct RecipeCategoryScreen: View {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.recipeCategories,
-                                target: { SearchRecipesScreen(firebase: firebase, categoryId: category.categoryID) },
+                                target: { RecipeListScreen(firebase: firebase, categoryId: category.categoryID) },
                                 toolbarItems: {
                                     AddRecipeButtonWithPicker()
                                 }

@@ -49,3 +49,7 @@ struct AddShoppingListCard: View {
         .onTapGesture { onClick() }
     }
 }
+
+#Preview {
+    AddShoppingListCard()
+}

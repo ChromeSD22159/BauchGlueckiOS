@@ -16,8 +16,8 @@ enum Destination {
     case notes
     case medication
     case weight
-    case recipeCategories, searchRecipes, detailRecipes
-    case shoppingList
+    case recipeCategories, recipeCategoryList, detailRecipes, searchRecipes
+    case shoppingList, shoppingListDetail
     case mealPlan
 
     var screen: Page {
@@ -32,8 +32,10 @@ enum Destination {
             case .weight: Page(title: "Gewichtskontrolle", route: "/weights")
             case .recipeCategories: Page(title: "Rezept Kategorien", route: "/recipeCategories")
             case .detailRecipes: Page(title: "Rezept", route: "/datailCategories")
+            case .recipeCategoryList: Page(title: "Rezepte Suchen", route: "/searchCategories")
             case .searchRecipes: Page(title: "Rezepte Suchen", route: "/searchCategories")
             case .shoppingList: Page(title: "Shopping Listen", route: "/shoppingList")
+            case .shoppingListDetail: Page(title: "Shopping Liste", route: "/shoppingList")
             case .mealPlan: Page(title: "Mahlzeiten Planer", route: "/mealPlan")
         }
     }
