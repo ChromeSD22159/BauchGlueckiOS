@@ -9,7 +9,7 @@ import SwiftData
 
 
 @Model
-class Ingredient: Codable {
+class Ingredient: Codable, Hashable {
     @Attribute(.unique) var id: Int
     var component: String?
     var name: String

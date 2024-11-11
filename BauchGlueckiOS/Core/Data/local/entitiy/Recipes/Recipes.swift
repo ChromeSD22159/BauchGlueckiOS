@@ -7,7 +7,7 @@
 import SwiftData
 
 @Model
-class Recipe {
+class Recipe: Identifiable, Hashable {
     @Attribute(.unique) var id: Int
     var mealId: String
     var userId: String

@@ -25,14 +25,14 @@ struct SectionImageCard: View {
             Image(uiImage: .cardBG)
                 .resizable()
                 .renderingMode(.template)
-                .aspectRatio(contentMode: .fit)
+                .aspectRatio(contentMode: .fill)
                 .foregroundColor(theme.primary)
                 .opacity(0.30)
             
             Image(uiImage: image)
                 .resizable()
                 .renderingMode(.template)
-                .aspectRatio(contentMode: .fit)
+                .aspectRatio(contentMode: .fill)
                 .foregroundColor(theme.primary)
                 .opacity(0.60)
             

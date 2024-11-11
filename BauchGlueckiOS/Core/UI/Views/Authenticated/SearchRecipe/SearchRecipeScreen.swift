@@ -28,15 +28,7 @@ struct SearchRecipeScreen: View {
     
     @Query() var recipes: [Recipe]
     
-    var searchResults: [Recipe] {
-        withAnimation(.easeIn) {
-            if searchText.isEmpty {
-                return recipes
-            } else {
-                return recipes.filter { $0.name.contains(searchText) }
-            }
-        }
-    }
+    
     
     var body: some View {
         ZStack {
@@ -69,7 +61,7 @@ struct SearchRecipeScreen: View {
             }
             .padding(.horizontal, theme.padding)
         }
-        .searchable(text: $searchText, isPresented: $searchIsActive, prompt: "Look for something")
+        .searchable(text: $searchText, isPresented: $searchIsActive, prompt: "Rezepte, Zutaten oder Zubereitung suchen")
         .onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
                 searchIsActive.toggle()
@@ -78,6 +70,37 @@ struct SearchRecipeScreen: View {
         .onDisappear {
             searchIsActive.toggle()
         }
+    }
+    
+    var searchResults: [Recipe] {
+        withAnimation(.easeIn) {
+            if searchText.isEmpty {
+                return recipes
+            } else {
+                return filteredRecipes()
+            }
+        }
+    }
+    
+    private func filteredRecipes() -> [Recipe] {
+        var uniqueRecipes = Set<Recipe>()
+        uniqueRecipes.formUnion(recipes.filter { recipe in
+            recipe.category?.name.localizedCaseInsensitiveContains(searchText) ?? false
+        })
+        
+        // Filter nach Rezeptname
+        uniqueRecipes.formUnion(recipes.filter { recipe in
+            recipe.name.localizedCaseInsensitiveContains(searchText)
+        })
+        
+        // Filter nach Zutatenname
+        uniqueRecipes.formUnion(recipes.filter { recipe in
+            recipe.ingredients.contains { ingredient in
+                ingredient.name.localizedCaseInsensitiveContains(searchText)
+            }
+        })
+            
+        return Array(uniqueRecipes).sorted { $0.name < $1.name }
     }
 }
 
