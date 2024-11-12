@@ -12,6 +12,8 @@ struct EditMedicationSheet: View {
     
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var services: Services
+    
     let theme = Theme.shared
    
     @FocusState private var focusedField: FocusedField?
@@ -174,7 +176,10 @@ struct EditMedicationSheet: View {
             
             IconTextButton(
                 text: "Speichern",
-                onEditingChanged: { update() }
+                onEditingChanged: {
+                    update()
+                    services.weightService.sendUpdatedWeightsToBackend()
+                }
             )
         }
     }

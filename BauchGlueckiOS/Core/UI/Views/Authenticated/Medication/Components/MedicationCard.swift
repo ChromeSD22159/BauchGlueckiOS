@@ -13,6 +13,7 @@ struct MedicationCard: View {
     let theme = Theme.shared
     @Bindable var medication: Medication
     @Environment(\.modelContext) var modelContext
+    @EnvironmentObject var services: Services
     @State var isSheetPresented = false
     
     let options = [
@@ -75,28 +76,39 @@ struct MedicationCard: View {
     
     // View for a single intake time
     @ViewBuilder private func intakeTimeView(@Bindable intakeTime: IntakeTime) -> some View {
-        
-        let isTaken = intakeTime.intakeStatuses.filter { status in
-            return !status.isTaken && !status.isDeleted && Calendar.current.isDate(status.date.toDate, inSameDayAs: Date())
-        }
-        
+
         VStack {
             ZStack {
                 Circle()
                     .strokeBorder(theme.backgroundGradient, lineWidth: 5)
                     .frame(width: 80)
+                
                 Circle()
                     .fill(theme.backgroundGradient)
                     .frame(width: 50)
             }
-            .opacity(isTaken.count > 0 ? 0.5 : 1.0)
+            .opacity(isTakentoday(intakeTime: intakeTime) ? 1.0 : 0.5)
             
             Text(intakeTime.intakeTime)
                 .font(.caption2)
         }
         .onTapGesture {
             MedicationDataService.toggleIntakeStatus(for: intakeTime)
+            
+            services.medicationService.sendUpdatedMedicationToBackend()
         }
+    }
+    
+    private func isTakentoday(intakeTime: IntakeTime) -> Bool {
+        let hasEntryForToday: Bool = intakeTime.intakeStatuses.contains { status in
+            Calendar.current.isDate(status.date.toDate, inSameDayAs: Date()) && !status.isDeleted
+        }
+
+        let hasUntakenForToday: Bool = intakeTime.intakeStatuses.contains { status in
+            Calendar.current.isDate(status.date.toDate, inSameDayAs: Date()) && !status.isDeleted && !status.isTaken
+        }
+
+        return hasEntryForToday && !hasUntakenForToday
     }
     
     // Handles DropDown selection actions

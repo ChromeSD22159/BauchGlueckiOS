@@ -9,7 +9,7 @@ import SwiftData
 import FirebaseAuth
 
 struct AddWeightSheetButton: View {
-
+    @EnvironmentObject var service: Services
     @State private var isSheet = false
     
     var startWeight: Double
@@ -30,18 +30,24 @@ struct AddWeightSheetButton: View {
                     durationRange: config.weightRange,
                     stepsEach: config.stepsEach,
                     steps: config.stepsInSeconds,
-                    startWeight: startWeight
-                ) {
-                    isSheet.toggle()
-                }
+                    startWeight: startWeight,
+                    close: {
+                        isSheet.toggle()
+                        updateBackend()
+                    }
+                )
             }
         }
+    }
+    
+    private func updateBackend() {
+        service.weightService.sendUpdatedWeightsToBackend()
     }
 }
 
 struct AddWeightSheetContent: View {
     @Environment(\.modelContext) var modelContext: ModelContext
- 
+  
     private let theme: Theme = Theme.shared
     @Query() var weights: [Weight]
     
@@ -70,10 +76,10 @@ struct AddWeightSheetContent: View {
         self.startWeight = startWeight
         self.close = close
         
-        let userID = Auth.auth().currentUser?.uid ?? ""
+        let userId = Auth.auth().currentUser?.uid ?? ""
         
         let predicate = #Predicate<Weight> { weight in
-            weight.userID == userID
+            weight.userId == userId
         }
         
         self._weights = Query(
@@ -88,7 +94,7 @@ struct AddWeightSheetContent: View {
             VStack {
                 Image(.magen)
                     .resizable()
-                    .frame(width: 150, height: 150)
+                    .frame(width: 150, height: 150) 
                 
                 Text("Neues Gewicht hinzufügen")
                     .font(theme.headlineText)
@@ -275,16 +281,14 @@ struct AddWeightSheetContent: View {
                 printError(ValidationError.userNotFound.rawValue)
                 throw ValidationError.userNotFound
             }
-            
-            let date = Date()
+             
             let weightID = UUID()
             let newWeight = Weight(
                 id: weightID,
-                userID: user.uid,
+                userId: user.uid,
                 weightId: weightID.uuidString,
                 value: currentWeight,
                 isDeleted: false,
-                weighed: date.ISO8601Format(),
                 updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds
             )
             

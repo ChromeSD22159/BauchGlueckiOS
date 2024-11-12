@@ -48,7 +48,7 @@ struct WeightChart: View {
         let userID = Auth.auth().currentUser?.uid ?? ""
                 
         let predicate = #Predicate<Weight> { weight in
-            weight.userID == userID
+            weight.userId == userID
         }
         
         self._weights = Query(filter: predicate)

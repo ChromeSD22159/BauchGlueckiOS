@@ -82,7 +82,6 @@ var previewDataScource: ModelContainer = {
                 intakeTimeId: intakeTimes[0].intakeTimeId,
                 date: DateService.yesterday.timeIntervalSince1970Milliseconds,
                 isTaken: true,
-                isDeleted: true,
                 updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
                 intakeTime: intakeTimes[0]
             ),
@@ -90,8 +89,7 @@ var previewDataScource: ModelContainer = {
                 intakeStatusId: UUID().uuidString,
                 intakeTimeId: intakeTimes[1].intakeTimeId,
                 date: DateService.today.timeIntervalSince1970Milliseconds,
-                isTaken: false,
-                isDeleted: false,
+                isTaken: false, 
                 updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
                 intakeTime: intakeTimes[1]
             )

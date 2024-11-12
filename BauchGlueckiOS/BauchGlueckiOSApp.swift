@@ -23,11 +23,13 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     let launchDeay = 0.5
     
     var services: Services {
-        Services(env: .production, firebase: firebase)
+        Services(env: .localFrederik, firebase: firebase)
     }
         
     init() {
         FirebaseApp.configure()
+        
+        print(Date().ISO8601Format(.iso8601))
     }
     
     var body: some Scene {

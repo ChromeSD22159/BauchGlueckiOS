@@ -18,6 +18,7 @@ struct MedicationScreen: View {
  
     init() {
         let userID = Auth.auth().currentUser?.uid ?? ""
+        
         _medication = Query(
             filter: #Predicate<Medication> { med in
                 med.userId == userID

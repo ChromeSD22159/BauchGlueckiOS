@@ -27,10 +27,10 @@ struct WeightsScreen: View {
     init(startWeight: Double) {
         self.startWeight = startWeight
         
-        let userID = Auth.auth().currentUser?.uid ?? ""
+        let userId = Auth.auth().currentUser?.uid ?? ""
         
         let predicate = #Predicate<Weight> { weight in
-            weight.userID == userID
+            weight.userId == userId
         }
         
         self._weights = Query(

@@ -17,6 +17,7 @@ class Services: ObservableObject {
     let waterIntakeService: WaterIntakeService
     let recipesService: RecipesDataService
     let mealPlanService: MealPlanService
+    let medicationService: MedicationService
     
     init(env: EnvironmentVariables = .localFrederik, firebase: FirebaseService) {
         let context: ModelContext = localDataScource.mainContext
@@ -27,11 +28,13 @@ class Services: ObservableObject {
         self.waterIntakeService = WaterIntakeService(context: context, apiService: self.apiService)
         self.recipesService = RecipesDataService(context: context, apiService: self.apiService)
         self.mealPlanService = MealPlanService(context: context)
+        self.medicationService = MedicationService(context: context, apiService: self.apiService)
     }
     
     func fetchFrombackend() {
         self.countdownService.fetchTimerFromBackend()
         self.weightService.fetchWeightsFromBackend()
         self.waterIntakeService.fetchWaterIntakesFromBackend()
+        self.medicationService.fetchMedicationFromBackend()
     }
 }

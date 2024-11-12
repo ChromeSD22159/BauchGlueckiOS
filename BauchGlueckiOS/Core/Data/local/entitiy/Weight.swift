@@ -10,7 +10,7 @@ import Foundation
 @Model
 class Weight: Identifiable, Codable {
     @Attribute(.unique) var id: UUID
-    var userID: String
+    var userId: String
     var weightId: String
     var value: Double
     var isDeleted: Bool
@@ -19,15 +19,15 @@ class Weight: Identifiable, Codable {
     
     init(
         id: UUID = UUID(),
-        userID: String = "",
+        userId: String = "",
         weightId: String = "",
         value: Double = 0.0,
         isDeleted: Bool = false,
-        weighed: String = "",
+        weighed: String = Date().ISO8601Format(.iso8601),
         updatedAtOnDevice: Int64 = Date().timeIntervalSince1970Milliseconds
     ) {
         self.id = id
-        self.userID = userID
+        self.userId = userId
         self.weightId = weightId
         self.value = value
         self.isDeleted = isDeleted
@@ -37,7 +37,7 @@ class Weight: Identifiable, Codable {
     
     enum CodingKeys: String, CodingKey {
         case id
-        case userID
+        case userId
         case weightId
         case value
         case isDeleted
@@ -56,7 +56,7 @@ class Weight: Identifiable, Codable {
             throw DecodingError.dataCorruptedError(forKey: .id, in: container, debugDescription: "ID could not be decoded")
         }
         
-        self.userID = (try? container.decode(String.self, forKey: .userID)) ?? ""
+        self.userId = (try? container.decode(String.self, forKey: .userId)) ?? ""
         self.weightId = (try? container.decode(String.self, forKey: .weightId)) ?? ""
         self.value = (try? container.decode(Double.self, forKey: .value)) ?? 0.0
         self.isDeleted = (try? container.decode(Bool.self, forKey: .isDeleted)) ?? false
@@ -68,7 +68,7 @@ class Weight: Identifiable, Codable {
         do {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(id, forKey: .id)
-            try container.encode(userID, forKey: .userID)
+            try container.encode(userId, forKey: .userId)
             try container.encode(weightId, forKey: .weightId)
             try container.encode(value, forKey: .value)
             try container.encode(isDeleted, forKey: .isDeleted)

@@ -21,7 +21,7 @@ class WaterIntake: Identifiable, Codable {
         id: UUID = UUID(),
         userId: String,
         waterIntakeId: String = UUID().uuidString,
-        value: Double,
+        value: Double = 0.25,
         isDeleted: Bool = false,
         updatedAtOnDevice: Int64 = Date().timeIntervalSince1970Milliseconds
     ) {

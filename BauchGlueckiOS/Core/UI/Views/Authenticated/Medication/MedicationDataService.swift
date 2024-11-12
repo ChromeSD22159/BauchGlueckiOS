@@ -66,6 +66,11 @@ struct MedicationDataService {
     }
     
     static func toggleIntakeStatus(@Bindable for intakeTime: IntakeTime) {
+        let updateTimeStamp = Date().timeIntervalSince1970Milliseconds
+        
+        intakeTime.medication?.updatedAtOnDevice = updateTimeStamp
+        intakeTime.updatedAtOnDevice = updateTimeStamp
+        
         if let index = intakeTime.intakeStatuses.firstIndex(where: {
             Calendar.current.isDate($0.date.toDate, inSameDayAs: Date())
         }) {
@@ -82,7 +87,6 @@ struct MedicationDataService {
                 intakeTimeId: intakeTime.intakeTimeId,
                 date: Date().timeIntervalSince1970Milliseconds,
                 isTaken: true,
-                isDeleted: false,
                 updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
                 intakeTime: intakeTime
             )

@@ -39,7 +39,7 @@ class WeightService {
         } else {
             context.insert(
                 Weight(
-                    userID: serverWeight.userID,
+                    userId: serverWeight.userId,
                     weightId: serverWeight.weightId,
                     value: serverWeight.value,
                     isDeleted: serverWeight.isDeleted,
@@ -54,7 +54,7 @@ class WeightService {
         guard let userID = Auth.auth().currentUser?.uid else { return [] }
         
         let predicate = #Predicate { (weight: Weight) in
-            weight.userID == userID
+            weight.userId == userID
         }
         
         let query = FetchDescriptor<Weight>(
@@ -72,7 +72,7 @@ class WeightService {
         guard let userID = Auth.auth().currentUser?.uid else { return [] }
        
         let predicate = #Predicate { (weight: Weight) in
-            weight.userID == userID && weight.updatedAtOnDevice > timeStamp
+            weight.userId == userID && weight.updatedAtOnDevice > timeStamp
         }
         
         let query = FetchDescriptor<Weight>(
@@ -118,6 +118,8 @@ class WeightService {
     }
     
     func fetchWeightsFromBackend() {
+        guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
+        
         Task {
             do {
                 let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
@@ -155,11 +157,13 @@ class WeightService {
                         }
                 }
                 
-            } 
+            }
         }
     }
     
     func sendUpdatedWeightsToBackend() {
+        guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
+        
         let sendURL = apiService.baseURL + "/api/weight/updateRemoteData"
 
         let headers: HTTPHeaders = [
@@ -171,7 +175,7 @@ class WeightService {
             do {
                 let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
                 
-                let foundWeights = getAllUpdatedWeights(timeStamp: lastSync)
+                let foundWeights: [Weight] = getAllUpdatedWeights(timeStamp: lastSync)
                 
                 print("")
                 print("\(table) >>> URL \(sendURL)")
@@ -193,7 +197,7 @@ class WeightService {
     }
 
     func syncWeights() {
-        guard (Auth.auth().currentUser != nil) else { return }
+        guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
         
         sendUpdatedWeightsToBackend()
         

@@ -11,6 +11,8 @@ import FirebaseAuth
 struct AddMedicationSheet: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var services: Services
+    
     let theme = Theme.shared
     @State private var isSheet = false
    
@@ -72,40 +74,8 @@ struct AddMedicationSheet: View {
                 ForEach(intakeTimeEntries.indices, id: \.self) { index in
                     
                     HStack {
-                        
-                        TextField("Stunde", value: Binding(
-                            get: { intakeTimeEntries[index].hour },
-                            set: { intakeTimeEntries[index].hour = $0 > 23 ? 23 : $0 }
-                        ), format: .number)
-                        .keyboardType(.numberPad)
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                Button("Fertig") {
-                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                                }
-                                .foregroundColor(.primary)
-                            }
-                        }
-                        .frame(width: 30)
-
-                        Text(":")
-
-                        TextField("Minute", value: Binding(
-                            get: { intakeTimeEntries[index].minute },
-                            set: { intakeTimeEntries[index].minute = $0 > 59 ? 59 : $0 }
-                        ), format: .number)
-                        .keyboardType(.numberPad)
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                Button("Fertig") {
-                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                                }
-                                .foregroundColor(.primary)
-                            }
-                        }
-                        .frame(width: 30)
+                         
+                        TimerPicker(hour: $intakeTimeEntries[index].hour, minute: $intakeTimeEntries[index].minute)
                          
                         ZStack(alignment: .topTrailing) {
                             Button(action: { deleteTimeEntry(intakeTimeEntries[index]) }) {
@@ -177,7 +147,10 @@ struct AddMedicationSheet: View {
             
             IconTextButton(
                 text: "Speichern",
-                onEditingChanged: { insert() }
+                onEditingChanged: {
+                    insert()
+                    services.weightService.sendUpdatedWeightsToBackend()
+                }
             )
         }
     }
@@ -244,9 +217,6 @@ struct AddMedicationSheet: View {
                         minute: intakeTimeEntry.minute
                     )
                 }
-
-               
-
                 
                 dismiss()
             } catch let error {
@@ -275,10 +245,11 @@ struct AddMedicationSheet: View {
         let hour = calendar.component(.hour, from: Date())
         let minute = calendar.component(.minute, from: Date())
         
-        let newEntry = IntakeTimeEntry(id: UUID(), hour: hour, minute: minute)
-        intakeTimeEntries.append(newEntry)
+        // Minuten auf den nächsten 5er-Schritt runden
+        let roundedMinute = (minute / 5) * 5
         
-        print(intakeTimeEntries.count)
+        let newEntry = IntakeTimeEntry(id: UUID(), hour: hour, minute: roundedMinute)
+        intakeTimeEntries.append(newEntry)
     }
     
     private func deleteTimeEntry(_ entry: IntakeTimeEntry) {
@@ -290,5 +261,62 @@ struct AddMedicationSheet: View {
         case invalidDosis = "Die Dosis sollte nicht leer sein."
         case userNotFound = "Ein Fehler mit deinem Profil ist aufgetreten. Kontaktiere den Entwickler."
         case medikationExist = "Ein Medikament mit dem Namen existiert bereits."
+    }
+}
+
+#Preview {
+    @Previewable @State var hour: Int = Calendar.current.component(.hour, from: Date())
+    @Previewable @State var minute: Int = Calendar.current.component(.minute, from: Date())
+    
+    TimerPicker(hour: $hour, minute: $minute)
+}
+
+struct TimerPicker: View {
+    @Binding var hour: Int
+    @Binding var minute: Int
+    var body: some View {
+        HStack {
+            IntegerPicker(value: $hour, type: .hour)
+            
+            Text(":")
+            
+            IntegerPicker(value: $minute, type: .minute)
+        }
+    }
+}
+
+struct IntegerPicker: View {
+    var range: [Int]
+     
+    @Binding var value: Int
+    
+    init(value: Binding<Int>, type: IntegerPicker.type = .hour) {
+        self.range = switch type {
+            case .hour: Array(0..<24)
+            case .minute: stride(from: 0, to: 60, by: 5).map { $0 }
+        }
+        
+        self._value = value
+    }
+    
+    var body: some View {
+        Picker("", selection: $value) {
+            ForEach(range, id: \.self) { integer in
+                Text(integer.formattedWithLeadingZero())
+            }
+        }
+        .accentColor(Theme.shared.onBackground)
+        .pickerStyle(.menu)
+    }
+    
+    enum type {
+        case hour, minute
+    }
+}
+
+extension Int {
+    /// Gibt die Zahl als String mit führender Null zurück, falls sie einstellig ist.
+    func formattedWithLeadingZero() -> String {
+        return String(format: "%02d", self)
     }
 }

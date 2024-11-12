@@ -80,6 +80,11 @@ struct MedicationHistoryCard: View {
     private func intakeStatusPercent(for date: Date) -> Int {
         let totalIntakes = medication.intakeTimes.count
 
+        // Verhindere Division durch 0
+        guard totalIntakes > 0 else {
+            return 0
+        }
+
         let takenIntakes = medication.intakeTimes.filter { intakeTime in
             intakeTime.intakeStatuses.contains { status in
                 status.isTaken && !status.isDeleted && Calendar.current.isDate(status.date.toDate, inSameDayAs: date)

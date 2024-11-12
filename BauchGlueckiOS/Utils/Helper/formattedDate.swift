@@ -21,3 +21,23 @@ func formattedDateDDMM(_ date: Date = Date()) -> String {
     
     return formatter.string(from: date)
 }
+
+extension Date {
+    func toDateString() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "de_DE")
+        formatter.dateFormat = "HH:mm"
+        
+        return formatter.string(from: self)
+    }
+}
+
+extension String {
+    func toDateFromHHMM() -> Date? {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "de_DE")
+        formatter.dateFormat = "HH:mm" 
+        
+        return formatter.date(from: self)
+    }
+}

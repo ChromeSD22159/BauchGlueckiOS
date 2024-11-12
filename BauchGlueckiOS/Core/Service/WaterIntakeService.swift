@@ -8,6 +8,7 @@
 import SwiftData
 import Alamofire
 import FirebaseAuth
+import SwiftUI
 
 
 
@@ -40,7 +41,7 @@ class WaterIntakeService {
         } else {
             context.insert(
                 Weight(
-                    userID: serverWaterIntake.userId,
+                    userId: serverWaterIntake.userId,
                     weightId: serverWaterIntake.waterIntakeId,
                     value: serverWaterIntake.value,
                     isDeleted: serverWaterIntake.isDeleted,
@@ -92,27 +93,25 @@ class WaterIntakeService {
             value: 0.25
         )
  
-        self.context.insert( intake )
+        self.context.insert(intake)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-            self.sendUpdatedWaterIntakesToBackend()
-        })
-        
-        
+        self.sendUpdatedWaterIntakesToBackend()
     }
     
     func fetchWaterIntakesFromBackend() {
+        guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
+        
         Task {
             do {
-                let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
+                let lastSync = try await self.syncHistoryRepository.getLastSyncHistoryByEntity(entity: self.table)?.lastSync ?? -1
                 guard let user = Auth.auth().currentUser else { return }
                 
-                let fetchURL = apiService.baseURL + "/api/water-intake/fetchItemsAfterTimeStamp?timeStamp=\(lastSync)&userId=\(user.uid)"
+                let fetchURL = self.apiService.baseURL + "/api/water-intake/fetchItemsAfterTimeStamp?timeStamp=\(lastSync)&userId=\(user.uid)"
                 
                 print("")
                 print("<<< URL \(fetchURL)")
                 
-                let response = await AF.request(fetchURL, headers: headers)
+                let response = await AF.request(fetchURL, headers: self.headers)
                                        .cacheResponse(using: .doNotCache)
                                        .validate()
                                        .serializingDecodable([WaterIntake].self)
@@ -123,10 +122,10 @@ class WaterIntakeService {
                     case .success(let data):
                     
                         data.forEach { waterintake in
-                            insertOrUpdate(waterIntakeID: waterintake.waterIntakeId, serverWaterIntake: waterintake)
+                            self.insertOrUpdate(waterIntakeID: waterintake.waterIntakeId, serverWaterIntake: waterintake)
                         }
                     
-                        syncHistoryRepository.saveSyncHistoryStamp(entity: table)
+                    self.syncHistoryRepository.saveSyncHistoryStamp(entity: self.table)
                     
                     case .failure(_):
                         if response.response?.statusCode == 430 {
@@ -137,11 +136,13 @@ class WaterIntakeService {
                         }
                 }
                 
-            } 
+            }
         }
     }
     
     func sendUpdatedWaterIntakesToBackend() {
+        guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
+        
         let sendURL = apiService.baseURL + "/api/water-intake/updateRemoteData"
 
         let headers: HTTPHeaders = [
@@ -151,14 +152,14 @@ class WaterIntakeService {
         
         Task {
             do {
-                let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
+                let lastSync = try await self.syncHistoryRepository.getLastSyncHistoryByEntity(entity: self.table)?.lastSync ?? -1
                 
-                let foundWaterIntakes = getAllUpdatedItems(timeStamp: lastSync)
+                let foundWaterIntakes = self.getAllUpdatedItems(timeStamp: lastSync)
                 
                 print("")
-                print("\(table) >>> URL \(sendURL)")
-                print("\(table) last Sync: \(lastSync)")
-                print("\(table) send weights: \(foundWaterIntakes.count)")
+                print("\(self.table) >>> URL \(sendURL)")
+                print("\(self.table) last Sync: \(lastSync)")
+                print("\(self.table) send weights: \(foundWaterIntakes.count)")
                 
                 AF.request(sendURL, method: .post, parameters: foundWaterIntakes, encoder: JSONParameterEncoder.default, headers: headers)
                     .validate()
@@ -175,11 +176,18 @@ class WaterIntakeService {
     }
 
     func syncWaterIntakes() {
-        guard (Auth.auth().currentUser != nil) else { return }
+        guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
         
-        sendUpdatedWaterIntakesToBackend()
+        self.sendUpdatedWaterIntakesToBackend()
         
-        fetchWaterIntakesFromBackend()
+        self.fetchWaterIntakesFromBackend()
     }
+}
 
+class AppStorageService {
+    @AppStorage("Backend")static var backendReachableState: Bool = true
+    
+    static func whenBackendReachable() -> Bool {
+        AppStorageService.backendReachableState
+    }
 }

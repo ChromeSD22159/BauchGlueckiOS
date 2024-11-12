@@ -126,6 +126,8 @@ class CountdownService {
     }
     
     func fetchTimerFromBackend() {
+        guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
+        
         Task {
             do {
                 let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
@@ -166,6 +168,8 @@ class CountdownService {
     }
     
     func sendUpdatedTimerToBackend() {
+        guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
+        
         let url = apiService.baseURL + "/api/timer/updateRemoteData"
 
         let headers: HTTPHeaders = [
@@ -203,8 +207,7 @@ class CountdownService {
     }
     
     func syncTimers() {
-        guard let user = Auth.auth().currentUser else { return }
-        
+        guard let user = Auth.auth().currentUser, AppStorageService.whenBackendReachable() else { return }
         Task {
             do {
                 let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1

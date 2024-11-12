@@ -23,6 +23,8 @@ struct RecipesDataService {
     func fetchRecipesFromBackend(
         table: Entitiy = .Recipe
     ) {
+        guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
+        
         let syncHistoryRepository = SyncHistoryService(context: context)
         let headers: HTTPHeaders = [.authorization(bearerToken: apiService.bearerToken)]
   
@@ -217,7 +219,7 @@ struct RecipesDataService {
         selectedCategory: RecipeCategory,
         successFullUploadet: @escaping (Result<String, Error>) -> Void
     ) {
-        guard let userID = Auth.auth().currentUser?.uid else {
+        guard let userID = Auth.auth().currentUser?.uid, AppStorageService.whenBackendReachable() else {
             successFullUploadet(.failure(NSError(domain: "Authentication Error", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authenticated."])))
             return
         }

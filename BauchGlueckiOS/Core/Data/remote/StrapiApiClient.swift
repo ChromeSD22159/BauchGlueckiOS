@@ -9,6 +9,7 @@ import Foundation
 import FirebaseAuth
 import Alamofire
 import UIKit
+import SwiftUI
 
 class StrapiApiClient: GenericAPIService {
     
@@ -32,9 +33,11 @@ class StrapiApiClient: GenericAPIService {
         do {
             let _ = try JSONDecoder().decode(StrapiCurrentTimeStamp.self, from: data)
             print("Backend is Reachable")
+            AppStorageService.backendReachableState = true
             return true
         } catch {
             print("Backend is not Reachable")
+            AppStorageService.backendReachableState = false
             return false
         }
     }
