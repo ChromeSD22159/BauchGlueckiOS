@@ -24,7 +24,6 @@
 		B6ADCE8F2CC3259D001AFC57 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCE8E2CC3259D001AFC57 /* FirebaseMessaging */; };
 		B6ADCE982CC33108001AFC57 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCE972CC33108001AFC57 /* GoogleMobileAds */; };
 		B6ADCEAA2CC67F86001AFC57 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCEA92CC67F86001AFC57 /* Alamofire */; };
-		B6BA77E32CD411F200E58BFD /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B6BA77E22CD411F200E58BFD /* FirebaseCrashlytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -157,7 +156,6 @@
 				B64864392CC24568007D7228 /* GoogleSignInSwift in Frameworks */,
 				B648642A2CC24071007D7228 /* FirebaseFirestore in Frameworks */,
 				B64864242CC24071007D7228 /* FirebaseAuth in Frameworks */,
-				B6BA77E32CD411F200E58BFD /* FirebaseCrashlytics in Frameworks */,
 				B648642C2CC24071007D7228 /* FirebaseStorage in Frameworks */,
 				B64864372CC24568007D7228 /* GoogleSignIn in Frameworks */,
 				B675A0602CD8CD5000FC9FA9 /* SwiftSVG in Frameworks */,
@@ -255,7 +253,6 @@
 				B6ADCE8E2CC3259D001AFC57 /* FirebaseMessaging */,
 				B6ADCE972CC33108001AFC57 /* GoogleMobileAds */,
 				B6ADCEA92CC67F86001AFC57 /* Alamofire */,
-				B6BA77E22CD411F200E58BFD /* FirebaseCrashlytics */,
 				B675A05F2CD8CD5000FC9FA9 /* SwiftSVG */,
 			);
 			productName = BauchGlueckiOS;
@@ -552,6 +549,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -559,6 +557,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = de.frederikkohler.BauchGlueckiOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -586,6 +588,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -593,6 +596,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = de.frederikkohler.BauchGlueckiOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -734,11 +741,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6ADCEA82CC67F86001AFC57 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
-		};
-		B6BA77E22CD411F200E58BFD /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B64864202CC24070007D7228 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -23,7 +23,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     let launchDeay = 0.5
     
     var services: Services {
-        Services(env: .localSabina, firebase: firebase)
+        Services(env: .production, firebase: firebase)
     }
         
     init() {

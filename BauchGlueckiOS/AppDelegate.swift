@@ -18,13 +18,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
-
-        //FirebaseApp.configure()
         
         requestTrackingPermission()
         
         GADMobileAds.sharedInstance().start(completionHandler: nil)
-        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "527fdd25b08283eff613d67c9d301665" ]
+        //GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "527fdd25b08283eff613d67c9d301665" ]
         
         Messaging.messaging().delegate = self
         
