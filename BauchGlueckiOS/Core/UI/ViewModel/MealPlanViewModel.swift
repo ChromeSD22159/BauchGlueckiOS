@@ -13,7 +13,7 @@ import FirebaseAuth
 @Observable
 class MealPlanViewModel {
     var currentDate: Date = Date()
-    var mealPlans: [MealPlanDay] = []
+    var mealPlans: [MealPlanDay] = [] 
     
     let mealPlanService: MealPlanService
     let firebase: FirebaseService

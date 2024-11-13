@@ -19,12 +19,12 @@ class Services: ObservableObject {
     let mealPlanService: MealPlanService
     let medicationService: MedicationService
     
-    init(env: EnvironmentVariables = .localFrederik, firebase: FirebaseService) {
-        let context: ModelContext = localDataScource.mainContext
+    init(env: EnvironmentVariables = .localFrederik, firebase: FirebaseService, context: ModelContext) {
+        let syncHistoryService = SyncHistoryService(context: context)
         self.firebase = firebase
         self.apiService = StrapiApiClient(environment: env) 
         self.countdownService = CountdownService(context: context, apiService: self.apiService)
-        self.weightService = WeightService(context: context, apiService: self.apiService)
+        self.weightService = WeightService(context: context, apiService: self.apiService, syncHistoryService: syncHistoryService)
         self.waterIntakeService = WaterIntakeService(context: context, apiService: self.apiService)
         self.recipesService = RecipesDataService(context: context, apiService: self.apiService)
         self.mealPlanService = MealPlanService(context: context)

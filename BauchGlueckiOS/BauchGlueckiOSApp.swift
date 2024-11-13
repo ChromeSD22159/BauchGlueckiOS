@@ -15,22 +15,35 @@ import SwiftData
 struct BauchGlueckiOSApp: App, HandleNavigation {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
+    @StateObject var firebase: FirebaseService
+    @StateObject var services: Services
+    
     @State var notificationManager: NotificationService? = nil
     @State var backendIsReachable = false
     @State var screen: Screen = Screen.Launch
-    @StateObject var firebase: FirebaseService = FirebaseService()
+    let localData: ModelContext
     
-    let launchDeay = 0.5
-    
-    var services: Services {
-        Services(env: .localFrederik, firebase: firebase)
-    }
-        
     init() {
-        FirebaseApp.configure()
-        
-        print(Date().ISO8601Format(.iso8601))
+        do {
+            FirebaseApp.configure()
+ 
+            self.localData = localDataScource.mainContext
+            let firebaseService = FirebaseService()
+            let services = Services(
+                env: .localFrederik,
+                firebase: firebaseService,
+                context: self.localData
+            )
+            
+           _firebase = StateObject(wrappedValue: firebaseService)
+           _services = StateObject(wrappedValue: services)
+            
+        } catch {
+            fatalError("Failed to create ModelContainers: \(error)")
+        }
     }
+     
+    let launchDeay = 0.5
     
     var body: some Scene {
         WindowGroup {
@@ -66,8 +79,8 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
             }
             .environmentObject(firebase)
             .environmentObject(services)
+            .environment(\.modelContext, localData)
         }
-        .modelContainer(localDataScource)
     }
     
     internal func handleNavigation(screen: Screen) {
@@ -106,3 +119,5 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
         }
     }
 } 
+ 
+

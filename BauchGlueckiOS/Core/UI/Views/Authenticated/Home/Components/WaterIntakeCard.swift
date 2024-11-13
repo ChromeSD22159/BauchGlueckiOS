@@ -10,7 +10,6 @@ import SwiftData
 import FirebaseAuth
 
 struct WaterIntakeCard: View {
-    
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var services: Services
     
@@ -28,6 +27,10 @@ struct WaterIntakeCard: View {
         self.theme = Theme.shared
         self.intakeTarget = intakeTarget
         minGlassesForToday = Int(intakeTarget / glassSize)
+        
+        _intakes = Query(filter: #Predicate<WaterIntake> { intake in
+            intake.isDeleted == false
+        })
     }
     
     var totalIntakeInLiter: Double {
@@ -45,35 +48,36 @@ struct WaterIntakeCard: View {
     var intakesToday: [WaterIntake] {
         let todayIntakes = intakes.filter {
             Calendar.current.isDateInToday($0.updatedAtOnDevice.toDate)
-        } 
+        }
         
         return todayIntakes
     }
 
     var totalFilledGlasses: Int {
-        intakesToday.count
+        return intakesToday.count
     }
     
     var filledAndEmptyGlasses: [Bool] {
+        let emptyGlassesCount = max(0, minGlassesForToday - totalFilledGlasses)
+
         let filledGlasses = Array(repeating: true, count: totalFilledGlasses)
-        let emptyGlasses = Array(repeating: false, count: minGlassesForToday - totalFilledGlasses)
+        var emptyGlasses = Array(repeating: false, count: emptyGlassesCount)
+
+        // Wenn Ziel erreicht oder überschritten, füge ein zusätzliches Glas hinzu
+        if totalFilledGlasses >= minGlassesForToday {
+            emptyGlasses.append(false) // Ein zusätzliches leeres Glas anzeigen
+        }
 
         return filledGlasses + emptyGlasses
     }
     
     var body: some View {
         ZStack(alignment: .leading) {
-            
             VStack(spacing: 20) {
                 
                 VStack(spacing: theme.padding) {
                     Text("Wassereinnahme")
                         .font(theme.headlineTextSmall)
-                        .onTapGesture {
-                            intakes.forEach {
-                                modelContext.delete($0)
-                            } 
-                        }
                     
                     Text(String(format: "Dein Ziel: %.1f L Wasser", intakeTarget))
                         .font(.footnote)
@@ -93,7 +97,7 @@ struct WaterIntakeCard: View {
                             isActive: .constant(index == totalFilledGlasses),
                             isFilled: .constant(isFilled),
                             onClick: {
-                                if !isFilled {
+                                if !isFilled && totalIntakeInLiter < 3.0 {
                                     services.waterIntakeService.insertGLass()
                                 }
                             },
@@ -110,9 +114,5 @@ struct WaterIntakeCard: View {
         .background(theme.surface)
         .cornerRadius(theme.radius)
         .padding(.horizontal, 10)
-    }
-    
-    private func customPredicateForToday(intake: WaterIntake) -> Bool {
-        return Calendar.current.isDateInToday(intake.updatedAtOnDevice.toDate)
     }
 }

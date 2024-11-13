@@ -17,7 +17,7 @@ class Ingredient: Codable, Hashable {
     var unit: String
     @Relationship(deleteRule: .nullify) var recipe: Recipe?
     
-    init(id: Int, component: String?, name: String, amount: String, unit: String) {
+    init(id: Int, component: String? = "__component", name: String, amount: String, unit: String) {
         self.id = id
         self.component = component
         self.name = name

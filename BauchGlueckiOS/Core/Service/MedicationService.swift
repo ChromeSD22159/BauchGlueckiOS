@@ -268,15 +268,15 @@ class MedicationService {
                 print("\(table) >>> URL \(sendURL)")
                 print("\(table) last Sync: \(lastSync)")
                 print("\(table) send Medications: \(foundMedications.count)")
-                
+ 
                 print("")
                 print("Medication: Sync successful \(foundMedications.count)")
                 print("MedicationIntakeTimes: Sync successful \(foundMedications.map { $0.intakeTimes.count }.reduce(0, +))")
                 print("MedicationIntakeTimeStatuses: Sync successful \(foundMedications.flatMap { $0.intakeTimes }.map { $0.intakeStatuses.count }.reduce(0, +))")
                 print("")
-                
+
                 let updateMedis = foundMedications.map { med in
-                    var medicationDTO = MedicationDTO(
+                     MedicationDTO(
                         medicationId: med.medicationId,
                         userId: med.userId,
                         name: med.name,
@@ -284,7 +284,7 @@ class MedicationService {
                         isDeleted: med.isDeleted,
                         updatedAtOnDevice: med.updatedAtOnDevice,
                         intake_times: med.intakeTimes.map { time in
-                            var intakeTimeDTO = IntakeTimeDTO(
+                             IntakeTimeDTO(
                                 intakeTimeId: time.intakeTimeId,
                                 intakeTime: time.intakeTime,
                                 medicationId: med.medicationId,
@@ -301,20 +301,8 @@ class MedicationService {
                                     )
                                 }
                             )
-                            return intakeTimeDTO
                         }
                     )
-                    return medicationDTO
-                }
-                
-                // Debug print the JSON
-                do {
-                    let jsonData = try JSONEncoder().encode(updateMedis)
-                    if let jsonString = String(data: jsonData, encoding: .utf8) {
-                        print("JSON Payload: \(jsonString)")
-                    }
-                } catch {
-                    print("Error encoding JSON: \(error)")
                 }
                 
                 AF.request(sendURL, method: .post, parameters: updateMedis, encoder: JSONParameterEncoder.default, headers: headers)

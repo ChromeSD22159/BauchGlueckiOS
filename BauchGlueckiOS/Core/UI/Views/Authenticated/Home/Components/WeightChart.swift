@@ -48,14 +48,17 @@ struct WeightChart: View {
         let userID = Auth.auth().currentUser?.uid ?? ""
                 
         let predicate = #Predicate<Weight> { weight in
-            weight.userId == userID
+            weight.userId == userID && weight.isDeleted == false
         }
         
-        self._weights = Query(filter: predicate)
+        let fetch = Query(filter: predicate)
+        
+        self._weights = fetch
     }
     
     var body: some View {
         ZStack {
+            
             if weights.count == 0 {
                 HomeWeightMockCard()
                     .padding(.horizontal, theme.padding)
@@ -103,11 +106,9 @@ struct WeightChart: View {
                 .background(gradient)
                 .cornerRadius(theme.radius)
                 .padding(.horizontal, theme.padding)
+                .onAppLifeCycle(appearAndActive: calculateWeeklyAverage)
             }
         }
-        .onAppLifeCycle(appearAndActive: {
-            calculateWeeklyAverage()
-        })
     }
     
     private func calculateHeight(input: Double) -> Double {
@@ -117,7 +118,7 @@ struct WeightChart: View {
 
         // Normalisiere den Eingabewert auf den Bereich 0 bis 200
         let normalizedHeight = (input / 100) * maxHeight
-
+        
         // Stelle sicher, dass die Höhe innerhalb des Bereichs 0 bis 200 bleibt
         return min(maxHeight, max(minHeight, normalizedHeight))
     }
@@ -143,17 +144,17 @@ struct WeightChart: View {
 
         // Filtere die abgerufenen Einträge nach dem Zeitraum der letzten 7 Wochen
         weights.forEach { weight in
-            if let weighedDate = ISO8601DateFormatter().date(from: weight.weighed) {
-                // Finde den Start der Woche (Montag)
+                let dateFormatter = ISO8601DateFormatter()
+               dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+               if let weighedDate = dateFormatter.date(from: weight.weighed) {
+
                 guard let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weighedDate)) else {
                     return
                 }
 
-                // Berechne den Startdatum der letzten 7 Wochen
                 if let sevenWeeksAgo = calendar.date(byAdding: .weekOfYear, value: -7, to: endOfWeek),
                    weighedDate >= sevenWeeksAgo && weighedDate <= endOfWeek {
-                    
-                    // Füge den Gewichtseintrag zur richtigen Woche hinzu
                     weeklyData[startOfWeek, default: []].append(weight.value)
                 }
             }

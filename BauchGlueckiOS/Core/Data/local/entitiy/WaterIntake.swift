@@ -23,7 +23,7 @@ class WaterIntake: Identifiable, Codable {
         waterIntakeId: String = UUID().uuidString,
         value: Double = 0.25,
         isDeleted: Bool = false,
-        updatedAtOnDevice: Int64 = Date().timeIntervalSince1970Milliseconds
+        updatedAtOnDevice: Int64
     ) {
         self.id = id
         self.userId = userId
@@ -56,8 +56,8 @@ class WaterIntake: Identifiable, Codable {
         self.userId = (try? container.decode(String.self, forKey: .userId)) ?? ""
         self.waterIntakeId = (try? container.decode(String.self, forKey: .waterIntakeId)) ?? ""
         self.value = (try? container.decode(Double.self, forKey: .value)) ?? 0.0
-        self.isDeleted = (try? container.decode(Bool.self, forKey: .isDeleted)) ?? false
-        self.updatedAtOnDevice = (try? container.decode(Int64.self, forKey: .updatedAtOnDevice)) ?? Date().timeIntervalSince1970Milliseconds
+        self.isDeleted = (try? container.decode(Bool.self, forKey: .isDeleted)) ?? false 
+        self.updatedAtOnDevice = Int64(try container.decode(String.self, forKey: .updatedAtOnDevice)) ?? 0
     }
     
     func encode(to encoder: Encoder) throws {

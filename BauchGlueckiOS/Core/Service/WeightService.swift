@@ -14,16 +14,17 @@ class WeightService {
     private var context: ModelContext
     private var table: Entitiy
     private var apiService: StrapiApiClient
-    private var syncHistoryRepository: SyncHistoryService
+    private var syncHistoryService: SyncHistoryService
+    
     private var headers: HTTPHeaders {
         [.authorization(bearerToken: apiService.bearerToken)]
     }
     
-    init(context: ModelContext, apiService: StrapiApiClient) {
+    init(context: ModelContext, apiService: StrapiApiClient, syncHistoryService: SyncHistoryService) {
         self.context = context
         self.table = Entitiy.WEIGHT
         self.apiService = apiService
-        self.syncHistoryRepository = SyncHistoryService(context: context)
+        self.syncHistoryService = syncHistoryService
     }
     
     func insertOrUpdate(weightId: String, serverWeight: Weight) {
@@ -37,16 +38,22 @@ class WeightService {
             localWeight.updatedAtOnDevice = serverWeight.updatedAtOnDevice
             
         } else {
-            context.insert(
-                Weight(
-                    userId: serverWeight.userId,
-                    weightId: serverWeight.weightId,
-                    value: serverWeight.value,
-                    isDeleted: serverWeight.isDeleted,
-                    weighed: serverWeight.weighed,
-                    updatedAtOnDevice: serverWeight.updatedAtOnDevice
-                )
+            let new = Weight(
+                userId: serverWeight.userId,
+                weightId: serverWeight.weightId,
+                value: serverWeight.value,
+                isDeleted: serverWeight.isDeleted,
+                weighed: serverWeight.weighed,
+                updatedAtOnDevice: serverWeight.updatedAtOnDevice
             )
+            
+            context.insert(new)
+            
+            do {
+                try context.save()
+            } catch {
+                print("Error saving weight: \(error)")
+            }
         }
     }
     
@@ -112,17 +119,14 @@ class WeightService {
         try context.save()
         syncWeights()
     }
-    
-    func insert(weight: Weight) {
-        context.insert(weight)
-    }
+     
     
     func fetchWeightsFromBackend() {
         guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
         
         Task {
             do {
-                let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
+                let lastSync = try await syncHistoryService.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
                 guard let user = Auth.auth().currentUser else { return }
                 
                 let url = apiService.baseURL + "/api/weight/fetchItemsAfterTimeStamp?timeStamp=\(lastSync)&userId=\(user.uid)"
@@ -134,19 +138,16 @@ class WeightService {
                                        .cacheResponse(using: .doNotCache)
                                        .validate()
                                        .serializingDecodable([Weight].self)
-                                       .response
-                
-                
-                print(response)
+                                       .response 
                 
                 switch (response.result) {
                     case .success(let data):
                     
-                        data.forEach { weight in
+                        data.forEach { weight in 
                             insertOrUpdate(weightId: weight.weightId, serverWeight: weight)
                         }
-                    
-                        syncHistoryRepository.saveSyncHistoryStamp(entity: table)
+                     
+                        syncHistoryService.saveSyncHistoryStamp(entity: table)
                     
                     case .failure(_):
                         if response.response?.statusCode == 430 {
@@ -173,7 +174,7 @@ class WeightService {
         
         Task {
             do {
-                let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
+                let lastSync = try await syncHistoryService.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
                 
                 let foundWeights: [Weight] = getAllUpdatedWeights(timeStamp: lastSync)
                 

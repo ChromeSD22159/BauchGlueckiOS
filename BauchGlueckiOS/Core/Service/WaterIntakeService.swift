@@ -40,9 +40,8 @@ class WaterIntakeService {
             
         } else {
             context.insert(
-                Weight(
+                WaterIntake(
                     userId: serverWaterIntake.userId,
-                    weightId: serverWaterIntake.waterIntakeId,
                     value: serverWaterIntake.value,
                     isDeleted: serverWaterIntake.isDeleted,
                     updatedAtOnDevice: serverWaterIntake.updatedAtOnDevice
@@ -90,7 +89,8 @@ class WaterIntakeService {
         
         let intake =  WaterIntake(
             userId: user.uid,
-            value: 0.25
+            value: 0.25,
+            updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds
         )
  
         self.context.insert(intake)
@@ -159,7 +159,7 @@ class WaterIntakeService {
                 print("")
                 print("\(self.table) >>> URL \(sendURL)")
                 print("\(self.table) last Sync: \(lastSync)")
-                print("\(self.table) send weights: \(foundWaterIntakes.count)")
+                print("\(self.table) send WaterIntakes: \(foundWaterIntakes.count)")
                 
                 AF.request(sendURL, method: .post, parameters: foundWaterIntakes, encoder: JSONParameterEncoder.default, headers: headers)
                     .validate()

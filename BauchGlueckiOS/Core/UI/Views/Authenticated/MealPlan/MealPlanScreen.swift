@@ -83,9 +83,6 @@ struct MealPlanScreen: View {
                                         .onLongPressGesture {
                                             vm.removeMealSpotFromPlan(mealPlanDay: mealPlan, mealPlanSpotId: spot.MealPlanSpotId.uuidString)
                                         }
-                                        .swipeActions(content: {
-                                            Text("Swipe")
-                                        })
                                 } else {
                                     EmptyMealSpot(index: index, firebase: firebase, date: vm.currentDate)
                                 }

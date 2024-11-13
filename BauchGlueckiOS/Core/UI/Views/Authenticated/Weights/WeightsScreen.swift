@@ -10,7 +10,6 @@ import FirebaseAuth
 import SwiftData
 
 struct WeightsScreen: View {
-    @Environment(\.modelContext) var modelContext: ModelContext
     @State private var currentWeight: Double = 0.0
     @State private var weeklyAverage: [WeeklyAverageData] = []
     @State private var highestWeightLost: (differenceString: String, difference: Double, startDate: Date, endDate: Date)? = nil
@@ -235,6 +234,7 @@ struct WeeklyAverageData {
     var startOfWeek: Date
     var endOfWeek: Date
 }
+
 struct SectionOutterHeader: View {
     private var theme: Theme
     private var text: String
