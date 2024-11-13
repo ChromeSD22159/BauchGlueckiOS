@@ -19,7 +19,7 @@ struct MealPlanScreen: View {
     init(firebase: FirebaseService, services: Services) {
         self.firebase = firebase
         self.services = services
-        self.vm = MealPlanViewModel(firebase: firebase, service: services)
+        self.vm = MealPlanViewModel(firebase: firebase, service: services) 
     }
     
     var body: some View {

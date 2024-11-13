@@ -11,10 +11,22 @@ struct IconRow: View {
     let fat: Double
     let protein: Double
     let sugar: Double
+    let horizontalCenter: Bool
+    
+    init(kcal: Double, fat: Double, protein: Double, sugar: Double, horizontalCenter: Bool = true) {
+        self.kcal = kcal
+        self.fat = fat
+        self.protein = protein
+        self.sugar = sugar
+        self.horizontalCenter = horizontalCenter
+    }
     
     var body: some View {
         HStack {
-            Spacer()
+            if horizontalCenter {
+                Spacer()
+            }
+         
             
             NutrinIcon(systemName: "bolt", nutrin: kcal)
             

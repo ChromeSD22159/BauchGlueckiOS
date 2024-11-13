@@ -11,17 +11,17 @@ enum RecipeCategory: String, CaseIterable {
     
     var categoryID: String {
         switch self {
-        case .snack: return "snack"
-        case .hauptgericht: return "hauptgericht"
-        case .beilage: return "beilage"
-        case .dessert: return "dessert"
-        case .fruehPhase: return "frueh-phase"
-        case .pueriertePhase: return "puerierte-phase"
-        case .weicheKost: return "weiche-kost"
-        case .normaleKost: return "normale-kost"
-        case .proteinreich: return "proteinreich"
-        case .lowFat: return "low-fat"
-        case .lowCarb: return "low-carb"
+        case .snack: return "snack" // caussang
+        case .hauptgericht: return "hauptgericht" // glocke
+        case .beilage: return "beilage" // pflanze
+        case .dessert: return "dessert" // EIS
+        case .fruehPhase: return "frueh-phase" // brei
+        case .pueriertePhase: return "puerierte-phase" // Schale
+        case .weicheKost: return "weiche-kost" // Schale
+        case .normaleKost: return "normale-kost" //
+        case .proteinreich: return "proteinreich" // FISCH
+        case .lowFat: return "low-fat" // brokoli
+        case .lowCarb: return "low-carb" // FLEISCH
         }
     }
     
@@ -62,6 +62,22 @@ enum RecipeCategory: String, CaseIterable {
             case .lowFat: .lowFat
             case .lowCarb: .lowCarb
             case .snack: .snack
+        }
+    }
+    
+    var sliderImage :ImageResource {
+        switch self {
+            case .hauptgericht: .icKochTopf
+            case .beilage: .icBlatt
+            case .dessert: .icEis
+            case .fruehPhase: .icSuppe
+            case .pueriertePhase: .icBrei
+            case .weicheKost: .icCroissant
+            case .normaleKost: .icTopf
+            case .proteinreich: .icFish
+            case .lowFat: .icBrokoli
+            case .lowCarb: .icMeat
+            case .snack: .icCroissant
         }
     }
     

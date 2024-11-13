@@ -13,7 +13,7 @@ import FirebaseAuth
 @Observable
 class MealPlanViewModel {
     var currentDate: Date = Date()
-    var mealPlans: [MealPlanDay] = [] 
+    var mealPlans: [MealPlanDay] = []
     
     let mealPlanService: MealPlanService
     let firebase: FirebaseService
@@ -26,6 +26,12 @@ class MealPlanViewModel {
         self.mealPlanService = service.mealPlanService
  
         loadMealPlans()
+        
+        print("MealPlanViewModel initialized")
+    }
+    
+    deinit {
+        print("MealPlanViewModel deinitialized")
     }
     
     func loadMealPlans() {
@@ -60,5 +66,9 @@ class MealPlanViewModel {
         mealPlanService.removeFromMealPlan(mealPlanDay: mealPlanDay, mealPlanSpotId: mealPlanSpotId)
         
         loadMealPlans()
+    }
+    
+    func addToMealPlan(meal: Recipe, date: Date) {
+        mealPlanService.addToMealPlan(meal: meal, date: date)
     }
 }

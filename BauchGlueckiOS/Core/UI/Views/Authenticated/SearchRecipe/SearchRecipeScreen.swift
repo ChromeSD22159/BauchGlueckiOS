@@ -22,44 +22,75 @@ struct SearchRecipeScreen: View {
     }
     
     let columns = [
-       GridItem(.flexible()),
-       GridItem(.flexible())
+       GridItem(.flexible(), spacing: 16),
+       GridItem(.flexible(), spacing: 16),
+       
     ]
     
     @Query() var recipes: [Recipe]
-    
-    
-    
+     
     var body: some View {
         ZStack {
             Theme.shared.background.ignoresSafeArea()
             
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 20) {
-                    LazyVGrid(columns: columns, spacing: 10) {
-                        ForEach(searchResults, id: \.self) { recipe in
-                            
-                            RecipePreviewCard(
-                                mainImage: recipe.mainImage,
-                                name: recipe.name,
-                                fat: recipe.fat,
-                                protein: recipe.protein
-                            )
-                            .navigateTo(
-                                firebase: firebase,
-                                destination: Destination.recipeCategoryList,
-                                showSettingButton: false,
-                                target: { DetailRecipeView(firebase: firebase, recipe: recipe, date: date) }
-                            )
-                            
+                VStack(spacing: 32) {
+                    
+                    VStack {
+                        SectionHeader(title: "Kategorien", trailingText: "\(RecipeCategory.allCases.count.formatted(.number)) Kategrien")
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            LazyHStack(spacing: 16) {
+                                ForEach(RecipeCategory.allCases, id: \.categoryID) { category in
+                                    VStack {
+                                        Image(category.sliderImage)
+                                            .resizable()
+                                            .frame(width: 60, height: 60)
+                                        
+                                        Text("\(category.displayName)")
+                                            .font(theme.headlineTextSmall)
+                                            .foregroundColor(theme.onBackground)
+                                    }
+                                    .frame(width: 150, height: 80)
+                                    .onTapGesture { searchText = category.displayName }
+                                    .sectionShadow(innerPadding: 10)
+                                }
+                            }
                         }
+                        .contentMargins([.leading, .trailing], 16)
+                        .contentMargins([.bottom], 5)
                     }
                     
-                    Text("\(searchResults.count) Rezepte gefunden!")
-                        .font(.footnote)
+                    
+                    VStack {
+                        SectionHeader(title: "Rezepte", trailingText: "\(searchResults.count.formatted(.number)) Rezepte")
+                        LazyVGrid(columns: columns, spacing: 16) {
+                            ForEach(searchResults, id: \.self) { recipe in
+                                RecipePreviewCard(
+                                    mainImage: recipe.mainImage,
+                                    name: recipe.name,
+                                    fat: recipe.fat,
+                                    protein: recipe.protein
+                                )
+                                .navigateTo(
+                                    firebase: firebase,
+                                    destination: Destination.recipeCategoryList,
+                                    showSettingButton: false,
+                                    target: { DetailRecipeView(firebase: firebase, recipe: recipe, date: date) }
+                                )
+                                
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        
+                        Text("\(searchResults.count) Rezepte gefunden!")
+                            .font(.footnote)
+                            .padding(.top, 20)
+                            .padding(.horizontal, theme.padding)
+                    }
+                    
                 }
             }
-            .padding(.horizontal, theme.padding)
+            .contentMargins([.top, .bottom], 16)
         }
         .searchable(text: $searchText, isPresented: $searchIsActive, prompt: "Rezepte, Zutaten oder Zubereitung suchen")
         .onAppear {
@@ -101,6 +132,25 @@ struct SearchRecipeScreen: View {
         })
             
         return Array(uniqueRecipes).sorted { $0.name < $1.name }
+    }
+
+    
+    @ViewBuilder func SectionHeader(
+        title: String,
+        trailingText: String?
+    ) -> some View {
+        HStack {
+            Text(title)
+                .font(theme.headlineTextMedium)
+            
+            Spacer()
+            
+            if let trailingText = trailingText {
+                Text(trailingText)
+            }
+            
+        }
+        .padding(.horizontal, 16)
     }
 }
 

@@ -18,12 +18,14 @@ struct HomeScreen: View, PageIdentifier {
     
     var page: Destination
 
-    @State var isSettingSheet: Bool = false
-    @State var isUserProfileSheet: Bool = false
-    
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var firebase: FirebaseService
     @EnvironmentObject var services: Services
+    
+    @State var isSettingSheet: Bool = false
+    @State var isUserProfileSheet: Bool = false
+    @State var mealPlanViewModel: MealPlanViewModel?
+    
     
     @State private var path: [Destination] = []
     
@@ -42,6 +44,7 @@ struct HomeScreen: View, PageIdentifier {
                             title: "MealPlaner",
                             description: "Erstelle deinen MealPlan, indifiduell auf deine bedürfnisse."
                         )
+                        .environment(mealPlanViewModel)
                         .sectionShadow(margin: theme.padding)
                         .navigateTo(
                             firebase: firebase,
@@ -54,6 +57,7 @@ struct HomeScreen: View, PageIdentifier {
                             title: "Rezepte",
                             description: "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu."
                         )
+                        .environment(mealPlanViewModel)
                         .sectionShadow(margin: theme.padding)
                         .navigateTo(
                             firebase: firebase,
@@ -140,6 +144,10 @@ struct HomeScreen: View, PageIdentifier {
         }
         .onAppLifeCycle(appearAndActive: {
             openOnboardingSheetWhenNoProfileIsGiven()
+            
+            if mealPlanViewModel == nil {
+               mealPlanViewModel = MealPlanViewModel(firebase: firebase, service: services)
+            }
         })
         .fullScreenCover(isPresented: $isUserProfileSheet, onDismiss: {
             services.fetchFrombackend()
