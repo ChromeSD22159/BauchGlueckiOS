@@ -61,6 +61,7 @@ struct DetailRecipeView: View {
     var recipe: Recipe
     var firebase: FirebaseService
     var date: Date?
+    
     init(firebase: FirebaseService, recipe: Recipe, date: Date? = nil) {
         self.theme = Theme.shared
         self.recipe = recipe
@@ -120,8 +121,7 @@ struct DetailRecipeView: View {
                         TextWithTitlte(title: "Zubereitung:", text: recipe.preparation)
                         
                         Spacer()
-                        
-                        
+                         
                     }
                     .padding()
                     .background(theme.background.ignoresSafeArea())
@@ -141,7 +141,14 @@ struct DetailRecipeView: View {
                     Image(systemName: "calendar.badge.plus")
                         .font(.body)
                 }
-                .onTapGesture { isDateSheet.toggle() }
+                .onTapGesture {
+                    if let date = date {
+                        services.mealPlanService.addToMealPlan(meal: recipe, date: date)
+                        navigateToMealPlan = true
+                    } else {
+                        isDateSheet.toggle()
+                    }
+                }
             }
         }
         .background(
@@ -160,7 +167,7 @@ struct DetailRecipeView: View {
             showSettingButton: false,
             firebase: firebase,
             target: {
-                MealPlanScreen(firebase: firebase, services: services)
+                MealPlanScreen(firebase: firebase, services: services, currentDate: date)
             }
         )
     }

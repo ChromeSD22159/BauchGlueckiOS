@@ -7,14 +7,12 @@
 import SwiftUI
 
 struct MealPlanSpotCard: View {
+    @EnvironmentObject var firebase: FirebaseService
     @State var isActive: Bool = false
     let theme : Theme = Theme.shared
     var recipe: Recipe
     
-    
-    init(
-        recipe: Recipe
-    ) {
+    init(recipe: Recipe) {
         self.recipe = recipe
     }
     
@@ -26,12 +24,22 @@ struct MealPlanSpotCard: View {
                 
                 Spacer()
                 
-                Image(systemName: "info.circle")
-                    .onTapGesture {
-                        withAnimation(.easeInOut) {
-                            isActive.toggle()
+                HStack(spacing: 20) {
+                    Image(systemName: "eye")
+                        .foregroundStyle(theme.onBackground)
+                        .navigateTo(
+                            firebase: firebase,
+                            destination: Destination.mealPlan,
+                            target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
+                        )
+                    
+                    Image(systemName: "info.circle")
+                        .onTapGesture {
+                            withAnimation(.easeInOut) {
+                                isActive.toggle()
+                            }
                         }
-                    }
+                }
             }
             
             HStack {
@@ -50,6 +58,21 @@ struct MealPlanSpotCard: View {
                         Image(systemName: "gauge.with.dots.needle.bottom.50percent.badge.plus")
                         Text("\(recipe.preparationTimeInMinutes)min")
                     }
+                    
+                    Spacer()
+                    
+                    HStack {
+                        Image(systemName: "eye")
+                        Text("Rezept ansehen")
+                    }
+                    .navigateTo(
+                        firebase: firebase,
+                        destination: Destination.mealPlan,
+                        target: {
+                            DetailRecipeView(firebase: firebase, recipe: recipe)
+                        },
+                        toolbarItems: {}
+                    )
                     
                     Spacer()
                     

@@ -27,29 +27,9 @@ struct ShoppingListDetailScreen: View {
                     Text("Alle Zutaten deines Mealplans im Zeitraum von \(shoppingList.startDate) bis \(shoppingList.endDate).")
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
-                    VStack {
-                        Text("Zutaten")
-                            .font(Theme.shared.headlineTextSmall)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        ForEach(shoppingList.items) { item in
-                            HStack {
-                                Text(item.name.uppercasedFirst())
-                                Spacer()
-                                Text("\(item.amount) \(IngredientUnit.fromString(item.unit).unit)")
-                            }
-                            .padding(Theme.shared.padding)
-                            .foregroundStyle(
-                                Theme.shared.onBackground.opacity(shoppingList.isComplete ? 0.2 : item.isComplete ?  0.2 : 1.0)
-                            )
-                            .sectionShadow(innerPadding: 5)
-                            .onTapGesture {
-                                withAnimation(.easeInOut) {
-                                    item.isComplete.toggle()
-                                }
-                            }
-                        }
-                    }.font(.footnote)
+                    // MARK: IngredientLIST
+                    @Bindable var shoppingList: ShoppingList = shoppingList
+                    IngredientListView(shoppingList: shoppingList)
                     
                     HStack {
                         Button(action: {
@@ -82,6 +62,42 @@ struct ShoppingListDetailScreen: View {
                     }.font(.footnote)
                 }
                 .padding(Theme.shared.padding)
+            }
+        }
+    }
+}
+
+struct IngredientListView: View {
+    @Bindable var shoppingList: ShoppingList
+
+    var body: some View {
+        VStack {
+            Text("Zutaten")
+                .font(Theme.shared.headlineTextSmall)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            ForEach(shoppingList.items) { item in
+                IngredientItem(shoppingList: shoppingList, ingredient: item)
+            }
+        }
+        .font(.footnote)
+    }
+    
+    @ViewBuilder // MARK: IngredientItem
+    func IngredientItem(shoppingList: ShoppingList, ingredient: ShoppingListItem) -> some View {
+        HStack {
+            Text(ingredient.name.uppercasedFirst())
+            Spacer()
+            Text("\(ingredient.amount) \(IngredientUnit.fromString(ingredient.unit).unit)")
+        }
+        .padding(Theme.shared.padding)
+        .foregroundStyle(
+            Theme.shared.onBackground.opacity(shoppingList.isComplete ? 0.2 : ingredient.isComplete ?  0.2 : 1.0)
+        )
+        .sectionShadow(innerPadding: 5)
+        .onTapGesture {
+            withAnimation(.easeInOut) {
+                ingredient.isComplete.toggle()
             }
         }
     }

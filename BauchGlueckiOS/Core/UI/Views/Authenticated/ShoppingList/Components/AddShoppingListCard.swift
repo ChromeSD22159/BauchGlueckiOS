@@ -46,7 +46,6 @@ struct AddShoppingListCard: View {
             }
             
             addButton()
-                
         }
         .frame(maxHeight: 200)
         .sectionShadow()

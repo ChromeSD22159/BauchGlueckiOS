@@ -14,12 +14,14 @@ struct MealPlanScreen: View {
     
     let firebase: FirebaseService
     let services: Services
+    let currentDate: Date?
     @State var vm: MealPlanViewModel
     
-    init(firebase: FirebaseService, services: Services) {
+    init(firebase: FirebaseService, services: Services, currentDate: Date? = nil) {
         self.firebase = firebase
         self.services = services
-        self.vm = MealPlanViewModel(firebase: firebase, service: services) 
+        self.vm = MealPlanViewModel(firebase: firebase, service: services)
+        self.currentDate = currentDate
     }
     
     var body: some View {
@@ -96,6 +98,14 @@ struct MealPlanScreen: View {
                 }
             }
             .contentMargins(.top, theme.padding)
+            .onAppLifeCycle(appearAndActive: {
+                vm.loadMealPlans()
+            })
+            .onAppear {
+                if let currentDate = currentDate {
+                    vm.currentDate = currentDate
+                }
+            }
         }
     }
 }
