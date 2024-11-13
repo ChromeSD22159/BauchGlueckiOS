@@ -62,7 +62,7 @@ struct HomeScreen: View, PageIdentifier {
                         .navigateTo(
                             firebase: firebase,
                             destination: Destination.home,
-                            target: { RecipeCategoryScreen(firebase: firebase) },
+                            target: { RecipeCategoryScreen() },
                             toolbarItems: {
                                 AddRecipeButtonWithPicker()
                             }

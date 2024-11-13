@@ -177,14 +177,21 @@ struct DetailRecipeView: View {
     ) -> some View {
         GeometryReader { geometry in
             
-            CachedAsyncImage(url: URL(string: services.apiService.baseURL + image.url)) { image in
+            AsyncCachedImage(url: URL(string: services.apiService.baseURL + image.url)) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .scaleEffect(imageScale)
                     .recipeImage(width: geometry.size.width, height: 300, opacity: imageOpacity)
-               
-            } placeholder: { }
+            } placeholder: {
+                ZStack{
+                    Image(uiImage: .placeholder)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .scaleEffect(imageScale)
+                        .recipeImage(width: geometry.size.width, height: 300, opacity: imageOpacity)
+                }
+            }
             
         }
         .frame(height: 300)
@@ -193,23 +200,7 @@ struct DetailRecipeView: View {
     
     
 }
-
-extension View {
-    func lazyView(isActive: Binding<Bool>) -> some View {
-        modifier(LazyView(isActive: isActive))
-    }
-}
-
-struct LazyView: ViewModifier {
-    let isActive: Binding<Bool>
-    func body(content: Content) -> some View {
-        if isActive.wrappedValue {
-            content
-        } else {
-            EmptyView()
-        }
-    }
-}
+ 
  
 #Preview {
     GeometryReader { geometry in

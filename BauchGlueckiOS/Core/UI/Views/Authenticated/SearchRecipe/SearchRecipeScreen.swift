@@ -23,8 +23,7 @@ struct SearchRecipeScreen: View {
     
     let columns = [
        GridItem(.flexible(), spacing: 16),
-       GridItem(.flexible(), spacing: 16),
-       
+       GridItem(.flexible(), spacing: 16), 
     ]
     
     @Query() var recipes: [Recipe]

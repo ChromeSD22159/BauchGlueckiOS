@@ -29,13 +29,22 @@ struct RecipePreviewCard: View {
                 ZStack {
                       
                     if AppStorageService.backendReachableState, let image = mainImage {
-                        CachedAsyncImage(url: URL(string: services.apiService.baseURL + image.url)) { image in
+                        
+                        AsyncCachedImage(url: URL(string: services.apiService.baseURL + image.url)) { image in
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(height: 120)
                                 .clipped()
-                        } placeholder: { }
+                        } placeholder: {
+                            ZStack{
+                                Image(uiImage: .placeholder)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(height: 120)
+                                    .clipped()
+                            }
+                        }
                     } else {
                         Image(.placeholder)
                             .resizable()
