@@ -144,19 +144,14 @@ struct WeightChart: View {
 
         // Filtere die abgerufenen Einträge nach dem Zeitraum der letzten 7 Wochen
         weights.forEach { weight in
-                let dateFormatter = ISO8601DateFormatter()
-               dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            guard let weighedDate = weight.toDate(),
+                  let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weighedDate)) else {
+                return
+            }
 
-               if let weighedDate = dateFormatter.date(from: weight.weighed) {
-
-                guard let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weighedDate)) else {
-                    return
-                }
-
-                if let sevenWeeksAgo = calendar.date(byAdding: .weekOfYear, value: -7, to: endOfWeek),
-                   weighedDate >= sevenWeeksAgo && weighedDate <= endOfWeek {
-                    weeklyData[startOfWeek, default: []].append(weight.value)
-                }
+            if let sevenWeeksAgo = calendar.date(byAdding: .weekOfYear, value: -7, to: endOfWeek),
+               weighedDate >= sevenWeeksAgo && weighedDate <= endOfWeek {
+                weeklyData[startOfWeek, default: []].append(weight.value)
             }
         }
 
@@ -184,5 +179,16 @@ struct WeightChart: View {
                }
            }
        }
+    }
+}
+
+
+// TODO: REDACTOR
+extension Weight {
+    func toDate() -> Date? {
+       let dateFormatter = ISO8601DateFormatter()
+       dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        return dateFormatter.date(from: self.weighed)
     }
 }

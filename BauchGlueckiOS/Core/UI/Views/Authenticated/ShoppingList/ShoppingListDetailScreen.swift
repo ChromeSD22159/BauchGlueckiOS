@@ -83,12 +83,11 @@ struct IngredientListView: View {
         .font(.footnote)
     }
     
-    @ViewBuilder // MARK: IngredientItem
-    func IngredientItem(shoppingList: ShoppingList, ingredient: ShoppingListItem) -> some View {
+    @ViewBuilder func IngredientItem(shoppingList: ShoppingList, ingredient: ShoppingListItem) -> some View {
         HStack {
             Text(ingredient.name.uppercasedFirst())
             Spacer()
-            Text("\(ingredient.amount) \(IngredientUnit.fromString(ingredient.unit).unit)")
+            Text("\(ingredient.amount) \(ingredient.unit)")
         }
         .padding(Theme.shared.padding)
         .foregroundStyle(

@@ -129,7 +129,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
                 
                 onComplete(.success(user))
             } else {
-                onComplete(.failure(AuthenticationError.runtimeError("User not Found")))
+                onComplete(.failure(FirebaseAuthenticationError.runtimeError("User not Found")))
             }
         }
     }
@@ -278,14 +278,14 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
     }
     
     func readUserProfileById(userId: String, completion: @escaping (UserProfile?) -> Void) {
-        let documentRef = firebaseDatabase.collection(Collection.UserProfile.rawValue).document(userId)
+        let documentRef = firebaseDatabase.collection(FirebaseCollection.UserProfile.rawValue).document(userId)
         documentRef.getDocument { documentSnapshot, error in
             if let document = documentSnapshot, document.exists {
                 do {
                     let userProfile = try document.data(as: UserProfile.self)
                     completion(userProfile)
                 } catch {
-                    print("Error decoding \(Collection.UserProfile.rawValue): \(error)")
+                    print("Error decoding \(FirebaseCollection.UserProfile.rawValue): \(error)")
                     completion(nil)
                 }
             } else {
@@ -307,12 +307,12 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
     
     func removeOnlineUserObserver(handle: DatabaseHandle?) {
         guard let handle = handle else { return }
-        let onlineUsersReference = Database.database().reference(withPath: Collection.OnlineUsers.rawValue)
+        let onlineUsersReference = Database.database().reference(withPath: FirebaseCollection.OnlineUsers.rawValue)
         onlineUsersReference.removeObserver(withHandle: handle)
     }
     
     func getOnlineUserCount(onUserCount: @escaping (Int) -> Void) async throws {
-        let onlineUsersReference = Database.database().reference(withPath: Collection.OnlineUsers.rawValue)
+        let onlineUsersReference = Database.database().reference(withPath: FirebaseCollection.OnlineUsers.rawValue)
         
         let snapshot = try await onlineUsersReference.getData()
         let count = snapshot.childrenCount
@@ -329,7 +329,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
             print("Token: \(deviceTokenService.getSavedDeviceToken() ?? "No TOKEN") User: \(userProfile?.uid ?? "")")
         }
         
-        let userReference = Database.database().reference(withPath: "\(Collection.OnlineUsers.rawValue)/\(userId)")
+        let userReference = Database.database().reference(withPath: "\(FirebaseCollection.OnlineUsers.rawValue)/\(userId)")
         
         let appUser = AppUser(name: user.firstName, email: user.email, appToken: token)
         do {
@@ -345,7 +345,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
     func markUserOffline() async {
         guard let userId = Auth.auth().currentUser?.uid else { return }
         
-        let userReference = Database.database().reference(withPath: "\(Collection.OnlineUsers.rawValue)/\(userId)")
+        let userReference = Database.database().reference(withPath: "\(FirebaseCollection.OnlineUsers.rawValue)/\(userId)")
         
         // Entferne den Benutzer
         do {
@@ -417,8 +417,34 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
             }
         }
     }
-}
+    
+    func readAppSettings(completion: @escaping (Result<FirebaseAppSettings, Error>) -> Void) {
+        let documentRef = firebaseDatabase.collection(FirebaseCollection.AppSettings.rawValue).document("v1")
+        
+        documentRef.getDocument { documentSnapshot, error in
+            if let error = error {
+                print("Error fetching document: \(error)")
+                return
+            }
+            
+            guard let document = documentSnapshot, document.exists else {
+                print("Document does not exist")
+                return
+            }
+            
+            do {
+                // Decodiere das Dokument in das `FirebaseAppSettings`-Modell
+                let appSettings = try document.data(as: FirebaseAppSettings.self) 
 
+                completion(.success(appSettings))
+            } catch {
+                completion(.failure(AuthErrorCode.internalError))
+                print("Error decoding \(FirebaseCollection.AppSettings.rawValue): \(error)")
+            }
+        }
+    }
+}
+ 
 extension FirebaseService: ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -454,7 +480,7 @@ struct Authentication {
         )
         let user = result.user
         guard let idToken = user.idToken?.tokenString else {
-            throw AuthenticationError.runtimeError("Unexpected error occurred, please retry")
+            throw FirebaseAuthenticationError.runtimeError("Unexpected error occurred, please retry")
         }
         
         //Firebase auth
@@ -469,31 +495,7 @@ struct Authentication {
         try Auth.auth().signOut()
     }
 }
-
-enum AuthenticationError: Error {
-    case runtimeError(String)
-}
-
-enum Collection: String{
-    case UserProfile = "UserProfile"
-    case UserNode = "UserNode"
-    case OnlineUsers = "bauchglueck-6c1cf/onlineUsers"
-}
-
-struct AppUser {
-    var name: String = ""
-    var email: String = ""
-    var appToken: String = ""
-    
-    func toDictionary() -> [String: Any] {
-        return [
-            "name": name,
-            "email": email,
-            "appToken": appToken
-        ]
-    }
-}
-
+  
 extension UIImage {
     func resizedAndCropped(to size: CGSize) -> UIImage? {
         let scale = max(size.width / self.size.width, size.height / self.size.height)

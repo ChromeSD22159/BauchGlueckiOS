@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B61100862CE6229F0012F30B /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B61100852CE6229F0012F30B /* FirebaseCrashlytics */; };
 		B615106D2CE240A000F3F737 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B615106C2CE240A000F3F737 /* README.md */; };
 		B6167C9B2CC94A8300451BAB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9A2CC94A8300451BAB /* WidgetKit.framework */; };
 		B6167C9D2CC94A8300451BAB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9C2CC94A8300451BAB /* SwiftUI.framework */; };
@@ -156,6 +157,7 @@
 				B64864392CC24568007D7228 /* GoogleSignInSwift in Frameworks */,
 				B648642A2CC24071007D7228 /* FirebaseFirestore in Frameworks */,
 				B64864242CC24071007D7228 /* FirebaseAuth in Frameworks */,
+				B61100862CE6229F0012F30B /* FirebaseCrashlytics in Frameworks */,
 				B648642C2CC24071007D7228 /* FirebaseStorage in Frameworks */,
 				B64864372CC24568007D7228 /* GoogleSignIn in Frameworks */,
 				B675A0602CD8CD5000FC9FA9 /* SwiftSVG in Frameworks */,
@@ -254,6 +256,7 @@
 				B6ADCE972CC33108001AFC57 /* GoogleMobileAds */,
 				B6ADCEA92CC67F86001AFC57 /* Alamofire */,
 				B675A05F2CD8CD5000FC9FA9 /* SwiftSVG */,
+				B61100852CE6229F0012F30B /* FirebaseCrashlytics */,
 			);
 			productName = BauchGlueckiOS;
 			productReference = B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */;
@@ -682,6 +685,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B61100852CE6229F0012F30B /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B64864202CC24070007D7228 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
 		B64864212CC24071007D7228 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B64864202CC24070007D7228 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

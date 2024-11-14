@@ -142,34 +142,9 @@ class MealPlanService {
             case .fat: return Int(mealPlan.slots.compactMap { $0.recipe?.fat }.reduce(0, +))
         }
     }
-
-    /*
-    private func reduceShoppingListItems(mealPlans: [MealPlanDay]) -> [ShoppingListItem] {
-        var ingredientSums: [String: Double] = [:] // Dictionary zum Summieren der Werte
-
-        for plan in mealPlans {
-            for slot in plan.slots {
-                guard let recipe = slot.recipe else { continue }
-
-                for ingredient in recipe.ingredients {
-                    let unit = ingredient.unit
-                    let lowercasedName = ingredient.name.lowercased()
-                    ingredientSums[lowercasedName, default: 0.0] += ingredient.amountDouble ?? 0.0
-                }
-            }
-        }
-
-        // Convert dictionary to ShoppingListItem array with summed amounts
-        var finalList: [ShoppingListItem] = []
-        for (name, amount) in ingredientSums {
-            finalList.append(ShoppingListItem(name: name, amount: String(amount), unit: "", note: ""))
-        }
-
-        return finalList
-    }
-    */
     
     private func reduceShoppingListItems(mealPlans: [MealPlanDay]) -> [ShoppingListItem] {
+        
         // Dictionary mit Kombination aus Name und Einheit als Schlüssel
         var ingredientSums: [String: (amount: Double, unit: String)] = [:]
 
@@ -177,14 +152,16 @@ class MealPlanService {
             for slot in plan.slots {
                 guard let recipe = slot.recipe else { continue }
                 for ingredient in recipe.ingredients {
-                    let lowercasedName = ingredient.name.lowercased()
-                    let unit = ingredient.unit
+                    let lowercasedName = ingredient.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+                    let unit = ingredient.unit.trimmingCharacters(in: .whitespacesAndNewlines)
                     
-                    // Kombiniere Name und Einheit für einen eindeutigen Schlüssel
+                    // Eindeutiger Schlüssel aus Name und Einheit
                     let key = "\(lowercasedName)-\(unit)"
                     
-                    // Summe für die gleiche Zutat und Einheit
-                    ingredientSums[key, default: (0.0, unit)].amount += ingredient.amountDouble ?? 0.0
+                    // Summiere die Mengen für gleiche Zutat und Einheit
+                    if let amount = ingredient.amountDouble {
+                        ingredientSums[key, default: (0.0, unit)].amount += amount
+                    }
                 }
             }
         }
@@ -193,10 +170,13 @@ class MealPlanService {
         var finalList: [ShoppingListItem] = []
         for (key, value) in ingredientSums {
             let parts = key.split(separator: "-")
+            guard parts.count == 2 else { continue }
             let name = String(parts[0])
             let unit = String(parts[1])
-
-            finalList.append(ShoppingListItem(name: name, amount: String(value.amount), unit: unit, note: ""))
+            
+            print("\(name) \(unit)") //  ei Stk
+            
+            finalList.append(ShoppingListItem(name: name, amount: String(format: "%.0f", value.amount), unit: unit, note: ""))
         }
 
         return finalList
@@ -249,6 +229,12 @@ class MealPlanService {
         }
         
         onComplete(.success(shoppingListItems))
+    }
+    
+    func deleteAllMeals(meals: [Recipe]) {
+        Task {
+            meals.forEach { context.delete($0) }
+        }
     }
 }
 

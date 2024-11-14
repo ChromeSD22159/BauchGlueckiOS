@@ -123,31 +123,7 @@ struct LoginScreen: View, Navigable {
     enum FocusedField {
         case email, password
     }
-}
-
-struct SignInWithProvider: View {
-    @EnvironmentObject var firebase: FirebaseService
-    @EnvironmentObject var services: Services
-    var result: (Result<User, any Error>) -> Void
-    
-    var body: some View {
-        HStack(spacing: Theme.shared.padding) {
-            Button(action: {
-                firebase.signInWithGoogle(onComplete: result)
-            }) {
-                Image(.google)
-            }
-            
-            Button(action: {
-                firebase.signInWithApple(onComplete: result)
-            }) {
-                Image(.apple)
-            }
-        }.padding(.top, Theme.shared.padding)
-    }
 } 
- 
-
 #Preview("Light") {
     LoginScreen(navigate: {_ in })
     .environmentObject(FirebaseService())

@@ -29,7 +29,7 @@ struct AddRecipe: View {
     @State var recipeImage: UIImage = UIImage()
 
     // OVERLAY
-    @State var animate = false
+    @State var animateOverlay = false
     @State var phase: UploadRecipePhase = .notStarted
     @State var timer: Timer? = nil
     @State var errorText = ""
@@ -48,19 +48,19 @@ struct AddRecipe: View {
                         }
                         .padding(.horizontal, Theme.shared.padding)
                     }
-                    .opacity(animate ? 0.5 : 1.0)
-                    .animation(.easeInOut, value: animate)
+                    .opacity(animateOverlay ? 0.5 : 1.0)
+                    .animation(.easeInOut, value: animateOverlay)
                     .contentMargins(.top, 20)
                     .sheet(isPresented: $isImagePicker) {
                         ImagePicker(sourceType: .photoLibrary, selectedImage: $recipeImage)
                     }
                     
-                    if animate {
+                    if animateOverlay {
                         VStack(alignment: .center, spacing: 10) {
                             Spacer()
                             HStack {
                                 Spacer()
-                                SaveOverlay(geo: geo, errorText: errorText, animate: $animate, phase: $phase)
+                                SaveOverlay(geo: geo, errorText: errorText, animate: $animateOverlay, phase: $phase)
                                 Spacer()
                             }
                             Spacer()
@@ -123,14 +123,13 @@ struct AddRecipe: View {
                 }
             )
             .sectionShadow(innerPadding: 10)
-            .submitLabel(.next)
             
             TextFieldWithIcon<FocusedField>(
                 placeholder: "Kurze Beschreibung des Rezepts",
                 icon: "text.bubble",
                 title: "Beschreibung:",
                 input: $recipeDescription,
-                type: .text,
+                type: .editText,
                 focusedField: $focusedField,
                 fieldType: .name,
                 onEditingChanged: { newValue in
@@ -138,22 +137,20 @@ struct AddRecipe: View {
                 }
             )
             .sectionShadow(innerPadding: 10)
-            .submitLabel(.next)
             
             TextFieldWithIcon<FocusedField>(
                 placeholder: "Zubereitungsschritte eingeben",
                 icon: "list.bullet.rectangle",
                 title: "Zubereitung:",
                 input: $recipePreperation,
-                type: .text,
-                focusedField: $focusedField,
+                type: .editText,
+                focusedField: $focusedField, 
                 fieldType: .preperation,
                 onEditingChanged: { newValue in
                     recipePreperation = newValue
                 }
             )
             .sectionShadow(innerPadding: 10)
-            .submitLabel(.next)
             
             TextFieldWithIcon<FocusedField>(
                 placeholder: "Zubereitungszeit in Minuten (z.B. 20)",
@@ -163,12 +160,12 @@ struct AddRecipe: View {
                 type: .text,
                 focusedField: $focusedField,
                 fieldType: .preperationTime,
+                keyboardType: .numberPad,
                 onEditingChanged: { newValue in
                     recipePreperationTime = newValue
                 }
             )
             .sectionShadow(innerPadding: 10)
-            .submitLabel(.done)
            
             VStack {
                 if ingredients.count == 0 {
@@ -180,9 +177,19 @@ struct AddRecipe: View {
                         HStack {
                             
                             TextField("Zutat", text: $ingredient.name)
-                                   
+                                .frame(maxWidth: .infinity) // Allow remaining space for other fields
+                                .lineLimit(1) // Ensure name stays on one line (optional)
+                                .truncationMode(.tail) // Truncate name if too long (optional)
+                            
+                            Spacer(minLength: 0) // Force even spacing between fields
+
+                            // Menge TextField with max width (50) and number pad keyboard
                             TextField("Menge", text: $ingredient.amount)
-                           
+                                .frame(maxWidth: 100)
+                                .keyboardType(.numberPad)
+
+                            Spacer(minLength: 0) // Force even spacing between fields
+                            
                             Picker("Einheit", selection: Binding(
                                 get: { IngredientUnit.fromUnit(ingredient.unit) },
                                 set: { ingredient.unit = $0.unit }
@@ -191,8 +198,11 @@ struct AddRecipe: View {
                                     Text(unit.name).tag(unit)
                                 }
                             }
+                            .frame(maxWidth: 100)
                             .accentColor(Theme.shared.onBackground)
                             .tint(Theme.shared.onBackground)
+                            .pickerStyle(.menu) // Use menu style for accessibility
+                            .foregroundColor(Theme.shared.onBackground) // Use label color
                         }.sectionShadow(innerPadding: 10)
                     }
                 }
@@ -249,7 +259,7 @@ struct AddRecipe: View {
             }
             
             FullSizeButton(title: "Speichern") {
-                animate = true
+                animateOverlay = true
                 
                 guard let preparationTime = Int(recipePreperationTime) else { return showError(text: "Die Zeit darf nur als Zahl angegeben werden.") }
                 
@@ -261,9 +271,8 @@ struct AddRecipe: View {
 
                 guard ingredients.count > 0 else { return showError(text: "Mindestens eine Zutat muss angegeben werden.") }
                 
-                for ingredient in ingredients {
-                    guard !ingredient.name.isEmpty else { return showError(text: "Jede Zutat muss einen Namen haben.") }
-                    guard !ingredient.amount.isEmpty else { return showError(text: "Jede Zutat muss eine Menge haben.") }
+                let filteredIngredients = ingredients.filter { ingredient in
+                    !ingredient.name.isEmpty && !ingredient.amount.isEmpty
                 }
                 
                 service.recipesService.uploadRequest(
@@ -272,7 +281,7 @@ struct AddRecipe: View {
                     recipeName: recipeName,
                     recipePreperation: recipePreperation,
                     recipePreperationTime: preparationTime,
-                    ingredients: ingredients,
+                    ingredients: filteredIngredients,
                     selectedCategory: selectedCategory
                 ) { result in
                     
@@ -298,16 +307,12 @@ struct AddRecipe: View {
         }
        
         Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { _ in
-            animate = false
-        }
-        
-        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
-            isPresented = false
+            animateOverlay = false
         }
     }
     
     func closeOverlay() {
-        animate = false
+        animateOverlay = false
         
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
             isPresented = false

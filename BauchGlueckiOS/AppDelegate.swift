@@ -22,7 +22,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         requestTrackingPermission()
         
         GADMobileAds.sharedInstance().start(completionHandler: nil)
-        //GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "527fdd25b08283eff613d67c9d301665" ]
+        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "527fdd25b08283eff613d67c9d301665" ]
         
         Messaging.messaging().delegate = self
         
@@ -44,6 +44,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         if let fcm = Messaging.messaging().fcmToken {
+            print("AppDelegate: messaging = \(fcm)")
+            
             deviceTokenService.setDeviceToken(token: fcm)
         }
     }

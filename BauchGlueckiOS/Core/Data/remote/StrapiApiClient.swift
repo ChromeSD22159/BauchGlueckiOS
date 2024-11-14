@@ -45,15 +45,18 @@ class StrapiApiClient: GenericAPIService {
     func sendDeviceTokenToBackend() async throws {
         guard
             let currentUser = Auth.auth().currentUser?.uid,
-            let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken()
-        else {
-            return
-        }
+            let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken(),
+            !userNotifierToken.isEmpty
+        else { return }
+        
+        guard !userNotifierToken.isEmpty else { return }
         
         let body = ApiDeviceToken(userID: currentUser, token: userNotifierToken)
         
         let url = self.baseURL + "/api/saveDeviceToken"
         let headers: HTTPHeaders = [.authorization(bearerToken: self.bearerToken)]
+        
+        print(body)
         
         Task {
             do {
@@ -78,10 +81,9 @@ class StrapiApiClient: GenericAPIService {
     func deleteDeviceTokenFromBackend() async throws {
         guard
             let currentUser = Auth.auth().currentUser?.uid,
-            let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken()
-        else {
-            return
-        }
+            let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken(),
+            !userNotifierToken.isEmpty
+        else { return }
         
         let body = ApiDeviceToken(userID: currentUser, token: userNotifierToken)
         
@@ -297,6 +299,10 @@ class GenericAPIService {
         )
         .validate(statusCode: 200..<300)
         .responseDecodable(of: [MainImage].self) { response in
+            if let data = response.data, let jsonString = String(data: data, encoding: .utf8) {
+                print("Full server response (uploadImage): \(jsonString)")
+            }
+            
             switch response.result {
             case .success(let uploadResponse):
                 completion(.success(uploadResponse))
@@ -323,6 +329,11 @@ class GenericAPIService {
             AF.request(urlString, method: .post, parameters: nil, encoding: JSONStringEncoding(jsonString!), headers: headers)
                 .validate()
                 .responseString { response in
+                    
+                    if let data = response.data, let jsonString = String(data: data, encoding: .utf8) {
+                        print("Full server response (uploadRecipe): \(jsonString)")
+                    }
+                    
                     switch response.result {
                     case .success(let responseString):
                         completion(.success(responseString))

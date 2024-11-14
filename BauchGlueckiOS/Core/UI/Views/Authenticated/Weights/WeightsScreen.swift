@@ -100,9 +100,11 @@ struct WeightsScreen: View {
             SectionVStack(header: "Gewichtsverlust Historie") {
                 VStack(spacing: theme.padding + 5) {
                     ForEach(weeklyAverage.indices, id: \.self) { index in
+                        
                         let (differenceString, difference, _,_) = calcDifferenceToWeekBefore(index: index)
                         let start = DateService.formatDateDDMM(date: weeklyAverage[index].startOfWeek)
                         let end = DateService.formatDateDDMM(date: weeklyAverage[index].endOfWeek)
+                        
                         VStack(alignment: .leading) {
                             HStack {
                                 Text("Von: \(start) zu \(end):")
@@ -136,19 +138,40 @@ struct WeightsScreen: View {
     
     private func calcDifferenceToWeekBefore(index: Int) -> (differenceString: String, difference: Double, startDate: Date, endDate: Date) {
         let nan = (differenceString: "N/A", difference: 0.0, startDate: Date(), endDate: Date())
+        
         guard index < weeklyAverage.count, index >= 0 else {
             return nan
         }
 
-        let average = weeklyAverage[index]
+        let currentAverage = weeklyAverage[index].avgValue
+        var previousIndex = index - 1
+        
+        // Finde die letzte Woche mit Daten
+        while previousIndex >= 0 && weeklyAverage[previousIndex].avgValue == 0 {
+            previousIndex -= 1
+        }
 
-        if index > 0 {
-            let previousAverage = weeklyAverage[index - 1].avgValue
-            let diff = average.avgValue - previousAverage
-            let formattedDiff = String(format: "%.1f", diff)
-            return diff >= 0 ? (differenceString: "+\(formattedDiff) kg", difference: diff, startDate: weeklyAverage[index - 1].startOfWeek, endDate: weeklyAverage[index - 1].endOfWeek)  : (differenceString: "\(formattedDiff) kg", difference: diff , startDate: weeklyAverage[index - 1].startOfWeek, endDate: weeklyAverage[index - 1].endOfWeek)
-        } else {
+        // Wenn keine vorherige Woche mit Daten gefunden wurde
+        guard previousIndex >= 0 else {
             return nan
+        }
+
+        let previousAverage = weeklyAverage[previousIndex].avgValue
+
+        // Differenz berechnen
+        let diff = currentAverage - previousAverage
+        let formattedDiff = String(format: "%.1f", diff)
+        
+        // Falls aktuelle Woche keine Daten hat, aber Vorwoche hatte
+        if currentAverage == 0 {
+            return (differenceString: "+0.0 kg", difference: weeklyAverage[previousIndex].avgValue, startDate: weeklyAverage[previousIndex].startOfWeek, endDate: weeklyAverage[previousIndex].endOfWeek)
+        }
+
+        // Standardfälle: Differenz anzeigen
+        if diff >= 0 {
+            return (differenceString: "+\(formattedDiff) kg", difference: diff, startDate: weeklyAverage[previousIndex].startOfWeek, endDate: weeklyAverage[previousIndex].endOfWeek)
+        } else {
+            return (differenceString: "\(formattedDiff) kg", difference: weeklyAverage[index].avgValue, startDate: weeklyAverage[previousIndex].startOfWeek, endDate: weeklyAverage[previousIndex].endOfWeek)
         }
     }
     
@@ -193,20 +216,18 @@ struct WeightsScreen: View {
         }
 
         // Filtere die abgerufenen Einträge nach dem Zeitraum der letzten 7 Wochen
-        weights.forEach { weight in
-            if let weighedDate = ISO8601DateFormatter().date(from: weight.weighed) {
-                // Finde den Start der Woche (Montag)
-                guard let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weighedDate)) else {
-                    return
-                }
+        weights.forEach { weight in 
+            guard let weighedDate = weight.toDate(),
+                  let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weighedDate)) else {
+                return
+            }
 
-                // Berechne den Startdatum der letzten 7 Wochen
-                if let sevenWeeksAgo = calendar.date(byAdding: .weekOfYear, value: -7, to: endOfWeek),
-                   weighedDate >= sevenWeeksAgo && weighedDate <= endOfWeek {
-                    
-                    // Füge den Gewichtseintrag zur richtigen Woche hinzu
-                    weeklyData[startOfWeek, default: []].append(weight.value)
-                }
+            // Berechne den Startdatum der letzten 7 Wochen
+            if let sevenWeeksAgo = calendar.date(byAdding: .weekOfYear, value: -7, to: endOfWeek),
+               weighedDate >= sevenWeeksAgo && weighedDate <= endOfWeek {
+                
+                // Füge den Gewichtseintrag zur richtigen Woche hinzu
+                weeklyData[startOfWeek, default: []].append(weight.value)
             }
         }
 
@@ -227,15 +248,9 @@ struct WeightsScreen: View {
             WeeklyAverageData(avgValue: weeklyAverage.avgValue, startOfWeek: weeklyAverage.startOfWeek, endOfWeek: weeklyAverage.endOfWeek)
         }
     }
-}
+} 
 
-struct WeeklyAverageData {
-    var avgValue: Double
-    var startOfWeek: Date
-    var endOfWeek: Date
-}
-
-struct SectionOutterHeader: View {
+private struct SectionOutterHeader: View {
     private var theme: Theme
     private var text: String
     
@@ -253,7 +268,8 @@ struct SectionOutterHeader: View {
         .padding(.horizontal, theme.padding)
     }
 }
-struct SectionVStack<Content: View>: View {
+
+private struct SectionVStack<Content: View>: View {
     private var theme: Theme
     private var header: String?
     private var content: (() -> Content)
@@ -299,4 +315,3 @@ struct SectionVStack<Content: View>: View {
         .padding(.horizontal, horizontalPadding)
     }
 }
-

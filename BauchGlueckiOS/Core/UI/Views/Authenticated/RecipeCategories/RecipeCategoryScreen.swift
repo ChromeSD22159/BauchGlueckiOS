@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct RecipeCategoryScreen: View {
+    
     let theme = Theme.shared
  
     
@@ -29,7 +30,7 @@ struct RecipeCategoryScreen: View {
     private struct RandomRecipe: View {
         let theme = Theme.shared
         @Query() var allRecipes: [Recipe]
-        
+        @Environment(\.modelContext) var modelContext
         @EnvironmentObject var services: Services
         @EnvironmentObject var firebase: FirebaseService
         
@@ -42,6 +43,10 @@ struct RecipeCategoryScreen: View {
                 VStack(spacing: 10) {
                     
                     SectionHeader(title: "Zufalls Rezept")
+                        .onTapGesture(count: 5) {
+                            services.syncHistoryService.deleteSyncHistoryStamp(entity: .Meal)
+                            services.mealPlanService.deleteAllMeals(meals: allRecipes)
+                        }
                     
                     ZStack(alignment: .bottom) {
                         GeometryReader { geometry in
@@ -223,99 +228,3 @@ struct RecipeCategoryScreen: View {
         }
     }
 }
-
-
-#Preview {
-    let theme: Theme = Theme.shared
-    let recipeCategories: [RecipeCategory] = [.beilage, .dessert, .hauptgericht, .lowCarb]
-    ZStack {
-        theme.background
-        
-        Text("Recipe Categories")
-            .font(theme.headlineTextSmall)
-            .foregroundColor(theme.primary)
-        ScrollView {
-            
-            VStack(spacing: 50) {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack {
-                        ForEach(RecipeCategory.allCases, id: \.categoryID) { category in
-                            VStack {
-                                Image(category.sliderImage)
-                                    .resizable()
-                                    .frame(width: 50, height: 50)
-                                
-                                HStack(spacing: 5) {
-                                    Text("\(category.displayName)")
-                                    
-                                    Text("(\(5))")
-                                }
-                                .font(theme.headlineTextSmall)
-                                .foregroundColor(theme.primary)
-                            }
-                            .frame(width: 150, height: 80)
-                            .sectionShadow(innerPadding: 10)
-                        }
-                    }
-                }
-                .contentMargins([.leading, .trailing, .bottom], 10)
-                
-                
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Rezept des Tages")
-                            .font(theme.headlineTextMedium)
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, 10)
-                    
-                    ZStack(alignment: .bottom) {
-                        GeometryReader { geometry in
-                            
-                            
-                            AsyncCachedImage(url: URL(string: "https://images.lecker.de/kartoffel-cordon-bleu-b,id=677c3ef9,b=lecker,w=850,ca=0,11.44,100,86.17,rm=sk.webp")) { image in
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .recipeImage(width: geometry.size.width, height: 300, opacity: 1)
-                            } placeholder: {
-                                ZStack{
-                                    Image(uiImage: .placeholder)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .recipeImage(width: geometry.size.width, height: 300, opacity: 1)
-                                }
-                            }
-                            
-                        }
-                        .frame(height: 420)
-                        .ignoresSafeArea()
-                        
-                        VStack(alignment: .leading, spacing: 20) {
-                            HStack {
-                                Text("RezeptName")
-                                    .font(theme.headlineTextSmall)
-                                
-                                Spacer()
-                                
-                                HStack {
-                                    Image(systemName: "clock")
-                                    Text("10 min")
-                                }
-                            }
-                            
-                            IconRow(kcal: 200, fat: 10, protein: 20, sugar: 5, horizontalCenter: false)
-                            
-                        }
-                        .padding(10)
-                    }
-                    .sectionShadow(margin: 10)
-                    
-                }
-            }
-            
-        }
-        .contentMargins(.top, 10)
-    }
-}  

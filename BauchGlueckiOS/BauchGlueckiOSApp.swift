@@ -17,30 +17,24 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
     
     @StateObject var firebase: FirebaseService
     @StateObject var services: Services
-    
+
     @State var notificationManager: NotificationService? = nil
     @State var backendIsReachable = false
     @State var screen: Screen = Screen.Launch
     let localData: ModelContext
     
     init() {
-        do {
-            FirebaseApp.configure()
- 
-            self.localData = localDataScource.mainContext
-            let firebaseService = FirebaseService()
-            let services = Services(
-                env: .localFrederik,
-                firebase: firebaseService,
-                context: self.localData
-            )
-            
-           _firebase = StateObject(wrappedValue: firebaseService)
-           _services = StateObject(wrappedValue: services)
-            
-        } catch {
-            fatalError("Failed to create ModelContainers: \(error)")
-        }
+        FirebaseApp.configure()
+        self.localData = localDataScource.mainContext
+        let firebaseService = FirebaseService()
+        let services = Services(
+            env: .production,
+            firebase: firebaseService,
+            context: self.localData
+        )
+        
+       _firebase = StateObject(wrappedValue: firebaseService)
+       _services = StateObject(wrappedValue: services)
     }
      
     let launchDeay = 0.5
@@ -56,9 +50,7 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                     case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
                     case .Home: HomeScreen(page: .home)
                                     .onAppear {
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
-                                            GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
-                                        })
+                                        services.appStartOpenAd()
                                     }
                                     .onAppLifeCycle(appearAndActive: {
                                         services.recipesService.fetchRecipesFromBackend()
@@ -119,5 +111,3 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
         }
     }
 } 
- 
-

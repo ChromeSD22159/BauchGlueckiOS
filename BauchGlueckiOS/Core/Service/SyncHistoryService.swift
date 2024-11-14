@@ -37,4 +37,12 @@ class SyncHistoryService {
             )
         )
     }
+    
+    func deleteSyncHistoryStamp(entity: Entitiy) {
+        Task {
+            if let last = try await self.getLastSyncHistoryByEntity(entity: entity) {
+                context.delete(last)
+            }
+        }
+    }
 }

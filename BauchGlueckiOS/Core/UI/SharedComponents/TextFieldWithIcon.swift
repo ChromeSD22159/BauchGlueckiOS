@@ -20,7 +20,7 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
     @FocusState.Binding var focusedField: FieldTypes?  // Verwende hier FocusState.Binding
     var fieldType: FieldTypes
     var icon: String
-    
+    var keyboardType: UIKeyboardType
     init(
         placeholder: String,
         icon: String = "person.fill",
@@ -28,8 +28,9 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
         input: Binding<String>,
         footnote: String? = nil,
         type: FieldType,
-        focusedField: FocusState<FieldTypes?>.Binding,  // Verwende FocusState.Binding
+        focusedField: FocusState<FieldTypes?>.Binding,  // Verwende FocusState.Binding 
         fieldType: FieldTypes,
+        keyboardType: UIKeyboardType = .default,
         onEditingChanged: @escaping (String) -> Void
     ) {
         self.placeholder = placeholder
@@ -40,6 +41,7 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
         self.type = type
         self._focusedField = focusedField  // Zuweisung des FocusState
         self.fieldType = fieldType
+        self.keyboardType = keyboardType
         self.footnote = footnote
     }
     
@@ -62,9 +64,9 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
                                 onEditingChanged(input.wrappedValue)
                             }
                         )
-                        .focused($focusedField, equals: fieldType)  // Verwendung von FocusState
+                        .focused($focusedField, equals: fieldType)
                         .disableAutocorrection(true)
-                        .keyboardType(.alphabet)  
+                        .keyboardType(keyboardType)
                     case .email:
                         TextField(
                             placeholder,
@@ -76,7 +78,7 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
                                 onEditingChanged(input.wrappedValue)
                             }
                         )
-                        .focused($focusedField, equals: fieldType)  // Verwendung von FocusState
+                        .focused($focusedField, equals: fieldType)
                         .disableAutocorrection(true)
                         .keyboardType(.emailAddress)
                     case .secure:
@@ -89,6 +91,16 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
                         )
                         .focused($focusedField, equals: fieldType)  // Verwendung von FocusState
                         .disableAutocorrection(true)
+                        
+                    case .editText:
+                        TextEditor(text: input)
+                            .lineLimit(10, reservesSpace: true)
+                            .frame(minHeight: 80)
+                            .scrollContentBackground(.hidden)
+                            .padding(5)
+                            .cornerRadius(Theme.shared.radius)
+                            .border(Theme.shared.onBackground.opacity(0.2), width: 1)
+                            .focused($focusedField, equals: fieldType)
                     }
                 }
                 .padding(10)
@@ -109,6 +121,23 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
     }
     
     enum FieldType {
-        case text, secure, email
+        case text, secure, email, editText
+    }
+}
+
+#Preview {
+    ZStack {
+        HStack {
+            TextEditor(text: .constant("asdds"))
+                .lineLimit(10, reservesSpace: true)
+                .frame(minHeight: 80)
+                .scrollContentBackground(.hidden)
+                .padding(5)
+                .cornerRadius(Theme.shared.radius)
+                .border(Theme.shared.onBackground.opacity(0.2), width: 1)
+        }
+        .padding(10)
+        .background(Theme.shared.surface.opacity(0.9))
+        .cornerRadius(Theme.shared.radius)
     }
 }

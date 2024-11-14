@@ -20,8 +20,6 @@ struct AddNote: View {
         _vm = StateObject(wrappedValue: AddNodeViewModel(modelContext: modelContext))
     }
     
-    @Environment(\.dismiss) var dismiss
-    
     @State var overlay: Bool = false
     @State private var navigateToNextView = false
     
@@ -37,13 +35,17 @@ struct AddNote: View {
                         
                         ControllButton()
                         
-                        MoodList()
+                        MoodList(vm: vm)
                     }
                     .padding(.top, 10)
                     .padding(.horizontal, 10)
                 }
                 .opacity(overlay ? 0.5 : 1.0)
-                .animation(.easeInOut, value: overlay)  
+                .animation(.easeInOut, value: overlay)
+                
+                if overlay {
+                    AddNoteSaveOverlay(geo: geo, vm: vm, overlay: $overlay)
+                }
             }
         }
     }
@@ -88,24 +90,33 @@ struct AddNote: View {
             IconTextButton(text: "Speichern", onEditingChanged: {
                 overlay = true
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: {
-                    vm.saveNode()
-                    overlay = false
-                })
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.8, execute: {
-                    navigateToNextView = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                    vm.saveNode() {
+                        overlay = false
+                        
+                        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
+                            navigateToNextView = true
+                        }
+                    }
+                    
                 })
             })
         }.navigationDestination(isPresented: $navigateToNextView, destination: {
             HomeScreen(page: .home).navigationBarBackButtonHidden()
         })
-       
     }
     
-    @ViewBuilder func SaveOverlay(geo: GeometryProxy) -> some View {
+}
+
+
+private struct AddNoteSaveOverlay: View {
+    let geo: GeometryProxy
+    var vm: AddNodeViewModel
+    @Binding var overlay: Bool
+    var body: some View {
         VStack(spacing: 20) {
             ProgressView()
-            Text("Speichern")
+            Text("Notiz wird gespeichert!")
             
             Text(vm.message)
                 .font(.footnote)
@@ -117,8 +128,11 @@ struct AddNote: View {
         .shadow(radius: 20)
         .animation(.easeInOut, value: overlay)
     }
-    
-    @ViewBuilder func MoodList() -> some View {
+}
+
+private struct MoodList: View {
+    var vm: AddNodeViewModel
+    var body: some View {
         VStack {
             HStack {
                 Text("Ausgewählte Moods: \(vm.allMoods.filter { $0.isOnList == true }.count )")
@@ -134,15 +148,14 @@ struct AddNote: View {
                 ]
             ) {
                 ForEach(vm.allMoods, id: \.display) { mood in
-                    
                     Text(mood.display)
                         .font(.footnote)
                         .padding(.vertical, 10)
                         .padding(.horizontal, 10)
                         .lineLimit(1, reservesSpace: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(theme.onBackground)
-                        .background(vm.currentMoodListContainsMood(mood: mood) ? theme.primary : theme.surface )
+                        .foregroundStyle(Theme.shared.onBackground)
+                        .background(vm.currentMoodListContainsMood(mood: mood) ? Theme.shared.primary : Theme.shared.surface )
                         .cornerRadius(100)
                         .onTapGesture { vm.onClickOnMood(mood: mood) }
                 }
@@ -150,6 +163,3 @@ struct AddNote: View {
         }
     }
 }
-
-
-
