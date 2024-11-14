@@ -57,6 +57,31 @@ class NotificationService {
         UNUserNotificationCenter.current().add(request)
     }
 
+    private func scheduleRecurringMedicationNotification(medicationId: String, title: String, body: String, hour: Int, minute: Int) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = UNNotificationSound.default
+        
+        var dateComponents = DateComponents()
+        dateComponents.hour = hour
+        dateComponents.minute = minute
+        
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        let request = UNNotificationRequest(identifier: medicationId, content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling recurring notification: \(error.localizedDescription)")
+            } else {
+                print("Recurring notification scheduled successfully for medication ID: \(medicationId)")
+            }
+        }
+    }
+}
+
+// MARK: - CountdownTimer Notifications
+extension NotificationService {
     func sendTimerNotification(countdown: CountdownTimer, timeStamp: Int64) {
         
         let content = UNMutableNotificationContent()
@@ -80,11 +105,58 @@ class NotificationService {
         let request = UNNotificationRequest(identifier: countdown.id.uuidString, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request)
     }
+    
+    func removeTimerNotification(countdown: CountdownTimer) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [countdown.id.uuidString])
+    }
+}
 
-    func removeTimerNotification(withIdentifier identifier: UUID) {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier.uuidString])
+// MARK: - MedicationNotifications
+extension NotificationService {
+    
+    func checkAndUpdateRecurringNotification(forMedication medication: Medication, forIntakeTime intakeTime: IntakeTime) {
+        let intakeTimeId = intakeTime.intakeTimeId
+
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            let existingNotification = requests.first { $0.identifier == intakeTimeId }
+
+            if existingNotification != nil {
+                // Entferne die bestehende Benachrichtigung
+                self.removeRecurringNotification(forIntakeTime: intakeTime)
+            }
+
+            // Füge die neue Benachrichtigung hinzu
+            self.createRecurringMedicationNotifications(forMedication: medication, forIntakeTime: intakeTime)
+        }
     }
     
+    func createRecurringMedicationNotifications(forMedication: Medication, forIntakeTime: IntakeTime) {
+        if let timeDate = convertHHMMToTimeDate(timeString: forIntakeTime.intakeTime) {
+            let hour = Calendar.current.component(.hour, from: timeDate)
+            let minute = Calendar.current.component(.minute, from: timeDate)
+            
+            NotificationService.shared.scheduleRecurringMedicationNotification(
+                medicationId: forIntakeTime.intakeTimeId,
+                title: "BauchGlück Reminder",
+                body: "Erinnerung: \(forMedication.name) sollte jetzt (\(hour):\(minute) Uhr) eingenommen werden.",
+                hour: hour,
+                minute: minute
+            )
+            
+            print("Created Recurring Notification for \(forIntakeTime.intakeTimeId)")
+        }
+    }
+    
+    func removeRecurringNotification(forIntakeTime: IntakeTime) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [forIntakeTime.intakeTimeId])
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [forIntakeTime.intakeTimeId])
+        
+        print("Removed Recurring Notification for \(forIntakeTime.intakeTimeId)")
+    }
+}
+
+// MARK: - Live Avtivity for CountdownTimer
+extension NotificationService {
     func liveActivityStart(withTimer timer: CountdownTimer, remainingDuration: Int) async {
         guard timer.showActivity else { return }
         
@@ -137,7 +209,6 @@ class NotificationService {
         }
     }
 
-    // MARK: - Update Live Avtivity for CountdownTimer
     func liveActivityUpdate(timer: CountdownTimer, remainingDuration: Int) async {
         @AppStorage("activityID") var activityID: String = ""
         guard let startDate = timer.startDate, let endDate = timer.endDate else {
@@ -160,27 +231,24 @@ class NotificationService {
             }
         }
     }
-    
-    // MARK: - Repeating Medication Notifications
-    func scheduleRecurringMedicationNotification(medicationId: String, title: String, body: String, hour: Int, minute: Int) {
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = body
-        content.sound = UNNotificationSound.default
-        
-        var dateComponents = DateComponents()
-        dateComponents.hour = hour
-        dateComponents.minute = minute
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: medicationId, content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Error scheduling recurring notification: \(error.localizedDescription)")
-            } else {
-                print("Recurring notification scheduled successfully for medication ID: \(medicationId)")
-            }
-        }
+}
+
+func convertHHMMToTimeDate(timeString: String) -> Date? {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "HH:mm"
+    dateFormatter.timeZone = TimeZone.current
+
+    guard let timeDate = dateFormatter.date(from: timeString) else {
+        return nil
     }
+
+    // Füge Stunden und Minuten zum heutigen Datum hinzu
+    let calendar = Calendar.current
+    let currentDate = Date()
+
+    var components = calendar.dateComponents([.year, .month, .day], from: currentDate)
+    components.hour = calendar.component(.hour, from: timeDate)
+    components.minute = calendar.component(.minute, from: timeDate)
+
+    return calendar.date(from: components)
 }

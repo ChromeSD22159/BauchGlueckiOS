@@ -114,6 +114,8 @@ struct SettingSheet: ViewModifier {
                                     Task {
                                         try await services.apiService.deleteDeviceTokenFromBackend()
                                         
+                                        services.medicationService.removeAllMedicationNotifications()
+                                        
                                         viewModel.authManager.signOut()
                                     }
                                 },

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct LoginScreen: View, Navigable {
     
@@ -77,6 +78,8 @@ struct LoginScreen: View, Navigable {
                                     if let _ = auth?.user.uid {
                                         Task {
                                             try await services.apiService.sendDeviceTokenToBackend()
+                                            
+                                            services.medicationService.setAllMedicationNotifications()
                                         }
                                     }
                                 }
@@ -98,7 +101,12 @@ struct LoginScreen: View, Navigable {
                     }.padding(.top, theme.padding)
                     
                     
-                    SignInWithGoogle(firebase: firebase)
+                    SignInWithProvider() { result in
+                        switch result {
+                            case .success: services.medicationService.setAllMedicationNotifications()
+                            case .failure: break
+                        }
+                    }
                 }
                 .padding(.horizontal, theme.padding)
             }
@@ -117,25 +125,27 @@ struct LoginScreen: View, Navigable {
     }
 }
 
-@ViewBuilder func SignInWithGoogle(
-    firebase: FirebaseService
-) -> some View {
-    let theme: Theme = Theme.shared
+struct SignInWithProvider: View {
+    @EnvironmentObject var firebase: FirebaseService
+    @EnvironmentObject var services: Services
+    var result: (Result<User, any Error>) -> Void
     
-    HStack(spacing: theme.padding) {
-        Button(action: {
-            firebase.signInWithGoogle()
-        }) {
-            Image(.google)
-        }
-        
-        Button(action: {
-            firebase.signInWithApple()
-        }) {
-            Image(.apple)
-        }
-    }.padding(.top, theme.padding)
-}
+    var body: some View {
+        HStack(spacing: Theme.shared.padding) {
+            Button(action: {
+                firebase.signInWithGoogle(onComplete: result)
+            }) {
+                Image(.google)
+            }
+            
+            Button(action: {
+                firebase.signInWithApple(onComplete: result)
+            }) {
+                Image(.apple)
+            }
+        }.padding(.top, Theme.shared.padding)
+    }
+} 
  
 
 #Preview("Light") {

@@ -209,13 +209,7 @@ struct AddMedicationSheet: View {
 
                     newMedication.intakeTimes.append(intakeTime)
                     
-                    NotificationService.shared.scheduleRecurringMedicationNotification(
-                        medicationId: intakeTimeId.uuidString,
-                        title: "BauchGlück Reminder",
-                        body: "Erinnerung: \(newMedication.name) sollte jetzt (\(intakeTimeEntry.hour):\(intakeTimeEntry.minute) Uhr) eingenommen werden.",
-                        hour: intakeTimeEntry.hour,
-                        minute: intakeTimeEntry.minute
-                    )
+                    NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: newMedication, forIntakeTime: intakeTime)
                 }
                 
                 dismiss()

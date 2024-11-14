@@ -84,7 +84,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         firebaseAuth.sendPasswordReset(withEmail: email)
     }
     
-    func signInWithGoogle() {
+    func signInWithGoogle(onComplete: @escaping (Result<User, Error>) -> Void) {
         Task {
             do {
                 try await Authentication().googleOauth()
@@ -98,15 +98,18 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
                                 self.userProfile = userProf
                             }
                         }
+                        
+                        onComplete(.success(user))
                     }
                 }
             } catch {
+                onComplete(.failure(error))
                 throw error
             }
         }
     }
 
-    func signInWithApple() {
+    func signInWithApple(onComplete: @escaping (Result<User, Error>) -> Void) {
         let request = createAppleIDRequest()
         
         let authorizationController = ASAuthorizationController(authorizationRequests: [request])
@@ -114,7 +117,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         authorizationController.presentationContextProvider = self
         authorizationController.performRequests()
         
-        self.authListener { auth , error in
+        self.authListener { (auth: Auth? , user: User?) in
             if let user = auth?.currentUser {
                 self.user = user
                 self.readUserProfileById(userId: user.uid) { userProfile in
@@ -123,6 +126,10 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
                         self.userProfile = userProf
                     }
                 }
+                
+                onComplete(.success(user))
+            } else {
+                onComplete(.failure(AuthenticationError.runtimeError("User not Found")))
             }
         }
     }

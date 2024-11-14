@@ -140,6 +140,8 @@ class MedicationService {
             localIntakeTime.isDeleted = serverIntakeTime.isDeleted
             localIntakeTime.updatedAtOnDevice = serverIntakeTime.updatedAtOnDevice
             localIntakeTime.medication = medication
+             
+            NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: medication, forIntakeTime: localIntakeTime)
             
             // IntakeStatuses aktualisieren
             for serverIntakeStatus in serverIntakeTime.intakeStatuses {
@@ -163,6 +165,8 @@ class MedicationService {
             
             medication.intakeTimes.append(newIntakeTime)
             context.insert(newIntakeTime)
+            
+            NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: medication, forIntakeTime: newIntakeTime)
         }
     }
     
@@ -324,6 +328,45 @@ class MedicationService {
         
         fetchMedicationFromBackend()
     }
+    
+    func setAllMedicationNotifications() {
+        if let userId = Auth.auth().currentUser?.uid {
+            
+            let predicate = #Predicate<Medication> { medication in
+                medication.userId == userId
+            }
+            
+            let query = FetchDescriptor<Medication>(predicate: predicate)
+            
+            if let results = try? context.fetch(query) {
+                for medication in results {
+                    medication.intakeTimes.forEach { intakeTime in
+                        NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: medication, forIntakeTime: intakeTime)
+                    }
+                }
+            }
+        }
+    }
+    
+    func removeAllMedicationNotifications() {
+        if let userId = Auth.auth().currentUser?.uid {
+            
+            let predicate = #Predicate<Medication> { medication in
+                medication.userId == userId
+            }
+            
+            let query = FetchDescriptor<Medication>(predicate: predicate)
+            
+            if let results = try? context.fetch(query) {
+                for medication in results {
+                    medication.intakeTimes.forEach { intakeTime in
+                        NotificationService.shared.removeRecurringNotification(forIntakeTime: intakeTime)
+                    }
+                }
+            }
+            
+        }
+    } 
 }
 
 

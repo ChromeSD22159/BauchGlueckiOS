@@ -207,7 +207,7 @@ struct TimerCard: View {
         
         Task {
             await notificationService.liveActivityEnd()
-            notificationService.removeTimerNotification(withIdentifier: timer.id)
+            notificationService.removeTimerNotification(countdown: timer)
         }
     }
     
@@ -221,7 +221,7 @@ struct TimerCard: View {
         
         Task {
             await notificationService.liveActivityUpdate(timer: timer, remainingDuration: remainingTime)
-            notificationService.removeTimerNotification(withIdentifier: timer.id)
+            notificationService.removeTimerNotification(countdown: timer)
         }
     }
     

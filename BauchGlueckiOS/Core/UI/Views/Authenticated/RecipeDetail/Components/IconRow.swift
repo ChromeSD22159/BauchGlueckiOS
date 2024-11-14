@@ -42,7 +42,9 @@ struct IconRow: View {
             
             NutrinIcon(systemName: "fish", nutrin: protein)
             
-            Spacer()
+            if horizontalCenter {
+                Spacer()
+            }
             
         }
     }

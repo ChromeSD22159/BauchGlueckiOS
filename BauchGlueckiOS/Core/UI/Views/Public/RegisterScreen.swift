@@ -127,7 +127,9 @@ struct RegisterScreen: View, Navigable {
                         }
                     }
                     
-                    SignInWithGoogle(firebase: firebase)
+                    SignInWithProvider() { result in
+                        
+                    }
                     
                 }
                 .padding(.horizontal, theme.padding)

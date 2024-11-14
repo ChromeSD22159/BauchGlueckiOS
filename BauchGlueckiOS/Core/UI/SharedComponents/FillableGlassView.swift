@@ -183,7 +183,7 @@ struct FillableGlassView: View {
         timer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
             bubbles = bubbles.updateBubbles(deltaTime: 16, glassHeight: 40 / 0.8)
         }
-    }
+    } 
 
     private func stopBubbleAnimation() {
       timer?.invalidate()

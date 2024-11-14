@@ -96,7 +96,7 @@ struct RecipeCategoryScreen: View {
                                 }
                             }.foregroundStyle(theme.onBackground)
                             
-                            IconRow(kcal: randomRecipe.kcal, fat: randomRecipe.fat, protein: randomRecipe.protein, sugar: randomRecipe.sugar, horizontalCenter: false)
+                            IconRow(kcal: randomRecipe.kcal, fat: randomRecipe.fat, protein: randomRecipe.protein, sugar: randomRecipe.sugar, horizontalCenter: true)
                             
                         }
                         .padding(10)

@@ -206,7 +206,7 @@ struct EditMedicationSheet: View {
                 
                 medication.intakeTimes.removeAll { intakeTime in
                     // remove Notification
-                    NotificationService.shared.removeTimerNotification(withIdentifier: intakeTime.id)
+                    NotificationService.shared.removeRecurringNotification(forIntakeTime: intakeTime)
                     
                     return !intakeTimeEntries.contains { entry in
                         intakeTime.intakeTime == "\(entry.hour):\(entry.minute)"
@@ -233,16 +233,8 @@ struct EditMedicationSheet: View {
                         )
 
                         medication.intakeTimes.append(intakeTime)
-                        // remove
-                        NotificationService.shared.removeTimerNotification(withIdentifier: intakeTimeId)
-                        
-                        NotificationService.shared.scheduleRecurringMedicationNotification(
-                            medicationId: intakeTimeId.uuidString,
-                            title: "BauchGlück Reminder",
-                            body: "Erinnerung: \(medication.name) sollte jetzt (\(intakeTimeEntry.hour):\(intakeTimeEntry.minute) Uhr) eingenommen werden.",
-                            hour: intakeTimeEntry.hour,
-                            minute: intakeTimeEntry.minute
-                        )
+          
+                        NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: medication, forIntakeTime: intakeTime)
                     }
                 }
                 
