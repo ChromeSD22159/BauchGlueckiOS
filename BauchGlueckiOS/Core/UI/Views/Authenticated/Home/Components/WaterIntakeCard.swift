@@ -28,9 +28,13 @@ struct WaterIntakeCard: View {
         self.intakeTarget = intakeTarget
         minGlassesForToday = Int(intakeTarget / glassSize)
         
-        _intakes = Query(filter: #Predicate<WaterIntake> { intake in
-            intake.isDeleted == false
-        })
+        let userID = Auth.auth().currentUser?.uid ?? ""
+                
+        let predicate = #Predicate<WaterIntake> { weight in
+            weight.userId == userID && weight.isDeleted == false
+        }
+        
+        _intakes = Query(filter: predicate)
     }
     
     var totalIntakeInLiter: Double {
