@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B61100862CE6229F0012F30B /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B61100852CE6229F0012F30B /* FirebaseCrashlytics */; };
+		B61102372CE72E170012F30B /* AppTrackingTransparency.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B61102362CE72E170012F30B /* AppTrackingTransparency.framework */; };
 		B615106D2CE240A000F3F737 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B615106C2CE240A000F3F737 /* README.md */; };
 		B6167C9B2CC94A8300451BAB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9A2CC94A8300451BAB /* WidgetKit.framework */; };
 		B6167C9D2CC94A8300451BAB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9C2CC94A8300451BAB /* SwiftUI.framework */; };
@@ -72,6 +73,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B61102362CE72E170012F30B /* AppTrackingTransparency.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppTrackingTransparency.framework; path = System/Library/Frameworks/AppTrackingTransparency.framework; sourceTree = SDKROOT; };
 		B615106C2CE240A000F3F737 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B6167C992CC94A8300451BAB /* BGWidgetExtentionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BGWidgetExtentionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6167C9A2CC94A8300451BAB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -153,6 +155,7 @@
 				B6ADCE982CC33108001AFC57 /* GoogleMobileAds in Frameworks */,
 				B64864262CC24071007D7228 /* FirebaseCore in Frameworks */,
 				B64864282CC24071007D7228 /* FirebaseDatabase in Frameworks */,
+				B61102372CE72E170012F30B /* AppTrackingTransparency.framework in Frameworks */,
 				B6ADCEAA2CC67F86001AFC57 /* Alamofire in Frameworks */,
 				B64864392CC24568007D7228 /* GoogleSignInSwift in Frameworks */,
 				B648642A2CC24071007D7228 /* FirebaseFirestore in Frameworks */,
@@ -192,6 +195,7 @@
 		B6ADCE8D2CC3259D001AFC57 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B61102362CE72E170012F30B /* AppTrackingTransparency.framework */,
 				B6167C9A2CC94A8300451BAB /* WidgetKit.framework */,
 				B6167C9C2CC94A8300451BAB /* SwiftUI.framework */,
 			);
@@ -566,7 +570,7 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -605,7 +609,7 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

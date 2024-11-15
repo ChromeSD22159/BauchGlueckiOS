@@ -10,6 +10,7 @@ import GoogleSignIn
 import FirebaseAuth
 import FirebaseCore
 import SwiftData
+import AppTrackingTransparency
 
 @main
 struct BauchGlueckiOSApp: App, HandleNavigation {
@@ -51,6 +52,9 @@ struct BauchGlueckiOSApp: App, HandleNavigation {
                     case .Home: HomeScreen(page: .home)
                                     .onAppear {
                                         services.appStartOpenAd()
+                                    }
+                                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                                        ATTrackingManager.requestTrackingAuthorization(completionHandler: { status in })
                                     }
                                     .onAppLifeCycle(appearAndActive: {
                                         services.recipesService.fetchRecipesFromBackend()

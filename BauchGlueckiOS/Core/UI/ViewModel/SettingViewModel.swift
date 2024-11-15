@@ -177,5 +177,36 @@ class SettingViewModel: ObservableObject {
                 self.userProfile = new
             }
         }
+    } 
+}
+
+#Preview {
+    DeleteAlert {
+        Text("Delete")
     }
-} 
+}
+
+struct DeleteAlert<Content: View>: View {
+    @State var showAlert: Bool = false
+    
+    var content: Content
+    var accept: (() -> Void)?
+    
+    init(content: () -> Content) { 
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack {
+            Button(action: { self.showAlert = true }, label: { content })
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Schade.."),
+                message: Text("Möchtest du dein Konto wirklich löschen?"),
+                primaryButton: .cancel(),
+                secondaryButton: .default(Text("Löschen")) { accept?() }
+            )
+        }
+    }
+}

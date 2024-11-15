@@ -236,6 +236,4 @@ class MealPlanService {
             meals.forEach { context.delete($0) }
         }
     }
-}
-
-
+} 

@@ -134,6 +134,20 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
         }
     }
 
+    func deleteUser() {
+        if let user = Auth.auth().currentUser {
+            user.delete { error in
+                if let error {
+                    print("Error deleting user: \(error)")
+                } else {
+                    print("User deleted")
+                }
+            }
+            
+            GIDSignIn.sharedInstance.signOut()
+        }
+    }
+    
     private func createAppleIDRequest() -> ASAuthorizationAppleIDRequest {
         let appleIDProvider = ASAuthorizationAppleIDProvider()
         let request = appleIDProvider.createRequest()

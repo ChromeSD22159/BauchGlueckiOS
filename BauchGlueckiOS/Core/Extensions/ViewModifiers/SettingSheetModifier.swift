@@ -107,6 +107,27 @@ struct SettingSheet: ViewModifier {
                                 Text("Developer")
                             }
                             
+                            
+                            
+                            if let user = viewModel.authManager.userProfile {
+                                Section {
+                                    DeleteAlert {
+                                        SettingRowItem(icon: "trash" ,text: "\(user.firstName)`s Account Löschen", action: {
+                                            Task {
+                                                try await services.apiService.deleteDeviceTokenFromBackend()
+                                                
+                                                services.medicationService.removeAllMedicationNotifications()
+                                                
+                                                viewModel.authManager.deleteUser()
+                                            }
+                                        }, background: .regular)
+                                    }
+                                } header: {
+                                    Text("Developer")
+                                }
+                            }
+                            
+                            
                             SettingRowItem(
                                 icon: "iphone.and.arrow.forward",
                                 text: "Abmelden",
@@ -116,7 +137,7 @@ struct SettingSheet: ViewModifier {
                                         
                                         services.medicationService.removeAllMedicationNotifications()
                                         
-                                        viewModel.authManager.signOut()
+                                        viewModel.authManager.deleteUser()
                                     }
                                 },
                                 background: .backgroundGradient

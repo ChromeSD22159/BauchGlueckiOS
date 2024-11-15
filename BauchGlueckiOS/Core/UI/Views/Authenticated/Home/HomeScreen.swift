@@ -7,7 +7,7 @@
 
 import SwiftUI
 import FirebaseAuth
-import SwiftData
+import SwiftData 
 
 struct HomeScreen: View, PageIdentifier {
     let theme = Theme.shared
@@ -162,6 +162,7 @@ struct HomeScreen: View, PageIdentifier {
             }
         )
         .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, services: services, onDismiss: {})
+      
     }
     
     private func openOnboardingSheetWhenNoProfileIsGiven() {
