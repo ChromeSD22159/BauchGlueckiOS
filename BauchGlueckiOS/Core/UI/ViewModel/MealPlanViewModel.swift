@@ -26,13 +26,7 @@ class MealPlanViewModel {
         self.mealPlanService = service.mealPlanService
  
         loadMealPlans()
-        
-        print("MealPlanViewModel initialized")
-    }
-    
-    deinit {
-        print("MealPlanViewModel deinitialized")
-    }
+    } 
     
     func loadMealPlans() {
         guard let firstDate = dates.first?.startOfDate(), let lastDate = dates.last?.endOfDay() else {

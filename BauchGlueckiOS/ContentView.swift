@@ -7,60 +7,99 @@
 
 import SwiftUI
 import SwiftData
-
-/*
+ 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @StateObject var firebase: FirebaseService
+    @StateObject var services: Services
+    
+    @State var screen: Screen = .Launch
+    @State var notificationManager: NotificationService? = nil
+    @State var backendIsReachable = false
+     
+    let launchDelay: Double
+    let localData: ModelContext
+    
+    init(launchDelay: Double, localData: ModelContext) {
+        let firebaseService = FirebaseService()
+        let services = Services(
+            env: .production,
+            firebase: firebaseService,
+            context: localData
+        )
+        
+        _firebase = StateObject(wrappedValue: firebaseService)
+        _services = StateObject(wrappedValue: services)
+        self.launchDelay = launchDelay
+        self.localData = localData
+    }
+    
     var body: some View {
-        NavigationSplitView {
-            
-            Image(.bubbleRight)
-            
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        ZStack {
+            switch screen {
+                case .Launch: LaunchScreen()
+                case .Login: LoginScreen(navigate: handleNavigation)
+                case .Register: RegisterScreen(navigate: handleNavigation)
+                case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
+                case .Home: HomeScreen(page: .home)
+                                .onAppear {
+                                    services.appStartOpenAd()
+                                }
+                                .onAppLifeCycle(appearAndActive: {
+                                    services.recipesService.fetchRecipesFromBackend()
+                                })
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
+        }
+        .onAppEnterBackground { await firebase.markUserOffline() }
+        .onAppEnterForeground { checkBackendIsReachable() }
+        .environmentObject(firebase)
+        .environmentObject(services)
+        .environment(\.modelContext, localDataScource.mainContext)
+        .onAppear {
+            checkBackendIsReachable()
+            markUserOnlineOnStart(launchDelay: launchDelay)
         }
     }
     
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+    private func handleNavigation(screen: Screen) {
+        withAnimation(.easeInOut) {
+            self.screen = screen
         }
     }
+    
+    private func markUserOnlineOnStart(launchDelay: Double) {
+        DispatchQueue.main.async {
+            notificationManager = NotificationService()
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            firebase.authListener { auth, user in
+                DispatchQueue.main.asyncAfter(deadline: .now() + launchDelay, execute: {
+                    if (user != nil) {
+                        handleNavigation(screen: .Home)
+                        Task {
+                            try await firebase.markUserOnline()
+                            
+                            try await services.apiService.sendDeviceTokenToBackend()
+                        }
+                    } else {
+                        handleNavigation(screen: .Login)
+                    }
+                })
+            }
+            
+            Task {
+                await notificationManager?.getAuthStatus()
+                await notificationManager?.request()
             }
         }
     }
+    
+    private func checkBackendIsReachable() {
+        Task {
+            backendIsReachable = try await services.apiService.isServerReachable()
+        }
+    }
+ 
 }
 
 #Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+    ContentView(launchDelay: 0.5, localData: previewDataScource.mainContext) 
 }
-*/

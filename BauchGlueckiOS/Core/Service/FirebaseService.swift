@@ -136,6 +136,7 @@ class FirebaseService: NSObject, ObservableObject, ASAuthorizationControllerDele
 
     func deleteUser() {
         if let user = Auth.auth().currentUser {
+            
             user.delete { error in
                 if let error {
                     print("Error deleting user: \(error)")

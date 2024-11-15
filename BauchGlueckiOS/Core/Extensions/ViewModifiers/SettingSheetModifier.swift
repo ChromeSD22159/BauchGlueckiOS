@@ -111,7 +111,7 @@ struct SettingSheet: ViewModifier {
                             
                             if let user = viewModel.authManager.userProfile {
                                 Section {
-                                    DeleteAlert {
+                                    DeleteUserAccountAlert {
                                         SettingRowItem(icon: "trash" ,text: "\(user.firstName)`s Account Löschen", action: {
                                             Task {
                                                 try await services.apiService.deleteDeviceTokenFromBackend()
@@ -123,7 +123,7 @@ struct SettingSheet: ViewModifier {
                                         }, background: .regular)
                                     }
                                 } header: {
-                                    Text("Developer")
+                                    Text("Account")
                                 }
                             }
                             
@@ -184,6 +184,12 @@ struct SettingSheet: ViewModifier {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
             AppStore.requestReview(in: windowScene)
         }
+    }
+}
+
+#Preview {
+    DeleteUserAccountAlert {
+        Text("Delete")
     }
 }
 
@@ -305,6 +311,31 @@ struct SettingRowItem: View {
             Image(image)
                 .padding(10)
                 .foregroundStyle(theme.onPrimary)
+        }
+    }
+}
+
+struct DeleteUserAccountAlert<Content: View>: View {
+    @State var showAlert: Bool = false
+    
+    var content: Content
+    var accept: (() -> Void)?
+    
+    init(content: () -> Content) {
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack {
+            Button(action: { self.showAlert = true }, label: { content })
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Schade.."),
+                message: Text("Möchtest du dein Konto wirklich löschen?"),
+                primaryButton: .cancel(),
+                secondaryButton: .default(Text("Löschen")) { accept?() }
+            )
         }
     }
 }
