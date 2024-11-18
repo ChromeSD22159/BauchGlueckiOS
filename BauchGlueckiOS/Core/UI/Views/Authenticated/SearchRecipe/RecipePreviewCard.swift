@@ -14,42 +14,44 @@ struct RecipePreviewCard: View {
     var fat: Double
     var protein: Double
     let theme: Theme
+    let geometry: CGSize
     
-    init(mainImage: MainImage? = nil, name: String, fat: Double, protein: Double) {
+    init(mainImage: MainImage? = nil, name: String, fat: Double, protein: Double, geometry: CGSize) {
         self.mainImage = mainImage
         self.name = name
         self.fat = fat
         self.protein = protein
         self.theme = Theme.shared
+        self.geometry = geometry
     }
     
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack {
                 ZStack {
-                      
                     if AppStorageService.backendReachableState, let image = mainImage {
                         
                         AsyncCachedImage(url: URL(string: services.apiService.baseURL + image.url)) { image in
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(height: 120)
+                                .frame(width: geometry.width, height: 120)
                                 .clipped()
                         } placeholder: {
-                            ZStack{
+                            ZStack {
                                 Image(uiImage: .placeholder)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
-                                    .frame(height: 120)
+                                    .frame(width: geometry.width, height: 120)
                                     .clipped()
                             }
                         }
+                        
                     } else {
                         Image(.placeholder)
                             .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(height: 120)
+                            .aspectRatio(1, contentMode: .fill)
+                            .frame(width: geometry.width, height: 120)
                             .clipped()
                     }
                 }
@@ -84,12 +86,17 @@ struct RecipePreviewCard: View {
                 .frame(maxWidth: .infinity)
                 .background(theme.surface.opacity(0.9))
             }
+            .frame(minHeight: geometry.width)
         }
         .sectionShadow()
     }
 }
 
+/*
 #Preview {
-    RecipePreviewCard(name: "askdj", fat: 22, protein: 34)
-        .environmentObject(Services(firebase: FirebaseService(), context: previewDataScource.mainContext))
+    GeometryReader { geometry in 
+        RecipePreviewCard(name: "askdj", fat: 22, protein: 34, geometry: geometry.size)
+            .environmentObject(Services(firebase: FirebaseService(), context: previewDataScource.mainContext))
+    }
 }
+*/

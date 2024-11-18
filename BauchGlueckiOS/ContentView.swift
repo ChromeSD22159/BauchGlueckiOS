@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import FirebaseAuth
  
 struct ContentView: View {
     @StateObject var firebase: FirebaseService
@@ -70,7 +71,8 @@ struct ContentView: View {
         DispatchQueue.main.async {
             notificationManager = NotificationService()
 
-            firebase.authListener { auth, user in
+            firebase.authListener { auth, user in 
+                
                 DispatchQueue.main.asyncAfter(deadline: .now() + launchDelay, execute: {
                     if (user != nil) {
                         handleNavigation(screen: .Home)

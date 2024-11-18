@@ -64,19 +64,21 @@ struct SearchRecipeScreen: View {
                         SectionHeader(title: "Rezepte", trailingText: "\(searchResults.count.formatted(.number)) Rezepte")
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(searchResults, id: \.self) { recipe in
-                                RecipePreviewCard(
-                                    mainImage: recipe.mainImage,
-                                    name: recipe.name,
-                                    fat: recipe.fat,
-                                    protein: recipe.protein
-                                )
-                                .navigateTo(
-                                    firebase: firebase,
-                                    destination: Destination.recipeCategoryList,
-                                    showSettingButton: false,
-                                    target: { DetailRecipeView(firebase: firebase, recipe: recipe, date: date) }
-                                )
-                                
+                                GeometryReader { geometry in
+                                    RecipePreviewCard(
+                                        mainImage: recipe.mainImage,
+                                        name: recipe.name,
+                                        fat: recipe.fat,
+                                        protein: recipe.protein,
+                                        geometry: geometry.size
+                                    )
+                                    .navigateTo(
+                                        firebase: firebase,
+                                        destination: Destination.recipeCategoryList,
+                                        showSettingButton: false,
+                                        target: { DetailRecipeView(firebase: firebase, recipe: recipe, date: date) }
+                                    )
+                                }
                             }
                         }
                         .padding(.horizontal, 16)

@@ -149,6 +149,7 @@ struct OnBoardingUserProfileSheet: View {
             } else {
                 let profile = UserProfile(
                     uid: user.uid,
+                    firstName: name,
                     email: email,
                     surgeryDateTimeStamp: TimeInterval(surgeryDateBinding.timeIntervalSince1970Milliseconds),
                     mainMeals: 3,
@@ -157,6 +158,7 @@ struct OnBoardingUserProfileSheet: View {
                     startWeight: startWeight,
                     userNotifierToken: DeviceTokenService.shared.getSavedDeviceToken() ?? ""
                 )
+                
                 firebase.saveUserProfile(userProfile: profile, completion: {_ in })
                 
                 withAnimation {

@@ -7,11 +7,6 @@
 
 import SwiftUI
 import GoogleSignIn
-import FirebaseAuth
-import FirebaseCore
-import SwiftData
-import AppTrackingTransparency
-import FirebaseMessaging
 
 @main
 struct BauchGlueckiOSApp: App {
@@ -20,8 +15,20 @@ struct BauchGlueckiOSApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(launchDelay: 0.5, localData: localDataScource.mainContext)
-                .onOpenURL { GIDSignIn.sharedInstance.handle($0) }
+                .googleSignInOnOpen()
         }
         
     } 
+}
+
+extension View {
+    func googleSignInOnOpen() -> some View {
+        modifier(GoogleSignInOnOpen())
+    }
+}
+
+struct GoogleSignInOnOpen: ViewModifier {
+    func body(content: Content) -> some View {
+        content.onOpenURL { GIDSignIn.sharedInstance.handle($0) }
+    }
 }

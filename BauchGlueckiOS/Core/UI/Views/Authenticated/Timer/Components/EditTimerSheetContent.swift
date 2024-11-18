@@ -11,10 +11,11 @@ import SwiftData
 struct EditTimerSheetContent: View {
     @Bindable var timer: CountdownTimer
     @Environment(\.modelContext) var modelContext
-    @Environment(\.dismiss) var dismiss
+    
     @EnvironmentObject var services: Services
     private let theme: Theme = Theme.shared
     
+    @Binding var isPresented: Bool
     var durationRange: ClosedRange<Int>
     var stepsEach: Int
     var steps: [Int]
@@ -89,7 +90,7 @@ struct EditTimerSheetContent: View {
                     HStack {
                         IconTextButton(
                             text: "Abbrechen",
-                            onEditingChanged: { dismiss() }
+                            onEditingChanged: { isPresented.toggle() }
                         )
                         
                         IconTextButton(
@@ -97,7 +98,8 @@ struct EditTimerSheetContent: View {
                             onEditingChanged: {                                
                                 do {
                                     try modelContext.save()
-                                    dismiss()
+                                    
+                                    isPresented.toggle()
                                 } catch { }
                             }
                         )

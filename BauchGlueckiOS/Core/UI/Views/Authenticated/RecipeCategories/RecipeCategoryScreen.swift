@@ -206,20 +206,28 @@ struct RecipeCategoryScreen: View {
         var body: some View {
             VStack(spacing: 10) {
                 SectionHeader(title: "Zufalls Rezepte")
-                LazyVGrid(columns: columns, spacing: 16) {
+                LazyVGrid(columns: [
+                    GridItem(.flexible(), spacing: 16),
+                    GridItem(.flexible(), spacing: 16),
+                 ], spacing: 16) {
                     ForEach(randomRecipes, id: \.self) { recipe in
-                        RecipePreviewCard(
-                            mainImage: recipe.mainImage,
-                            name: recipe.name,
-                            fat: recipe.fat,
-                            protein: recipe.protein
-                        )
-                        .navigateTo(
-                            firebase: firebase,
-                            destination: Destination.recipeCategoryList,
-                            showSettingButton: false,
-                            target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
-                        )
+                        GeometryReader { geo in
+                            let _ = print(geo.size)
+                            RecipePreviewCard(
+                                mainImage: recipe.mainImage,
+                                name: recipe.name,
+                                fat: recipe.fat,
+                                protein: recipe.protein,
+                                geometry: geo.size
+                            )
+                            .navigateTo(
+                                firebase: firebase,
+                                destination: Destination.recipeCategoryList,
+                                showSettingButton: false,
+                                target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
+                            )
+                        }
+                        
                         
                     }
                 }

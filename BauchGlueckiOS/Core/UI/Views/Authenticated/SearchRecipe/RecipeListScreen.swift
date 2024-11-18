@@ -38,13 +38,15 @@ struct RecipeListScreen: View {
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(recipes, id: \.self) { recipe in
                         
-                        RecipePreviewCard(mainImage: recipe.mainImage, name: recipe.name, fat: recipe.fat, protein: recipe.protein)
-                            .navigateTo(
-                                firebase: firebase,
-                                destination: Destination.recipeCategoryList,
-                                showSettingButton: false,
-                                target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
-                            )
+                        GeometryReader { geometry in
+                            RecipePreviewCard(mainImage: recipe.mainImage, name: recipe.name, fat: recipe.fat, protein: recipe.protein, geometry: geometry.size)
+                                .navigateTo(
+                                    firebase: firebase,
+                                    destination: Destination.recipeCategoryList,
+                                    showSettingButton: false,
+                                    target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
+                                )
+                        }
                         
                     }
                 }

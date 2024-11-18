@@ -124,6 +124,7 @@ struct TimerCard: View {
             let config = AppConfig.shared.timerConfig 
             EditTimerSheetContent(
                 timer: timer,
+                isPresented: $isEditSheet,
                 durationRange: config.durationRange,
                 stepsEach: config.stepsEach,
                 steps: config.stepsInSeconds

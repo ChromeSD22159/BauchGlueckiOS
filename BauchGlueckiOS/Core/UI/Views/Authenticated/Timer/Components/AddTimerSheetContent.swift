@@ -26,6 +26,7 @@ struct AddTimerSheet: View {
             
             SheetHolder(title: "Timer anlegen") {
                 AddTimerSheetContent(
+                    isPresented: $isSheet,
                     durationRange: config.durationRange,
                     stepsEach: config.stepsEach,
                     steps: config.stepsInSeconds
@@ -38,7 +39,6 @@ struct AddTimerSheet: View {
 
 struct AddTimerSheetContent: View {
     @Environment(\.modelContext) var modelContext
-    @Environment(\.dismiss) var dismiss
     private let theme: Theme = Theme.shared
     
     // FormStates
@@ -47,10 +47,13 @@ struct AddTimerSheetContent: View {
     @State private var time: Int = 0
     @State private var error: String = ""
     
+    @State var isValid: Bool = false
+    
+    @Binding var isPresented: Bool
     var durationRange: ClosedRange<Int>
     var stepsEach: Int
     var steps: [Int]
-    
+     
     var body: some View {
         AppBackground(color: theme.background) {
             theme.bubbleBackground {
@@ -115,7 +118,7 @@ struct AddTimerSheetContent: View {
                     HStack {
                         IconTextButton(
                             text: "Abbrechen",
-                            onEditingChanged: { dismiss() }
+                            onEditingChanged: { isPresented.toggle() }
                         )
                         
                         IconTextButton(
@@ -151,7 +154,6 @@ struct AddTimerSheetContent: View {
         Task {
             
             do {
-                @State var isValid: Bool = false
                 
                 if name.count <= 3 {
                     throw ValidationError.invalidName
@@ -181,7 +183,7 @@ struct AddTimerSheetContent: View {
                 
                 modelContext.insert(newTimer)
                 
-                dismiss()
+                isPresented.toggle()
             } catch let error {
                 printError(error.localizedDescription)
             }
@@ -234,6 +236,7 @@ func TimerItem(
 
 #Preview(body: {
     AddTimerSheetContent(
+        isPresented: .constant(true),
         durationRange: 0...(60 * 90),
         stepsEach: 5,
         steps: [5,10,15,20,25,30,35,40,45,50,55,60]
