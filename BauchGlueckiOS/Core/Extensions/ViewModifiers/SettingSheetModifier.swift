@@ -137,7 +137,7 @@ struct SettingSheet: ViewModifier {
                                         
                                         services.medicationService.removeAllMedicationNotifications()
                                         
-                                        viewModel.authManager.deleteUser()
+                                        viewModel.authManager.signOut()
                                     }
                                 },
                                 background: .backgroundGradient
