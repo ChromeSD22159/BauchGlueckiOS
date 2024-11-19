@@ -34,4 +34,34 @@ struct DateFormatteUtil {
     static func fromTillString(from: Date, till: Date) -> String {
         return "From: \(from.formatDateDDMM) to \(till.formatDateDDMM):"
     }
+    
+    /// Formats a date into a readable German date and time format.
+    ///
+    /// This function optionally accepts a `Date` object. If no date is passed,
+    /// the current date is used. The formatted date is returned as a string.
+    ///
+    /// - Parameter date: The date to format.
+    /// - Returns: A string representing the date in the format "dd.MM.yyyy HH:mm".
+    static func formattedDateTimer(_ date: Date = Date()) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "de_DE")
+        formatter.dateFormat = "dd.MM.yyyy HH:mm"
+        
+        return formatter.string(from: date)
+    }
+    
+    /// Formats a date into a readable German date format (without time).
+    ///
+    /// This function optionally accepts a `Date` object. If no date is passed,
+    /// the current date is used. The formatted date is returned as a string.
+    ///
+    /// - Parameter date: The date to format.
+    /// - Returns: A string representing the date in the format "dd.MM.yyyy".
+    static func formattedFullDate(_ date: Date = Date()) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "de_DE")
+        formatter.dateFormat = "dd.MM.yyyy"
+        
+        return formatter.string(from: date)
+    }
 }

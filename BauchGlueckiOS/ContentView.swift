@@ -43,7 +43,8 @@ struct ContentView: View {
                 case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
                 case .Home: HomeScreen(page: .home)
                                 .onAppear {
-                                    services.appStartOpenAd()
+                                    // MARK: ADS
+                                    //services.appStartOpenAd()
                                 }
                                 .onAppLifeCycle(appearAndActive: {
                                     services.recipesService.fetchRecipesFromBackend()
@@ -99,7 +100,6 @@ struct ContentView: View {
             backendIsReachable = try await services.apiService.isServerReachable()
         }
     }
- 
 }
 
 #Preview {

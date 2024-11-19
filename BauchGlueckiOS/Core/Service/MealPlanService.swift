@@ -205,16 +205,18 @@ class MealPlanService {
         
         let shoppingListItems = reduceShoppingListItems(mealPlans: foundMealPlans)
         
+      
+        
         let newListId = UUID()
         let newList = ShoppingList(
             id: newListId,
-            name: "ShoppingList vom " + formattedDate(Date()),
+            name: "ShoppingList vom " + DateFormatteUtil.formatDateDDMM(Date()),
             shoppingListId: newListId.uuidString,
             userId: userID,
-            descriptionText: "ShoppingList erstellt am: " + formattedDate(Date()),
-            startDate: formattedDate(startDate),
-            endDate: formattedDate(endDate),
-            note: "ShoppingList erstellt am: " + formattedDate(Date()),
+            descriptionText: "ShoppingList erstellt am: " + DateFormatteUtil.formatDateDDMM(Date()),
+            startDate: DateFormatteUtil.formatDateDDMM(startDate),
+            endDate: DateFormatteUtil.formatDateDDMM(endDate),
+            note: "ShoppingList erstellt am: " + DateFormatteUtil.formatDateDDMM(Date()),
             isComplete: false,
             isDeleted: false,
             updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,

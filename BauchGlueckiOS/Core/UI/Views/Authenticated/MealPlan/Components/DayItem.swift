@@ -21,7 +21,7 @@ struct DayItem: View {
     
     var body: some View {
         VStack(spacing: 4) {
-            Text(formattedDateDDMM(date))
+            Text(DateFormatteUtil.formatDateDDMM(date))
                 .font(theme.headlineTextSmall)
             
             Text("\(currentMealCount)/\(targetMealCount)")

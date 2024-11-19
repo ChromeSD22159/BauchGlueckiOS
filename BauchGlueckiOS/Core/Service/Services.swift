@@ -46,7 +46,7 @@ class Services: ObservableObject {
                 
                 if appSettings.showOpenAd {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
-                        GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
+                        //GoogleAppOpenAd().requestAppOpenAd(adId: "ca-app-pub-3940256099942544/5575463023")
                     })
                 }
                 

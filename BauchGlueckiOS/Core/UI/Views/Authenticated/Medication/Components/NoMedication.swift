@@ -10,7 +10,7 @@ struct NoMedication: View {
     let theme: Theme = Theme.shared
     var body: some View {
         VStack {
-            Text("Medikamente für \(formattedDate(Date()))")
+            Text("Medikamente für \(DateFormatteUtil.formattedFullDate(Date()))")
                 .font(theme.headlineTextSmall)
             
             Text("Du hast heute keine Medikamente zum einnehmen.")

@@ -49,7 +49,7 @@ struct NextMedicationCard: View {
     var body: some View {
         VStack(spacing: 20) {
             VStack {
-                Text("Medikamente für \(formattedDate(Date()))")
+                Text("Medikamente für \( DateFormatteUtil.formattedFullDate(Date()) )")
                     .font(theme.headlineTextSmall)
                 
                 

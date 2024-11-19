@@ -28,7 +28,8 @@ struct NoteItem: View {
         VStack(spacing: 12) {
             HStack {
                 Spacer()
-                Text(formattedDateTimer(note.date.toDate))
+               
+                Text(  DateFormatteUtil.formattedFullDate(note.date.toDate) )
                     .font(.footnote)
             }
             
@@ -57,7 +58,7 @@ struct NoteItem: View {
         .sheet(isPresented: $sheet, onDismiss: {}, content: {
             NavigationView {
                 EditNoteSheet(note: $note, allMoods: $allMoods, theme: theme, maxCharacters: maxCharacters)
-                    .navigationTitle("🗒️ Notiz vom \(formattedDate(note.date.toDate))")
+                    .navigationTitle("🗒️ Notiz vom \( DateFormatteUtil.formattedFullDate(note.date.toDate) )")
                     .navigationBarTitleDisplayMode(.inline)
             }
             .presentationDragIndicator(.visible)

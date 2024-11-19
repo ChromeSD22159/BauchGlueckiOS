@@ -16,9 +16,8 @@ struct BauchGlueckiOSApp: App {
         WindowGroup {
             ContentView(launchDelay: 0.5, localData: localDataScource.mainContext)
                 .googleSignInOnOpen()
-        }
-        
-    } 
+        } 
+    }
 }
 
 extension View {

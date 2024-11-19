@@ -5,7 +5,7 @@
 //  Created by Frederik Kohler on 28.10.24.
 //
 
-class Moods {
+struct Moods {
     static var list: [Mood] {
         return [
             Mood(display: "🥳  Motiviert"),

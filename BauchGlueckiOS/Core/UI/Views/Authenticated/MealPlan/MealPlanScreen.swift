@@ -31,8 +31,8 @@ struct MealPlanScreen: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: theme.padding) {
                     
-                    // CURRENT DATE
-                    Text(formattedDate(vm.currentDate))
+                    // CURRENT DATE 
+                    Text( DateFormatteUtil.formattedFullDate(vm.currentDate))
                         .padding(.horizontal, theme.padding)
                     
                     // Calendar HorizontalScroll

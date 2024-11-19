@@ -314,7 +314,7 @@ struct AddWeightSheetContent: View {
     
     private func printError(_ text: String) {
         Task {
-            try await awaitAction(
+            try await DelayUtil.awaitAction(
                 seconds: 2,
                 startAction: {
                     error = text
