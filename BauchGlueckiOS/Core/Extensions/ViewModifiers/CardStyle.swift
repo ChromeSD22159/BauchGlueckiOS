@@ -7,12 +7,12 @@
 import SwiftUI
 
 struct CardStyle: ViewModifier {
-    let theme = Theme.shared
+    @Environment(\.theme) private var theme
     func body(content: Content) -> some View {
         content
-            .padding(theme.padding)
-            .background(theme.surface)
-            .cornerRadius(theme.radius)
+            .padding(theme.layout.padding)
+            .background(theme.color.surface)
+            .cornerRadius(theme.layout.radius)
             .shadow(color: Color.black.opacity(0.25), radius: 5, y: 3)
     }
 }

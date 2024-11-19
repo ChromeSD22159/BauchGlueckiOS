@@ -12,7 +12,7 @@ import FirebaseAuth
 @MainActor
 class WeightService {
     private var context: ModelContext
-    private var table: Entitiy
+    private var table: TableEntitiy
     private var apiService: StrapiApiClient
     private var syncHistoryService: SyncHistoryService
     
@@ -22,7 +22,7 @@ class WeightService {
     
     init(context: ModelContext, apiService: StrapiApiClient, syncHistoryService: SyncHistoryService) {
         self.context = context
-        self.table = Entitiy.WEIGHT
+        self.table = TableEntitiy.WEIGHT
         self.apiService = apiService
         self.syncHistoryService = syncHistoryService
     }

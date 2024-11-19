@@ -10,6 +10,7 @@ import SwiftData
 import FirebaseAuth
  
 struct ContentView: View {
+    
     @StateObject var firebase: FirebaseService
     @StateObject var services: Services
     

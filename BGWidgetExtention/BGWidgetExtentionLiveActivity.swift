@@ -22,41 +22,42 @@ struct BGWidgetExtentionAttributes: ActivityAttributes {
 }
 
 struct BGWidgetExtentionLiveActivity: Widget {
-    var theme = Theme.shared
-     
-     var body: some WidgetConfiguration {
-         return ActivityConfiguration(for: BGWidgetExtentionAttributes.self) { context in
-             
-             lockScreen(
-                endDate: context.state.endDate,
-                name: context.attributes.name
-             )
-             
+    let theme = Theme.self
+    
+    var body: some WidgetConfiguration {
+        
+     return ActivityConfiguration(for: BGWidgetExtentionAttributes.self) { context in
+         
+         lockScreen(
+            endDate: context.state.endDate,
+            name: context.attributes.name
+         )
+         
 
-         } dynamicIsland: { context in
-             DynamicIsland {
-                     DynamicIslandExpandedRegion(.leading) {
-                         DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .LargeLeading)
-                     }
+     } dynamicIsland: { context in
+         DynamicIsland {
+                 DynamicIslandExpandedRegion(.leading) {
+                     DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .LargeLeading)
+                 }
+             
+                 DynamicIslandExpandedRegion(.trailing) {
+                     DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .LargeTrailing)
+                 }
                  
-                     DynamicIslandExpandedRegion(.trailing) {
-                         DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .LargeTrailing)
-                     }
-                     
-                     DynamicIslandExpandedRegion(.bottom) {
-                         DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .LargeBottom)
-                     }
-             } compactLeading: {
-                 DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .SmallLeading)
-             } compactTrailing: {
-                 DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .SmallTrailing)
-             } minimal: {
-                 DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .Minimal)
-             }
-             .widgetURL(URL(string: "BauchGlueck://test"))
-             .keylineTint(Color.red)
+                 DynamicIslandExpandedRegion(.bottom) {
+                     DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .LargeBottom)
+                 }
+         } compactLeading: {
+             DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .SmallLeading)
+         } compactTrailing: {
+             DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .SmallTrailing)
+         } minimal: {
+             DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .Minimal)
          }
+         .widgetURL(URL(string: "BauchGlueck://test"))
+         .keylineTint(Color.red)
      }
+ }
      
      @ViewBuilder func TimerView(date: Date) -> some View {
         HStack {
@@ -66,7 +67,7 @@ struct BGWidgetExtentionLiveActivity: Widget {
                pauseTime: range.lowerBound
             )
             .multilineTextAlignment(.trailing)
-            .foregroundStyle(theme.onPrimary)
+            .foregroundStyle(theme.color.onPrimary)
         }
     }
      
@@ -74,7 +75,7 @@ struct BGWidgetExtentionLiveActivity: Widget {
          let range = Date()...Date().addingTimeInterval((endDate.timeIntervalSinceNow))
          
          ZStack {
-             theme.background
+             theme.color.background
                          
              VStack {
                  HStack(spacing: 12) {
@@ -83,7 +84,7 @@ struct BGWidgetExtentionLiveActivity: Widget {
                                               
                      Text("\(name) timer")
                          .font(.title)
-                 }.foregroundStyle(theme.primary)
+                 }.foregroundStyle(theme.color.primary)
                  
                  Spacer()
 
@@ -91,19 +92,19 @@ struct BGWidgetExtentionLiveActivity: Widget {
                     timerInterval: range,
                     pauseTime: range.lowerBound
                  )
-                 .font(theme.headlineText(size: 50))
-                 .foregroundStyle(theme.onBackground)
+                 .font(theme.font.headlineText(size: 50))
+                 .foregroundStyle(theme.color.onBackground)
                  .multilineTextAlignment(.center)
                  
                  Spacer()
                  
                  Text("\(name)")
                      .font(.caption)
-                     .foregroundStyle(theme.onBackground)
+                     .foregroundStyle(theme.color.onBackground)
                      .padding(.vertical, 5)
                      .padding(.horizontal, 10)
                      .background {
-                         RoundedRectangle(cornerRadius: theme.radius)
+                         RoundedRectangle(cornerRadius: theme.layout.radius)
                              .fill(.ultraThinMaterial)
                              .strokeBorder(.primary, lineWidth: 1)
                      }
@@ -115,16 +116,16 @@ struct BGWidgetExtentionLiveActivity: Widget {
                      HStack {
                          Image(.iconStromach)
                              .font(.largeTitle)
-                             .foregroundStyle(theme.onBackground.opacity(0.05))
+                             .foregroundStyle(theme.color.onBackground.opacity(0.05))
                          
                          Text("BauchGlück")
-                             .font(theme.headlineText(size: 70))
-                             .foregroundStyle(theme.onBackground.opacity(0.0))
+                             .font(theme.font.headlineText(size: 70))
+                             .foregroundStyle(theme.color.onBackground.opacity(0.0))
                      }
                      
                      Text("BauchGlück")
-                         .font(theme.headlineText(size: 50))
-                         .foregroundStyle(theme.onBackground.opacity(0.05))
+                         .font(theme.font.headlineText(size: 50))
+                         .foregroundStyle(theme.color.onBackground.opacity(0.05))
                  }
              }
 
@@ -133,7 +134,7 @@ struct BGWidgetExtentionLiveActivity: Widget {
      
      @ViewBuilder func DynamicIslandCompact(endDate: Date, name:String, position: ActivityPosition) -> some View {
          switch position {
-            case .LargeLeading: Image(.iconStromach).foregroundStyle(theme.primary)
+            case .LargeLeading: Image(.iconStromach).foregroundStyle(theme.color.primary)
              case .LargeTrailing: Text(name).font(.footnote)
              case .LargeBottom: ZStack {
                  
@@ -146,7 +147,7 @@ struct BGWidgetExtentionLiveActivity: Widget {
                              HStack(alignment: .bottom, spacing: 12) {
                                  Image(systemName: "timer")
                                      .font(.system(size: 36))
-                                     .foregroundStyle(theme.onBackground)
+                                     .foregroundStyle(theme.color.onBackground)
                              }
                          }
                          Spacer()

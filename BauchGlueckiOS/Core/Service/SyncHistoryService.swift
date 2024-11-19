@@ -15,7 +15,7 @@ class SyncHistoryService {
         self.context = context
     }
 
-    func getLastSyncHistoryByEntity(entity: Entitiy) async throws -> SyncHistory? {
+    func getLastSyncHistoryByEntity(entity: TableEntitiy) async throws -> SyncHistory? {
         let entityString = entity.rawValue
         let predicate = #Predicate { (history: SyncHistory) in
             history.table == entityString
@@ -29,7 +29,7 @@ class SyncHistoryService {
         return try context.fetch(query).first
     }
     
-    func saveSyncHistoryStamp(entity: Entitiy) {
+    func saveSyncHistoryStamp(entity: TableEntitiy) {
         context.insert(
             SyncHistory(
                 table: entity.rawValue,
@@ -38,7 +38,7 @@ class SyncHistoryService {
         )
     }
     
-    func deleteSyncHistoryStamp(entity: Entitiy) {
+    func deleteSyncHistoryStamp(entity: TableEntitiy) {
         Task {
             if let last = try await self.getLastSyncHistoryByEntity(entity: entity) {
                 context.delete(last)

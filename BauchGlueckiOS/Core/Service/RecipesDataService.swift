@@ -21,7 +21,7 @@ struct RecipesDataService {
     }
     
     func fetchRecipesFromBackend(
-        table: Entitiy = .Recipe
+        table: TableEntitiy = .Recipe
     ) {
         guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
         

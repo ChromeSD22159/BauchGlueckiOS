@@ -36,19 +36,4 @@ var localDataScource: ModelContainer = {
     } catch {
         fatalError("Could not create ModelContainer: \(error)")
     }
-}()
-
-enum Entitiy: String {
-    case COUNTDOWN_TIMER = "countdownTimer"
-    case SYNC_HISTORY = "syncHistory"
-    case WEIGHT = "weight"
-    case NODE = "node"
-    case WATER_INTAKE = "waterIntake"
-    case MEDICATION = "medication"
-    case Meal, Recipe = "meal"
-    case MEAL_PLAN = "mealPlan"
-
-    func getTableName(name: String) -> Entitiy? {
-        return Entitiy(rawValue: name)
-    }
-}
+}() 

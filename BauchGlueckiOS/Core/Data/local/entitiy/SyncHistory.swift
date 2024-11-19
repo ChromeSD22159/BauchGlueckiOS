@@ -19,7 +19,7 @@ class SyncHistory {
     init(
         id: UUID = UUID(),
         deviceId: String = "",
-        table: String = Entitiy.COUNTDOWN_TIMER.rawValue,
+        table: String = TableEntitiy.COUNTDOWN_TIMER.rawValue,
         lastSync: Int64 = Date().timeIntervalSince1970Milliseconds
     ) {
         self.id = id

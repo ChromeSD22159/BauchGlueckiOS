@@ -15,7 +15,7 @@ import SwiftUI
 @MainActor
 class WaterIntakeService {
     private var context: ModelContext
-    private var table: Entitiy
+    private var table: TableEntitiy
     private var apiService: StrapiApiClient
     private var syncHistoryRepository: SyncHistoryService
     private var headers: HTTPHeaders {
@@ -24,7 +24,7 @@ class WaterIntakeService {
     
     init(context: ModelContext, apiService: StrapiApiClient) {
         self.context = context
-        self.table = Entitiy.WATER_INTAKE
+        self.table = TableEntitiy.WATER_INTAKE
         self.apiService = apiService
         self.syncHistoryRepository = SyncHistoryService(context: context)
     }

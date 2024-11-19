@@ -13,7 +13,7 @@ import Alamofire
 @MainActor
 class CountdownService {
     private var context: ModelContext
-    private var table: Entitiy
+    private var table: TableEntitiy
     private var apiService: StrapiApiClient
     private var syncHistoryRepository: SyncHistoryService
     private var headers: HTTPHeaders {
@@ -22,7 +22,7 @@ class CountdownService {
     
     init(context: ModelContext, apiService: StrapiApiClient) {
         self.context = context
-        self.table = Entitiy.COUNTDOWN_TIMER
+        self.table = TableEntitiy.COUNTDOWN_TIMER
         self.apiService = apiService
         self.syncHistoryRepository = SyncHistoryService(context: context)
     }

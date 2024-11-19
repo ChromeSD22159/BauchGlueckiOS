@@ -16,13 +16,25 @@ struct BauchGlueckiOSApp: App {
         WindowGroup {
             ContentView(launchDelay: 0.5, localData: localDataScource.mainContext)
                 .googleSignInOnOpen()
-        } 
+                .environment(\.theme, Theme())
+        }
     }
 }
 
 extension View {
     func googleSignInOnOpen() -> some View {
         modifier(GoogleSignInOnOpen())
+    }
+}
+
+struct ThemeKey: EnvironmentKey {
+    static let defaultValue: Theme = Theme()
+}
+
+extension EnvironmentValues {
+    var theme: Theme {
+        get { self[ThemeKey.self] }
+        set { self[ThemeKey.self] = newValue }
     }
 }
 

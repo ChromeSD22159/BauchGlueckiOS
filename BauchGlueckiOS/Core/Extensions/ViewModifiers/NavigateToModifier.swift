@@ -8,19 +8,21 @@
 import SwiftUI
 
 struct NavigateTo<Target: View, Toolbar: View>: ViewModifier {
+    
     var destination: Destination
     var firebase: FirebaseService
     var showSettingButton: Bool
+    
+    @Environment(\.theme) private var theme
+    
     @ViewBuilder var target: () -> Target
     @ViewBuilder var toolbarItems: () -> Toolbar
-    
-    let theme = Theme.shared
     
     func body(content: Content) -> some View {
         NavigationLink {
             target()
                 .navigationBackButton(
-                    color: theme.onBackground,
+                    color: theme.color.onBackground,
                     destination: destination,
                     firebase: firebase,
                     showSettingButton: showSettingButton,

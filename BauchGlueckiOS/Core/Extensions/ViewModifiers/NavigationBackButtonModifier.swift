@@ -8,18 +8,20 @@
 import SwiftUI
 
 struct NavigationBackButton<T: View>: ViewModifier {
+  
+   
+    @EnvironmentObject var services: Services
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.theme) private var theme
+    
+    @State var isSettingSheet: Bool = false
+    @ViewBuilder var toolbarItems: () -> T
     var color: Color
     var icon: String
     var destination: Destination
     var firebase: FirebaseService
     var onDismissAction: () -> Void
     var showSettingButton: Bool
-    @ViewBuilder var toolbarItems: () -> T
-    @EnvironmentObject var services: Services
-    @Environment(\.dismiss) var dismiss
-    @State var isSettingSheet: Bool = false
-    
-    let theme = Theme.shared
     
     func body(content: Content) -> some View {
         content
@@ -39,7 +41,7 @@ struct NavigationBackButton<T: View>: ViewModifier {
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing, content: {
-                    HStack(spacing: theme.padding) {
+                    HStack(spacing: theme.layout.padding) {
                         toolbarItems()
                         
                         if showSettingButton {
