@@ -1,3 +1,4 @@
+
 //
 //  SearchRecipesScreen.swift
 //  BauchGlueckiOS
@@ -11,20 +12,15 @@ import Combine
 struct RecipeListScreen: View {
     let theme = Theme.shared
     
+    var categoryId: String
     var firebase: FirebaseService
     
-    @Query() var recipes: [Recipe]
+    @State var viewModel: RecipeListViewModel? = nil
+    @Environment(\.modelContext) var modelContext
     
     init(firebase: FirebaseService, categoryId: String) {
         self.firebase = firebase
-        
-        let predicate = #Predicate<Recipe> { recipe in
-            if let recipeCategory = recipe.category {
-                return recipeCategory.categoryId == categoryId
-            }  else { return false }
-        }
-
-        _recipes = Query(filter: predicate)
+        self.categoryId = categoryId
     }
     
     let columns = [
@@ -34,24 +30,64 @@ struct RecipeListScreen: View {
     
     var body: some View {
         ScreenHolder {
-            ScrollView(.vertical, showsIndicators: false) {
+            if let viewModel = viewModel {
                 LazyVGrid(columns: columns, spacing: 10) {
-                    ForEach(recipes, id: \.self) { recipe in
+                    ForEach(viewModel.recipes, id: \.self) { recipe in
                         
-                        GeometryReader { geometry in
-                            RecipePreviewCard(mainImage: recipe.mainImage, name: recipe.name, fat: recipe.fat, protein: recipe.protein, geometry: geometry.size)
-                                .navigateTo(
-                                    firebase: firebase,
-                                    destination: Destination.recipeCategoryList,
-                                    showSettingButton: false,
-                                    target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
-                                )
-                        }
+                        RecipePreviewCard(mainImage: recipe.mainImage, name: recipe.name, fat: recipe.fat, protein: recipe.protein)
+                            .navigateTo(
+                                firebase: firebase,
+                                destination: Destination.recipeCategoryList,
+                                showSettingButton: false,
+                                target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
+                            )
                         
                     }
                 }
                 .padding(theme.padding)
             }
+        }
+        .onAppear {
+            if viewModel == nil {
+                   viewModel = RecipeListViewModel(firebase: firebase, modelContext: modelContext)
+                   viewModel?.inizialize(categoryId: categoryId)
+            }
+        }
+    }
+}
+
+@Observable
+class RecipeListViewModel: ObservableObject {
+    var recipes: [Recipe] = []
+    var categoryId: String = ""
+    var modelContext: ModelContext
+    private var firebase: FirebaseService
+    
+    init(firebase: FirebaseService, modelContext: ModelContext) {
+        self.firebase = firebase
+        self.modelContext = modelContext
+    }
+    
+    func inizialize(categoryId: String) {
+        loadRecipes(categoryId: categoryId)
+    }
+    
+    func loadRecipes(categoryId: String) {
+        let predicate = #Predicate<Recipe> { recipe in
+            if let recipeCategory = recipe.category {
+                return recipeCategory.categoryId == categoryId
+            }  else { return false }
+        }
+        
+        let fetch = FetchDescriptor<Recipe>(
+            predicate: predicate,
+            sortBy: [ .init(\.name) ]
+        )
+        
+        do {
+            recipes = try modelContext.fetch(fetch)
+        } catch {
+            print("Error fetching recipes: \(error)")
         }
     }
 }

@@ -24,8 +24,16 @@ struct WeightFormatUtils {
             return String(format: "+%.1f kg", difference)
         } else {
             return String(format: "%.1f kg", difference)
-        }
+        } 
     }
+    
+    /// Formatiert ein Double als Differenz mit einer Nachkommastelle und dem Suffix "kg".
+    /// - Parameter difference: Der zu formatierende Wert.
+    /// - Returns: Der formatierte String, z. B. "Ø 2.3 kg".
+    static func formatAvgWeightInKG(_ difference: Double) -> String {
+        return String(format: "Ø %.1f kg", difference)
+    }
+    
     
     /// Formatiert zwei Datumswerte in einen String im Format "Von: DD.MM zu DD.MM".
     /// - Parameters:
@@ -33,8 +41,6 @@ struct WeightFormatUtils {
     ///   - till: Das Enddatum des Zeitraums.
     /// - Returns: Ein String im Format "Von: DD.MM zu DD.MM", der den Zeitraum repräsentiert.
     static func fromTillDateString(from: Date, till: Date) -> String {
-        let from = DateService.formatDateDDMM(date: from)
-        let till = DateService.formatDateDDMM(date: till)
-        return String(format: "Von: \(from) zu \(till)")
+        return String(format: "Von: \(from.formatDateDDMM) zu \(till.formatDateDDMM)")
     }
 }

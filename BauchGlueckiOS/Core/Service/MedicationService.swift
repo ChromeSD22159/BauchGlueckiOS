@@ -31,10 +31,10 @@ class MedicationService {
     
     func getMedicationsWithTodaysIntakeTimes() -> [Medication] {
         guard let userID = Auth.auth().currentUser?.uid else { return [] }
-
+        
         // Start und Endzeit für das heutige Datum
-        let startOfDay = DateService.startToday.timeIntervalSince1970Milliseconds
-        let endOfDay = DateService.endOfDAy.timeIntervalSince1970Milliseconds
+        let startOfDay = DateHelper.startToday.timeIntervalSince1970Milliseconds
+        let endOfDay = DateHelper.endOfDay.timeIntervalSince1970Milliseconds
 
         // Medikament-Prädikat, um Benutzer-ID zu überprüfen
         let medicationPredicate = #Predicate { (medication: Medication) in
@@ -367,8 +367,4 @@ class MedicationService {
             
         }
     }
-}
-
-
-
-
+} 

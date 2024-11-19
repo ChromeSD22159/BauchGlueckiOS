@@ -22,7 +22,7 @@ class MealPlanViewModel {
     
     init(firebase: FirebaseService, service: Services) {
         self.firebase = firebase
-        self.dates = DateService.nextThirtyDays
+        self.dates = DateHelper.nextThirtyDays
         self.mealPlanService = service.mealPlanService
  
         loadMealPlans()

@@ -25,7 +25,7 @@ struct NoShopping: View {
     }
     
     let dateRange: ClosedRange<Date> = {
-        let dates = DateService.nextThirtyDays
+        let dates = DateHelper.nextThirtyDays
         
         return dates.first!...dates.last!
    }()

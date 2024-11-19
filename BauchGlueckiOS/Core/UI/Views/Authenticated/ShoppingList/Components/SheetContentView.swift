@@ -30,7 +30,7 @@ struct SheetContentView: View {
                 DatePicker(
                     "Start Datum",
                     selection: $startDate,
-                    in: DateService.nextThirtyDays.first!...DateService.nextThirtyDays.last!,
+                    in: DateHelper.nextThirtyDays.first!...DateHelper.nextThirtyDays.last!,
                     displayedComponents: [.date]
                 )
                 .font(.footnote)
@@ -39,7 +39,7 @@ struct SheetContentView: View {
                 DatePicker(
                     "End Datum",
                     selection: $endDate,
-                    in: DateService.nextThirtyDays.first!...DateService.nextThirtyDays.last!,
+                    in: DateHelper.nextThirtyDays.first!...DateHelper.nextThirtyDays.last!,
                     displayedComponents: [.date]
                 )
                 .font(.footnote)

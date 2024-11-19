@@ -72,9 +72,7 @@ struct WeightsScreen: View {
                             }
                             
                             HStack {
-                                let from = DateService.formatDateDDMM(date: lowest.startDate)
-                                let till = DateService.formatDateDDMM(date: lowest.endDate)
-                                Text(String(format: "Von: \(from) zu \(till)"))
+                                Text(String(format: "Von: \(lowest.startDate.formatDateDDMM) zu \(lowest.endDate.formatDateDDMM)"))
                                     .font(.footnote)
                                 Spacer()
                             }
@@ -86,15 +84,14 @@ struct WeightsScreen: View {
                     VStack(spacing: theme.padding + 5) {
                         ForEach(viewModel.weeklyAverage.indices, id: \.self) { index in
                             
-                            let (differenceString, difference, _,_) = viewModel.calcDifferenceToWeekBefore(index: index)
-                            let start = DateService.formatDateDDMM(date: viewModel.weeklyAverage[index].startOfWeek)
-                            let end = DateService.formatDateDDMM(date: viewModel.weeklyAverage[index].endOfWeek)
+                            let (differenceString, difference, _, _) = viewModel.calcDifferenceToWeekBefore(index: index)
                             
                             VStack(alignment: .leading) {
                                 HStack {
-                                    Text("Von: \(start) zu \(end):")
+                                    Text(DateFormatteUtil.fromTillString(from: viewModel.weeklyAverage[index].startOfWeek, till: viewModel.weeklyAverage[index].endOfWeek))
                                     Spacer()
-                                    Text(" Ø \(String(format: "%.1f kg", difference))") // TODO: REFACTOR
+                                    
+                                    Text(WeightFormatUtils.formatAvgWeightInKG(difference))
                                 }
                                 if index > 0 {
                                     Text("Differenz zur Vorwoche: \(differenceString)")

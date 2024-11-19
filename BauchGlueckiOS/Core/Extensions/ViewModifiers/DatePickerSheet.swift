@@ -45,7 +45,7 @@ struct DatePickerSheet: ViewModifier {
                 },
                 content: {
                     VStack {
-                        let dateRange = DateService.nextThirtyDays
+                        let dateRange = DateHelper.nextThirtyDays
                         
                         DatePicker(
                             "Start Date",

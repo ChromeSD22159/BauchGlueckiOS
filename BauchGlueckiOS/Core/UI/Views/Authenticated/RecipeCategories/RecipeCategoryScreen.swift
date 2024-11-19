@@ -211,24 +211,18 @@ struct RecipeCategoryScreen: View {
                     GridItem(.flexible(), spacing: 16),
                  ], spacing: 16) {
                     ForEach(randomRecipes, id: \.self) { recipe in
-                        GeometryReader { geo in
-                            let _ = print(geo.size)
-                            RecipePreviewCard(
-                                mainImage: recipe.mainImage,
-                                name: recipe.name,
-                                fat: recipe.fat,
-                                protein: recipe.protein,
-                                geometry: geo.size
-                            )
-                            .navigateTo(
-                                firebase: firebase,
-                                destination: Destination.recipeCategoryList,
-                                showSettingButton: false,
-                                target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
-                            )
-                        }
-                        
-                        
+                        RecipePreviewCard(
+                            mainImage: recipe.mainImage,
+                            name: recipe.name,
+                            fat: recipe.fat,
+                            protein: recipe.protein
+                        )
+                        .navigateTo(
+                            firebase: firebase,
+                            destination: Destination.recipeCategoryList,
+                            showSettingButton: false,
+                            target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
+                        )
                     }
                 }
             }

@@ -28,7 +28,7 @@ struct SearchRecipeScreen: View {
     
     @Query() var recipes: [Recipe]
      
-    var body: some View {
+    var body: some View { 
         ZStack {
             Theme.shared.background.ignoresSafeArea()
             
@@ -36,7 +36,7 @@ struct SearchRecipeScreen: View {
                 VStack(spacing: 32) {
                     
                     VStack {
-                        SectionHeader(title: "Kategorien", trailingText: "\(RecipeCategory.allCases.count.formatted(.number)) Kategrien")
+                        SearchRecipeSectionHeader(title: "Kategorien", trailingText: "\(RecipeCategory.allCases.count.formatted(.number)) Kategrien")
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack(spacing: 16) {
                                 ForEach(RecipeCategory.allCases, id: \.categoryID) { category in
@@ -61,24 +61,21 @@ struct SearchRecipeScreen: View {
                     
                     
                     VStack {
-                        SectionHeader(title: "Rezepte", trailingText: "\(searchResults.count.formatted(.number)) Rezepte")
+                        SearchRecipeSectionHeader(title: "Rezepte", trailingText: "\(searchResults.count.formatted(.number)) Rezepte")
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(searchResults, id: \.self) { recipe in
-                                GeometryReader { geometry in
-                                    RecipePreviewCard(
-                                        mainImage: recipe.mainImage,
-                                        name: recipe.name,
-                                        fat: recipe.fat,
-                                        protein: recipe.protein,
-                                        geometry: geometry.size
-                                    )
-                                    .navigateTo(
-                                        firebase: firebase,
-                                        destination: Destination.recipeCategoryList,
-                                        showSettingButton: false,
-                                        target: { DetailRecipeView(firebase: firebase, recipe: recipe, date: date) }
-                                    )
-                                }
+                                RecipePreviewCard(
+                                    mainImage: recipe.mainImage,
+                                    name: recipe.name,
+                                    fat: recipe.fat,
+                                    protein: recipe.protein
+                                )
+                                .navigateTo(
+                                    firebase: firebase,
+                                    destination: Destination.recipeCategoryList,
+                                    showSettingButton: false,
+                                    target: { DetailRecipeView(firebase: firebase, recipe: recipe, date: date) }
+                                )
                             }
                         }
                         .padding(.horizontal, 16)
@@ -134,15 +131,15 @@ struct SearchRecipeScreen: View {
             
         return Array(uniqueRecipes).sorted { $0.name < $1.name }
     }
+}
 
-    
-    @ViewBuilder func SectionHeader(
-        title: String,
-        trailingText: String?
-    ) -> some View {
+struct SearchRecipeSectionHeader: View {
+    let title: String
+    let trailingText: String?
+    var body: some View {
         HStack {
             Text(title)
-                .font(theme.headlineTextMedium)
+                .font(Theme.shared.headlineTextMedium)
             
             Spacer()
             
