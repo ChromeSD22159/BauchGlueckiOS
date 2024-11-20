@@ -43,11 +43,9 @@ class StrapiApiClient: GenericAPIService {
     }
     
     func sendDeviceTokenToBackend() async throws {
-        guard
-            let currentUser = Auth.auth().currentUser?.uid,
-            let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken(),
-            !userNotifierToken.isEmpty
-        else { return }
+        guard let currentUser = Auth.auth().currentUser?.uid else { throw UserError.notLoggedIn }
+        
+        guard let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken() else { return }
         
         guard !userNotifierToken.isEmpty else { return }
         
@@ -68,8 +66,7 @@ class StrapiApiClient: GenericAPIService {
                    
                 switch result {
                     case .success(let response): print("Response message:", response.message)
-                    case .failure(let error): print("Error sending device token to backend: \(error)")
-                    throw URLError(.badServerResponse)
+                    case .failure(let error): throw error
                 }
             } catch {
                 print("Error sending device token to backend: \(error) \(currentUser) \(userNotifierToken)")
@@ -79,10 +76,10 @@ class StrapiApiClient: GenericAPIService {
     }
     
     func deleteDeviceTokenFromBackend() async throws {
+        guard let currentUser = Auth.auth().currentUser?.uid else { throw UserError.notLoggedIn }
+        
         guard
-            let currentUser = Auth.auth().currentUser?.uid,
-            let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken(),
-            !userNotifierToken.isEmpty
+            let userNotifierToken = DeviceTokenService.shared.getSavedDeviceToken(), !userNotifierToken.isEmpty
         else { return }
         
         let body = ApiDeviceToken(userID: currentUser, token: userNotifierToken)
@@ -99,7 +96,7 @@ class StrapiApiClient: GenericAPIService {
                    
                 switch result {
                     case .success(let response): print("Response message:", response.message)
-                    case .failure(_): throw URLError(.badServerResponse)
+                    case .failure(let error): throw error
                 }
             } catch {
                 print("Error delete device token to backend: \(error) \(currentUser) \(userNotifierToken)")
@@ -218,7 +215,7 @@ class GenericAPIService {
         }
         
         // Netzwerkanfrage starten
-        let task = URLSession.shared.dataTask(with: request) { _, response, error in
+        let task = URLSession.shared.dataTask(with: request) { data , response, error in
             
             // Fehlerbehandlung
             if let error = error {
@@ -249,11 +246,13 @@ class GenericAPIService {
         // Netzwerkanfrage starten
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
+            
+            
             // Fehlerbehandlung
             if let error = error {
                 completion(.failure(error))
                 return
-            }
+            } 
             
             guard let data = data else {
                 completion(.failure(NSError(domain: "No data", code: 0, userInfo: nil)))

@@ -37,7 +37,7 @@ extension Date {
     /// Gets a formatted string representing the date in "dd.MM" format (e.g., "25.12").
     /// - Returns: A string representation of the date in "dd.MM" format.
     var formatDateDDMM: String {
-        return DateFormatteUtil.formatTimeToHHmm(self) // This should be formatDateDDMM
+        return DateFormatteUtil.formatDateDDMM(self) // This should be formatDateDDMM
     }
 }
 

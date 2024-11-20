@@ -15,6 +15,9 @@ struct LoginScreen: View, Navigable {
     @EnvironmentObject var firebase: FirebaseService
     @EnvironmentObject var services: Services
     
+    // ERRORHANDLING
+    @EnvironmentObject var errorHandling: ErrorHandling 
+    
     // FormStates
     @FocusState private var focusedField: FocusedField?
     @State private var email: String = ""
@@ -68,26 +71,15 @@ struct LoginScreen: View, Navigable {
                             }
                         )
                         
-                        IconButton(icon: "arrow.right") {
-                            withAnimation {
-                                guard !email.isEmpty,
-                                      !password.isEmpty
-                                else { return }
-                                
-                                firebase.login(email: email, password: password) { auth, _error in
-                                    if let _ = auth?.user.uid {
-                                        Task {
-                                            try await services.apiService.sendDeviceTokenToBackend()
-                                            
-                                            services.medicationService.setAllMedicationNotifications()
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        TryButton(label: {
+                            Label("", systemImage: "arrow.right").labelStyle(.iconOnly)
+                        }, action: {
+                            try handleLoginSubmit()
+                        })
+                        .buttonStyle(CapsuleButtonStyle())
                     }
                      
-                    ErrorText(text: firebase.error?.localizedDescription ?? "")
+                    //ErrorText(text: firebase.error?.localizedDescription ?? "")
                     
                     HStack {
                         Text("Passwort vergessen?")
@@ -99,8 +91,7 @@ struct LoginScreen: View, Navigable {
                             navigate(Screen.ForgotPassword)
                         }
                     }.padding(.top, Theme.layout.padding)
-                    
-                    
+  
                     SignInWithProvider() { result in
                         switch result {
                             case .success: services.medicationService.setAllMedicationNotifications()
@@ -111,20 +102,56 @@ struct LoginScreen: View, Navigable {
                 .padding(.horizontal, theme.layout.padding)
             }
         }
-        .onSubmit {
-            switch focusedField {
-                case .email: focusedField = .password
-                case .password: print("Login abgeschlossen")
-                default: break
-            }
-       }
+        .withErrorPopover()
+        .onTapGesture { focusedField = closeKeyboard(focusedField: focusedField) }
+        .onSubmit { handleFocusState() }
     }
     
     enum FocusedField {
         case email, password
     }
+    
+    private func closeKeyboard(focusedField: FocusedField?) -> FocusedField? {
+        if focusedField != nil {
+            return nil
+        }
+        
+        return focusedField
+    }
+    
+    private func handleFocusState() {
+        switch focusedField {
+            case .email: focusedField = .password
+            case .password: print("Login abgeschlossen")
+            default: break
+        }
+    }
+    
+    private func handleLoginSubmit() throws {
+        guard !email.isEmpty else {
+            throw LoginError.emailIsEmpty
+        }
+        
+        guard !password.isEmpty else {
+            throw LoginError.passwordIsEmpty
+        }
+        
+        withAnimation {
+            firebase.login(email: email, password: password) { auth, _error in
+                if let _ = auth?.user.uid {
+                    Task {
+                        try await services.apiService.sendDeviceTokenToBackend()
+                        
+                        services.medicationService.setAllMedicationNotifications()
+                    }
+                }
+            }
+        }
+    }
 } 
+
 #Preview("Light") {
     LoginScreen(navigate: {_ in })
     .environmentObject(FirebaseService())
+    .environmentObject(ErrorHandling())
 }

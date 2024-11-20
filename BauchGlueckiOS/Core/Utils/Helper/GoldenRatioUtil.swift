@@ -39,16 +39,6 @@ struct GoldenRatioUtil {
     }
 }
 
-extension Numeric where Self: BinaryFloatingPoint {
-    var addGoldenRatio: Double {
-        return Double(self) * (13.0 / 8.0)
-    }
-    
-    var subtractGoldenRatio: Double {
-        return Double(self) / (13.0 / 8.0)
-    }
-}
-
 extension Numeric where Self: BinaryInteger {
     var addGoldenRatio: Double {
         return Double(self) * (13.0 / 8.0)
@@ -58,3 +48,13 @@ extension Numeric where Self: BinaryInteger {
         return Double(self) / (13.0 / 8.0)
     }
 }
+
+extension Numeric where Self: BinaryFloatingPoint {
+    var addGoldenRatio: Double {
+        return Double(self) * (13.0 / 8.0)
+    }
+    
+    var subtractGoldenRatio: Double {
+        return Double(self) / (13.0 / 8.0)
+    }
+} 

@@ -99,12 +99,13 @@
 		B61AF14D2CC9ABE3009F9878 /* Exceptions for "BauchGlueckiOS" folder in "BGWidgetExtentionExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Fonts/rodetta_stamp.ttf,
+				Core/Fonts/rodetta.ttf,
+				Core/Theme/CapsuleButtonStyle.swift,
 				Core/Theme/Theme.swift,
 				Core/Theme/ThemeColor.swift,
 				Core/Theme/ThemeFont.swift,
 				Core/Theme/ThemeLayout.swift,
-				Fonts/rodetta_stamp.ttf,
-				Fonts/rodetta.ttf,
 			);
 			target = B6167C982CC94A8300451BAB /* BGWidgetExtentionExtension */;
 		};

@@ -9,9 +9,11 @@ import Foundation
 
 struct FillableGlassView: View {
     var defaultSize: CGFloat
-    @Environment(\.theme) private var theme
     
-    var onClick: () -> Void
+    @Environment(\.theme) private var theme
+    @EnvironmentObject var errorHandling: ErrorHandling
+    
+    var onClick: () throws -> Void
     
     @Binding var isFilled: Bool
     @State private var fillLevel: CGFloat = 0.1
@@ -29,7 +31,7 @@ struct FillableGlassView: View {
         isActive: Binding<Bool>,
         isFilled: Binding<Bool>,
         bubbles: [Bubble] = [],
-        onClick: @escaping () -> Void = {},
+        onClick: @escaping () throws -> Void = {},
         animationDelay: Int
     ) {
         self.defaultSize = defaultSize
@@ -82,20 +84,21 @@ struct FillableGlassView: View {
                 fillLevel = 0.1
             }
         )
-        .onTapGesture {
-            withAnimation(.easeInOut) {
-                if (isActive) {
+        .onTapGestureWithErrorHandling(action: {
+            if isActive {
+                try onClick()  
+                withAnimation(.easeInOut) {
                     self.fillLevel = 0.8
-                    onClick()
-                } else if !isFilled {
+                }
+            } else if !isFilled {
+                withAnimation(.easeInOut) {
                     self.fillLevel = 0.8
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-                        self.fillLevel = 0.1
-                    })
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.fillLevel = 0.1
                 }
             }
-        }
+        })
         .frame(width: defaultSize, height: defaultSize)
         .onChange(of: isFilled, {
             if !isFilled {

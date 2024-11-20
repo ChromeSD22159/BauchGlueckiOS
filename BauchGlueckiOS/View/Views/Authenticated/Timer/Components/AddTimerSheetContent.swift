@@ -166,7 +166,7 @@ struct AddTimerSheetContent: View {
                 }
                 
                 guard let user = Auth.auth().currentUser else {
-                    throw ValidationError.userNotFound
+                    throw UserError.notLoggedIn
                 }
                 
                 let date = Date()

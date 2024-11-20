@@ -99,32 +99,12 @@ struct RegisterScreen: View, Navigable {
                             }
                         )
                         
-                        IconButton(icon: "arrow.right") {
-                            guard !email.isEmpty,
-                                  !password.isEmpty,
-                                  !verifyPassword.isEmpty,
-                                  password == verifyPassword
-                            else { return }
-                            
-                            firebase.register(
-                                userProfile: UserProfile(
-                                    firstName: name,
-                                    email: email,
-                                    userNotifierToken: DeviceTokenService.shared.getSavedDeviceToken() ?? ""
-                                ),
-                                password: password
-                            ) { result , error in
-                                if let user = result?.user {
-                                    firebase.readUserProfileById(userId: user.uid, completion: {_ in 
-                                        
-                                    })
-                                    
-                                    Task {
-                                        try await services.apiService.sendDeviceTokenToBackend()
-                                    }
-                                }
-                            }
-                        }
+                        TryButton(label: {
+                            Label("", systemImage: "arrow.right").labelStyle(.iconOnly)
+                        }, action: {
+                            try handleRegisterSubmit()
+                        })
+                        .buttonStyle(CapsuleButtonStyle())
                     }
                     
                     SignInWithProvider() { result in
@@ -135,26 +115,72 @@ struct RegisterScreen: View, Navigable {
                 .padding(.horizontal, theme.layout.padding)
             }
         }
-        .onSubmit {
-            switch focusedField {
-                case .name:
-                    focusedField = .email
-                case .email:
-                    focusedField = .password
-                case .password:
-                    focusedField = .verifyPassword
-                case .verifyPassword: print("Login abgeschlossen")
-                default: break
-            }
-       }
+        .withErrorPopover()
+        .onTapGesture { focusedField = closeKeyboard(focusedField: focusedField) }
+        .onSubmit { handleFocusState() }
     }
     
     enum FocusedField {
         case name, email, password, verifyPassword
+    }
+    
+    private func closeKeyboard(focusedField: FocusedField?) -> FocusedField? {
+        if focusedField != nil {
+            return nil
+        }
+        
+        return focusedField
+    }
+    
+    private func handleFocusState() {
+        switch focusedField {
+            case .name:
+                focusedField = .email
+            case .email:
+                focusedField = .password
+            case .password:
+                focusedField = .verifyPassword
+            case .verifyPassword: print("Login abgeschlossen")
+            default: break
+        }
+    }
+    
+    private func handleRegisterSubmit() throws {
+        guard !email.isEmpty
+        else { throw RegisterError.emailIsEmpty }
+        
+        guard !password.isEmpty
+        else { throw RegisterError.passwordIsEmpty }
+        
+        guard !verifyPassword.isEmpty
+        else { throw RegisterError.verifyPasswordIsEmpty }
+        
+        guard password == verifyPassword
+        else { throw RegisterError.passwordsDoNotMatch }
+        
+        firebase.register(
+            userProfile: UserProfile(
+                firstName: name,
+                email: email,
+                userNotifierToken: DeviceTokenService.shared.getSavedDeviceToken() ?? ""
+            ),
+            password: password
+        ) { result , error in
+            if let user = result?.user {
+                firebase.readUserProfileById(userId: user.uid, completion: {_ in
+                    
+                })
+                
+                Task {
+                    try await services.apiService.sendDeviceTokenToBackend()
+                }
+            }
+        }
     }
 }
 
 #Preview("Light") {
     RegisterScreen(navigate: {_ in })
         .environmentObject(FirebaseService())
+        .environmentObject(ErrorHandling())
 }

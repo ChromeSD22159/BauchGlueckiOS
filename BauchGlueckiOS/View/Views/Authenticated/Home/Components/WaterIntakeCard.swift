@@ -101,7 +101,7 @@ struct WaterIntakeCard: View {
                             isFilled: .constant(isFilled),
                             onClick: {
                                 if !isFilled && totalIntakeInLiter < 3.0 {
-                                    services.waterIntakeService.insertGLass()
+                                    try services.waterIntakeService.insertGLass()
                                 }
                             },
                             animationDelay: index

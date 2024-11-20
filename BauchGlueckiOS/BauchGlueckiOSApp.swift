@@ -12,11 +12,14 @@ import GoogleSignIn
 struct BauchGlueckiOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate 
  
+    @StateObject var errorHandling = ErrorHandling()
+    
     var body: some Scene {
         WindowGroup {
             ContentView(launchDelay: 0.5, localData: localDataScource.mainContext)
                 .googleSignInOnOpen()
                 .environment(\.theme, Theme())
+                .environmentObject(errorHandling)
         }
     }
 }
@@ -24,17 +27,6 @@ struct BauchGlueckiOSApp: App {
 extension View {
     func googleSignInOnOpen() -> some View {
         modifier(GoogleSignInOnOpen())
-    }
-}
-
-struct ThemeKey: EnvironmentKey {
-    static let defaultValue: Theme = Theme()
-}
-
-extension EnvironmentValues {
-    var theme: Theme {
-        get { self[ThemeKey.self] }
-        set { self[ThemeKey.self] = newValue }
     }
 }
 

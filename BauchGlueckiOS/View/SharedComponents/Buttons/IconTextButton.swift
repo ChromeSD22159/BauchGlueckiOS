@@ -31,9 +31,6 @@ struct IconTextButton: View {
                     .foregroundStyle(theme.color.onPrimary)
             }
         )
-        .padding(.horizontal, theme.layout.padding + 5)
-        .padding(.vertical, (theme.layout.padding + 5) / 2)
-        .background(theme.color.primary)
-        .cornerRadius(100)
+        .buttonStyle(CapsuleButtonStyle())
     }
 }

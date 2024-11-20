@@ -2,9 +2,8 @@
 //  ShoppingListError.swift
 //  BauchGlueckiOS
 //
-//  Created by Frederik Kohler on 11.11.24.
+//  Created by Frederik Kohler on 20.11.24.
 //
-
 import Foundation
 
 enum ShoppingListError: Error, LocalizedError {

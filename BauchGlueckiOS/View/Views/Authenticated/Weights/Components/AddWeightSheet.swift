@@ -279,7 +279,7 @@ struct AddWeightSheetContent: View {
             
             guard let user = Auth.auth().currentUser else {
                 printError(ValidationError.userNotFound.rawValue)
-                throw ValidationError.userNotFound
+                throw UserError.notLoggedIn
             }
              
             let weightID = UUID()

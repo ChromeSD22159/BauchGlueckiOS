@@ -49,4 +49,8 @@ extension Theme {
             content()
         }
     }
+} 
+
+struct ThemeKey: EnvironmentKey {
+    static let defaultValue: Theme = Theme()
 }
