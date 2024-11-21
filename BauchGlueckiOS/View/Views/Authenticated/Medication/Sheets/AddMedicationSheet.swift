@@ -73,7 +73,7 @@ struct AddMedicationSheet: View {
                     
                     HStack {
                          
-                        TimerPicker(hour: $intakeTimeEntries[index].hour, minute: $intakeTimeEntries[index].minute)
+                        HourMinutePicker(hour: $intakeTimeEntries[index].hour, minute: $intakeTimeEntries[index].minute)
                          
                         ZStack(alignment: .topTrailing) {
                             Button(action: { deleteTimeEntry(intakeTimeEntries[index]) }) {
@@ -111,11 +111,10 @@ struct AddMedicationSheet: View {
                 
                 Spacer()
             }
-            .onTapGesture { focusedField = closeKeyboard(focusedField: focusedField) }
             .onSubmit {
                 switch focusedField {
                     case .name: focusedField = .dosis
-                    case .dosis: print( )
+                    case .dosis: focusedField = nil
                     default: break
                 }
            }
@@ -124,14 +123,6 @@ struct AddMedicationSheet: View {
     
     enum FocusedField {
         case name, dosis
-    }
-    
-    private func closeKeyboard(focusedField: FocusedField?) -> FocusedField? {
-        if focusedField != nil {
-            return nil
-        }
-        
-        return focusedField
     }
     
     @ViewBuilder func FootLine(text: String) -> some View {
@@ -147,16 +138,20 @@ struct AddMedicationSheet: View {
         HStack {
             IconTextButton(
                 text: "Abbrechen",
-                onEditingChanged: { isPresented.toggle() }
+                onEditingChanged: { isPresented = false }
             )
+            
+            Spacer()
             
             TryButton(text: "Speichern") {
                 try insert()
                 services.weightService.sendUpdatedWeightsToBackend()
+                isPresented = false
             }
             .withErrorHandling()
             .buttonStyle(CapsuleButtonStyle())
         }
+        .padding(.horizontal)
     }
     
     private func insert() throws {
@@ -197,8 +192,6 @@ struct AddMedicationSheet: View {
                 
                 NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: newMedication, forIntakeTime: intakeTime)
             }
-            
-            isPresented.toggle()
         }
     }
     
@@ -239,7 +232,7 @@ struct AddMedicationSheet: View {
 
 
 // MARK: - REFACTOR
-struct TimerPicker: View {
+struct HourMinutePicker: View {
     @Binding var hour: Int
     @Binding var minute: Int
     var body: some View {
@@ -263,7 +256,7 @@ struct IntegerPicker: View {
     init(value: Binding<Int>, type: IntegerPicker.type = .hour) {
         self.range = switch type {
             case .hour: Array(0..<24)
-            case .minute: stride(from: 0, to: 60, by: 5).map { $0 }
+            case .minute: stride(from: 00, to: 60, by: 5).map { $0 }
         }
         
         self._value = value

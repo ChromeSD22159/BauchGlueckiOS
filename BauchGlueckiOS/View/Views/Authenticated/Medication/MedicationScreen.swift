@@ -10,20 +10,10 @@ import FirebaseAuth
 
 struct MedicationScreen: View {
     @Environment(\.theme) private var theme
-
-    @Query(sort: \Medication.name, order: .forward) var medication: [Medication]
-    
-    @State private var tab: Tab = .intake
-    @Environment(\.modelContext) var modelContext
+    @State var viewModel: MedicationViewModel
  
-    init() {
-        let userID = Auth.auth().currentUser?.uid ?? ""
-        
-        _medication = Query(
-            filter: #Predicate<Medication> { med in
-                med.userId == userID
-            }
-        )
+    init(modelContext: ModelContext, services: Services) {
+        self._viewModel = State(wrappedValue: MedicationViewModel(modelContext: modelContext, services: services))
     }
     
     var body: some View {
@@ -33,28 +23,24 @@ struct MedicationScreen: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: theme.layout.padding) {
                     
-                    Picker("What is your favorite color?", selection: $tab) {
-                        Label("Einnahme", systemImage: "pills.fill").tag(Tab.intake)
-                        Label("Verlauf", systemImage: "square.grid.2x2.fill").tag(Tab.history)
+                    Picker("What is your favorite color?", selection: $viewModel.medicationViewTab) {
+                        Label("Einnahme", systemImage: "pills.fill").tag(MedicationViewTab.intake)
+                        Label("Verlauf", systemImage: "square.grid.2x2.fill").tag(MedicationViewTab.history)
                     }
                     .pickerStyle(.segmented)
                     
-                    if medication.count == 0 {
+                    if !viewModel.userhasMedications {
                         NoMedCard()
                     } else {
-                        if tab == .intake {
-                            ForEach(medication.indices, id: \.self) { index in
-                                MedicationCard(
-                                    medication: medication[index],
-                                    onDelete: {
-                                        MedicationDataService.delete(context: modelContext, medication: medication[index])
-                                    }
-                                )
+                        if viewModel.medicationViewTab == .intake {
+                            ForEach(viewModel.medications.indices, id: \.self) { index in
+                                MedicationCard(medication: viewModel.getMedicationByIndex(index))
+                                    .environmentObject(viewModel)
                             }
                         }
-                        if tab == .history {
-                            ForEach(medication.indices, id: \.self) { index in
-                                MedicationHistoryCard(medication: medication[index])
+                        if viewModel.medicationViewTab == .history {
+                            ForEach(viewModel.medications, id: \.self) { medication in
+                                MedicationHistoryCard(medication: medication)
                             }
                         }
                     }
@@ -62,9 +48,9 @@ struct MedicationScreen: View {
                 .padding(theme.layout.padding)
             }
         }
+        .onAppear {
+            viewModel.loadMedications()
+        }
     }
-    
-    enum Tab {
-        case intake, history
-    }
+     
 }

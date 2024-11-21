@@ -96,5 +96,3 @@ struct MedicationHistoryCard: View {
         return Int(percentage)
     }
 }
-
-

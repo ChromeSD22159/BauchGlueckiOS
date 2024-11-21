@@ -7,14 +7,15 @@
 import SwiftUI
 import SwiftData
 
+
+// TODO: TIMES NOT CHANGEABLE
 struct EditMedicationSheet: View {
     @Bindable var medication: Medication
-    @Binding var isPresented: Bool
     
     @Environment(\.theme) private var theme
-    @Environment(\.modelContext) var modelContext 
-    @EnvironmentObject var services: Services
-   
+    @EnvironmentObject var medicationViewModel: MedicationViewModel
+    @EnvironmentObject var errorHandling: ErrorHandling
+    
     @FocusState private var focusedField: FocusedField?
   
     @State private var error = ""
@@ -58,57 +59,27 @@ struct EditMedicationSheet: View {
                 FootLine(text: "Dosis des Medikaments")
             }
             .padding(.horizontal, 10)
-            
-            ForEach(intakeTimeEntries.indices, id: \.self) { index in
-                HStack {
-                    TextField("Stunde", value: Binding(
-                        get: { intakeTimeEntries[index].hour },
-                        set: { intakeTimeEntries[index].hour = $0 > 23 ? 23 : $0 }
-                    ), format: .number)
-                    .keyboardType(.numberPad)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Spacer()
-                            Button("Fertig") {
-                                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+             
+            VStack {
+                ForEach(medicationViewModel.editMedicationIntakeEntries.indices, id: \.self) { index in
+                    HStack {
+                        HourMinutePicker(hour: $medicationViewModel.editMedicationIntakeEntries[index].hour, minute: $medicationViewModel.editMedicationIntakeEntries[index].minute)
+                         
+                        ZStack(alignment: .topTrailing) {
+                            Button(action: { deleteTimeEntry(medicationViewModel.editMedicationIntakeEntries[index]) }) {
+                                Image(systemName: "xmark")
+                                    .font(.caption2)
+                                    .foregroundStyle(theme.color.onBackground)
+                                    .padding(5)
                             }
-                            .foregroundColor(.primary)
+                            .background(Material.ultraThin)
+                            .cornerRadius(100)
                         }
                     }
-                    .frame(width: 30)
-
-                    Text(":")
-
-                    TextField("Minute", value: Binding(
-                        get: { intakeTimeEntries[index].minute },
-                        set: { intakeTimeEntries[index].minute = $0 > 59 ? 59 : $0 }
-                    ), format: .number)
-                    .keyboardType(.numberPad)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Spacer()
-                            Button("Fertig") {
-                                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                            }
-                            .foregroundColor(.primary)
-                        }
-                    }
-                    .frame(width: 30)
-
-                    ZStack(alignment: .topTrailing) {
-                        Button(action: { deleteTimeEntry(intakeTimeEntries[index]) }) {
-                            Image(systemName: "xmark")
-                                .font(.caption2)
-                                .foregroundStyle(theme.color.onBackground)
-                                .padding(5)
-                        }
-                        .background(Material.ultraThin)
-                        .cornerRadius(100)
-                    }
+                    .padding(theme.layout.padding)
+                    .background(theme.color.surface)
+                    .cornerRadius(theme.layout.radius)
                 }
-                .padding(theme.layout.padding)
-                .background(theme.color.surface)
-                .cornerRadius(theme.layout.radius)
             }
             
             Button(action: {
@@ -136,17 +107,14 @@ struct EditMedicationSheet: View {
             
             Spacer()
         }
-        .onTapGesture { focusedField = closeKeyboard(focusedField: focusedField) }
+        .withErrorHandling()
         .onAppear {
-            intakeTimeEntries = medication.intakeTimes.map { intakeTime in
-                let components = intakeTime.intakeTime.split(separator: ":").compactMap { Int($0) }
-                return IntakeTimeEntry(id: UUID(), hour: components.first ?? 0, minute: components.last ?? 0)
-            }
+            loadIntakeTimeEntries()
         }
         .onSubmit {
             switch focusedField {
                 case .name: focusedField = .dosis
-                case .dosis: print()
+                case .dosis: focusedField = nil
                 default: break
             }
        }
@@ -169,60 +137,17 @@ struct EditMedicationSheet: View {
         HStack {
             IconTextButton(
                 text: "Abbrechen",
-                onEditingChanged: { isPresented.toggle() }
+                onEditingChanged: { medicationViewModel.isEditMedicationSheet.toggle() }
             )
             
+            Spacer()
+            
             TryButton(text: "Speichern") {
-                try update()
-                services.weightService.sendUpdatedWeightsToBackend()
+                try medicationViewModel.update(medication: medication, intakeTimeEntries: intakeTimeEntries)
             }
-            .withErrorHandling()
             .buttonStyle(CapsuleButtonStyle())
         }
-    }
-    
-    private func update() throws {
-        guard medication.name.count > 3 else { throw MedicationError.invalidName }
-        
-        guard !medication.dosage.isEmpty else { throw MedicationError.invalidDosis }
-        
-        Task {
-            medication.intakeTimes.removeAll { intakeTime in
-                // remove Notification
-                NotificationService.shared.removeRecurringNotification(forIntakeTime: intakeTime)
-                
-                return !intakeTimeEntries.contains { entry in
-                    intakeTime.intakeTime == "\(entry.hour):\(entry.minute)"
-                }
-            }
-            
-            for intakeTimeEntry in intakeTimeEntries {
-                let intakeTimeString = "\(intakeTimeEntry.hour):\(intakeTimeEntry.minute)"
-                
-                let exist = medication.intakeTimes.first { intake in
-                    intake.intakeTime == intakeTimeString
-                }
-                
-                if exist == nil {
-                    let intakeTimeId = UUID()
-                    let intakeTime = IntakeTime(
-                        id: intakeTimeId,
-                        intakeTimeId: intakeTimeId.uuidString,
-                        intakeTime: intakeTimeString,
-                        medicationId: medication.medicationId,
-                        isDeleted: false,
-                        updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
-                        medication: medication
-                    )
-
-                    medication.intakeTimes.append(intakeTime)
-      
-                    NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: medication, forIntakeTime: intakeTime)
-                }
-            }
-            
-            isPresented.toggle()
-        }
+        .padding(.horizontal)
     }
     
     private func addIntakeTimeEntry() {
@@ -252,11 +177,47 @@ struct EditMedicationSheet: View {
         }
     }
     
-    private func closeKeyboard(focusedField: FocusedField?) -> FocusedField? {
-        if focusedField != nil {
-            return nil
+    private func loadIntakeTimeEntries() {
+        do {
+            try medicationViewModel.setMedicationEditIntakeTimeEntries(for: medication)
+        } catch {
+            errorHandling.handle(error: error)
+        }
+    }
+}
+
+func parseIntakeTimes(intakeTimes: [String]) throws -> [IntakeTimeEntry] {
+    var entries: [IntakeTimeEntry] = []
+
+    for intakeTime in intakeTimes {
+        let values = intakeTime.split(separator: ":")
+        
+        // Überprüfen, ob das Format korrekt ist
+        guard values.count == 2 else {
+            throw IntakeTimeError.invalidFormat(intakeTime)
         }
         
-        return focusedField
+        // Konvertierung von Stunden und Minuten
+        guard let hour = Int(values[0]), let minute = Int(values[1]) else {
+            throw IntakeTimeError.conversionFailed(intakeTime)
+        }
+        
+        // Erstellen des IntakeTimeEntry
+        let entry = IntakeTimeEntry(id: UUID(), hour: hour, minute: minute)
+        entries.append(entry)
+    }
+    
+    return entries
+     
+    enum IntakeTimeError: Error {
+        case invalidFormat(String)  // IntakeTime als String
+        case conversionFailed(String)
+        
+        var description: String {
+            switch self {
+                case .invalidFormat(let intakeTime): return "Ungültiges intakeTime-Format: \(intakeTime)"
+                case .conversionFailed(let intakeTime): return "Konvertierungsfehler für intakeTime: \(intakeTime)"
+            }
+        }
     }
 }

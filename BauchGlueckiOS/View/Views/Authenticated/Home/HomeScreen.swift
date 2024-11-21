@@ -111,7 +111,7 @@ struct HomeScreen: View, PageIdentifier {
                             .navigateTo(
                                 firebase: firebase,
                                 destination: Destination.medication,
-                                target: { MedicationScreen() },
+                                target: { MedicationScreen(modelContext: modelContext, services: services) },
                                 toolbarItems: {
                                     AddMedicationSheet()
                                 }
@@ -133,9 +133,7 @@ struct HomeScreen: View, PageIdentifier {
 
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Image(systemName: "gear")
-                            .onTapGesture {
-                                isSettingSheet = !isSettingSheet
-                            }
+                            .onTapGesture { isSettingSheet = !isSettingSheet }
                     }
                 }
                 .navigationTitle("")

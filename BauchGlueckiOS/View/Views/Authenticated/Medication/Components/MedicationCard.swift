@@ -9,29 +9,20 @@ import SwiftData
 import FirebaseAuth
 
 struct MedicationCard: View {
+    
     @Bindable var medication: Medication
     
     @Environment(\.theme) private var theme
-    @Environment(\.modelContext) var modelContext
-    @EnvironmentObject var services: Services
     
-    @State var isSheetPresented = false
-    
-    let options = [
-        DropDownOption(icon: "pencil", displayText: "Bearbeiten"),
-        DropDownOption(icon: "trash", displayText: "Löschen"),
-        DropDownOption(icon: "trash", displayText: "Delete Intakes DB")
-    ]
-    
-    var onDelete: () -> Void
+    @EnvironmentObject var medicationViewModel: MedicationViewModel 
     
     var body: some View {
         VStack(spacing: 15) {
             headerView()
             intakeTimesView()
         }
-        .sheet(isPresented: $isSheetPresented) {
-            EditMedicationSheet(medication: medication, isPresented: $isSheetPresented)
+        .sheet(isPresented: $medicationViewModel.isEditMedicationSheet) {
+            EditMedicationSheet(medication: medication) 
         }
         .padding(theme.layout.padding)
         .background(theme.color.surface)
@@ -54,8 +45,8 @@ struct MedicationCard: View {
             
             Spacer()
             
-            DropDownComponent(options: options) { item in
-                handleDropDownSelection(item: item)
+            DropDownComponent(options: medicationViewModel.dropDownOptions) { item in
+                medicationViewModel.handleDropDownSelection(item: item, medication: medication)
             }
         }
     }
@@ -88,44 +79,14 @@ struct MedicationCard: View {
                     .fill(theme.color.backgroundGradient)
                     .frame(width: 50)
             }
-            .opacity(isTakentoday(intakeTime: intakeTime) ? 1.0 : 0.5)
+            .opacity(medicationViewModel.isTakenToday(intakeTime: intakeTime) ? 1.0 : 0.5)
             
             Text(intakeTime.intakeTime)
                 .font(.caption2)
         }
         .onTapGesture {
-            MedicationDataService.toggleIntakeStatus(for: intakeTime)
-            
-            services.medicationService.sendUpdatedMedicationToBackend()
+            medicationViewModel.takeMedication(forIntakeTime: intakeTime)
         }
     }
     
-    private func isTakentoday(intakeTime: IntakeTime) -> Bool {
-        let hasEntryForToday: Bool = intakeTime.intakeStatuses.contains { status in
-            Calendar.current.isDate(status.date.toDate, inSameDayAs: Date()) && !status.isDeleted
-        }
-
-        let hasUntakenForToday: Bool = intakeTime.intakeStatuses.contains { status in
-            Calendar.current.isDate(status.date.toDate, inSameDayAs: Date()) && !status.isDeleted && !status.isTaken
-        }
-
-        return hasEntryForToday && !hasUntakenForToday
-    }
-    
-    // Handles DropDown selection actions
-    private func handleDropDownSelection(item: DropDownOption) {
-        if item.displayText == "Löschen" {
-            onDelete()
-        } else if item.displayText == "Bearbeiten" {
-            isSheetPresented = true
-        } else if item.displayText == "Delete Intakes DB" {
-            medication.intakeTimes.forEach { time in
-                time.intakeStatuses.forEach {
-                    modelContext.delete($0)
-                }
-            }
-        }
-    }
-}
-
-
+} 

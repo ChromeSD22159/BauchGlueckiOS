@@ -13,7 +13,7 @@ struct LoginScreen: View, Navigable {
     @Environment(\.theme) private var theme
     var navigate: (Screen) -> Void
     @EnvironmentObject var firebase: FirebaseService
-    @EnvironmentObject var services: Services 
+    @EnvironmentObject var services: Services
     
     // FormStates
     @FocusState private var focusedField: FocusedField?
