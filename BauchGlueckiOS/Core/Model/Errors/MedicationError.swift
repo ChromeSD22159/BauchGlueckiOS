@@ -7,11 +7,17 @@
 import Foundation
 
 enum MedicationError: Error, LocalizedError {
-    case notLoggedIn
-
+    case invalidName
+    case invalidDosis
+    case userNotFound
+    case medikationExist
+    
     var errorDescription: String? {
         switch self {
-            case .notLoggedIn: return "⚠️ Du bist nicht eingeloggt."
+            case .invalidName: return "⚠️ Der Name muss mindestens 3 Buchstaben beinhalten."
+            case .invalidDosis: return "⚠️ Die Dosis sollte nicht leer sein."
+            case .userNotFound: return "⚠️ Ein Fehler mit deinem Profil ist aufgetreten. Kontaktiere den Entwickler."
+            case .medikationExist: return "⚠️ Ein Medikament mit dem Namen existiert bereits."
         }
     }
-}
+} 

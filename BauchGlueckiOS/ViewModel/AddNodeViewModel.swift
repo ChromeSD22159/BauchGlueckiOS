@@ -14,68 +14,45 @@ class AddNodeViewModel: ObservableObject {
     private let maxCharacters = 512
     var modelContext: ModelContext
     
+    /// TEXTFIELD
+    var noteText: String = ""
+    
     var allMoods: [Mood] = []
     var currentMoods: [Mood] = []
-    var node: String = ""
+     
     var message: String = ""
     var currentNote: Node? = nil
     
     var textFieldDisplayLength: String {
-        "\(node.count)/\(self.maxCharacters)"
+        "\(noteText.count)/\(self.maxCharacters)"
     }
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
         self.allMoods = Moods.list
-    }
+    } 
     
-    private func showMessage(error: String) {
-        if (error.count <= maxCharacters) {
-            Task {
-                message = error
-                
-                sleep(5_000_000)
-                
-                message = ""
-            }
-        }
-    }
-    
-    func saveNode(finished: @escaping () -> Void = {}) {
-        do {
-            let jsonData = try JSONEncoder().encode(currentMoods)
+    func saveNode() throws {
+        guard let userID = Auth.auth().currentUser else { throw UserError.notLoggedIn }
+        
+        guard noteText.count > 5 else { throw NoteError.invalidText }
+        
+        let jsonData = try JSONEncoder().encode(currentMoods)
+        
+        if let jsonString = String(data: jsonData, encoding: .utf8) {
+            let newNote = Node(
+                id: UUID(),
+                text: noteText,
+                userID: userID.uid,
+                date: Date().timeIntervalSince1970Milliseconds,
+                moodsRawValue: jsonString
+            )
             
-            if
-                let jsonString = String(data: jsonData, encoding: .utf8),
-                let userID = Auth.auth().currentUser {
-                let newNote = Node(
-                    id: UUID(),
-                    text: node,
-                    userID: userID.uid,
-                    date: Date().timeIntervalSince1970Milliseconds,
-                    moodsRawValue: jsonString
-                )
-                
-                print(String("newNote"))
-                modelContext.insert(newNote)
-                try modelContext.save()
-                
-                self.showMessage(error: "Gespeichert")
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {                     
-                    finished()
-                })
-                
-            }
-        } catch {
-            print("Fehler beim Kodieren der Daten: \(error)")
+            modelContext.insert(newNote)
+            try modelContext.save()
         }
-    }
-    
-    func updateNodeText(text: String) {
-        if (text.count <= maxCharacters) {
-            node = text
-        }
+        
+        self.showOverlayMessage(error: "Gespeichert")
     }
     
     func currentMoodListContainsMood(mood: Mood) -> Bool {
@@ -94,7 +71,7 @@ class AddNodeViewModel: ObservableObject {
             addMood(mood: mood)
             updateMoodFromDataList(mood: mood, value: true)
         }
-    }
+    } 
     
     private func addMood(mood: Mood) {
         currentMoods.append(mood)
@@ -105,7 +82,7 @@ class AddNodeViewModel: ObservableObject {
             currentMoods.remove(at: index)
         }
     }
-    
+     
     private func updateMoodFromDataList(mood: Mood, value: Bool) {
         if let index = allMoods.firstIndex(where: { $0.display.lowercased() == mood.display.lowercased() }) {
             var updatedMood = allMoods[index]
@@ -113,32 +90,16 @@ class AddNodeViewModel: ObservableObject {
             allMoods[index] = updatedMood
         }
     }
-    
-    func setNodeID(nodeId: String) {
-        let predicate = #Predicate<Node> { node in
-            node.nodeId == nodeId
-        }
-        
-        let fetch = FetchDescriptor(predicate: predicate)
-        
-        do {
-            let node = try modelContext.fetch(fetch)
-            
-            if let node = node.first {
-                self.node = node.text
-                self.currentNote = node
+
+    private func showOverlayMessage(error: String) {
+        if (error.count <= maxCharacters) {
+            Task {
+                message = error
+                
+                sleep(5_000_000)
+                
+                message = ""
             }
-            
-        } catch {
-            print(error.localizedDescription)
         }
-    }
-    
-    func formattedDate(_ date: Date = Date()) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "de_DE")
-        formatter.dateFormat = "EEEE, dd.MM.yyyy"
-        
-        return formatter.string(from: date)
     }
 }

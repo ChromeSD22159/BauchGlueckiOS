@@ -5,20 +5,24 @@
 //  Created by Frederik Kohler on 29.10.24.
 //
 import SwiftUI
+import SwiftData
 
 struct EditNoteSheet: View {
+    @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
     @Environment(\.theme) private var theme
-    
-    @Binding var note: Node
-    @Binding var allMoods: [Mood]
-    
-    let maxCharacters: Int
-    
-    var textFieldDisplayLength: String {
-        "\(note.text.count)/\(maxCharacters)"
-    }
 
+    @StateObject private var viewModel: EditNodeViewModel
+    @FocusState private var isTextFieldFocused: Bool
+    
+    init(note: Binding<Node>, allMoods: Binding<[Mood]>, maxCharacters: Int) {
+        self._viewModel = StateObject(wrappedValue: EditNodeViewModel(
+            note: note.wrappedValue,
+            allMoods: allMoods.wrappedValue,
+            maxCharacters: maxCharacters
+        ))
+    }
+    
     var body: some View {
         GeometryReader { geo in
             ZStack {
@@ -35,6 +39,7 @@ struct EditNoteSheet: View {
                     .padding(.top, 10)
                     .padding(.horizontal, 10)
                 }
+                .onTapGesture { isTextFieldFocused = false }
             }
         }
     }
@@ -42,22 +47,24 @@ struct EditNoteSheet: View {
     @ViewBuilder func SheetInputField() -> some View {
         VStack {
             HStack {
-                Text(formattedDate(note.date.toDate))
+                Text(DateFormatteUtil.formattedDateTimer(viewModel.note.date.toDate))
                     .font(.footnote)
+                
                 Spacer()
             }
             VStack {
                 HStack {
-                    TextEditor(text: $note.text)
+                    TextEditor(text: $viewModel.note.text)
                         .background(theme.color.surface)
                         .cornerRadius(theme.layout.radius)
                         .shadow(radius: 2)
                         .lineLimit(10, reservesSpace: true)
                         .frame(minHeight: 100)
+                        .focused($isTextFieldFocused)
                 }
                 HStack {
                     Spacer()
-                    Text(textFieldDisplayLength)
+                    Text(viewModel.textFieldDisplayLength)
                         .font(.caption)
                 }
             }
@@ -69,16 +76,22 @@ struct EditNoteSheet: View {
             
             Spacer()
             
-            IconTextButton(text: "Speichern") {
+            TryButton(text: "Speichern") {
+                guard viewModel.note.text.count >= 5 else { throw NoteError.invalidText }
+                
+                try viewModel.saveNote(modelContext: modelContext)
+                
                 dismiss()
             }
+            .withErrorHandling()
+            .buttonStyle(CapsuleButtonStyle())
         }
     }
     
     @ViewBuilder func MoodList() -> some View {
         VStack {
             HStack {
-                Text("Ausgewählte Moods: \(allMoods.filter { $0.isOnList == true }.count)")
+                Text("Ausgewählte Moods: \(viewModel.allMoods.filter { $0.isOnList == true }.count)")
                     .font(.footnote)
                 
                 Spacer()
@@ -90,7 +103,7 @@ struct EditNoteSheet: View {
                     GridItem(.flexible(), spacing: 10)
                 ]
             ) {
-                ForEach(allMoods, id: \.display) { mood in
+                ForEach(viewModel.allMoods, id: \.display) { mood in
                     Text(mood.display)
                         .font(.footnote)
                         .padding(.vertical, 10)
@@ -98,62 +111,11 @@ struct EditNoteSheet: View {
                         .lineLimit(1, reservesSpace: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .foregroundStyle(theme.color.onBackground)
-                        .background(currentMoodListContainsMood(mood: mood) ? theme.color.primary : theme.color.surface )
+                        .background(viewModel.currentMoodListContainsMood(mood: mood) ? theme.color.primary : theme.color.surface )
                         .cornerRadius(100)
-                        .onTapGesture { onClickOnMood(mood: mood) }
+                        .onTapGesture { viewModel.onClickOnMood(mood: mood) }
                 }
             }
         }
     }
-    
-    func onClickOnMood(mood: Mood) {
-        if currentMoodListContainsMood(mood: mood) {
-            removeMood(mood: mood)
-            updateMoodFromDataList(mood: mood, value: false)
-        } else {
-            addMood(mood: mood)
-            updateMoodFromDataList(mood: mood, value: true)
-        }
-    }
-    
-    func currentMoodListContainsMood(mood: Mood) -> Bool {
-        let moodDisplay = mood.display.lowercased()
-        return note.moods.contains(where: { $0.display.lowercased() == moodDisplay })
-    }
-    
-    private func addMood(mood: Mood) {
-        var listCopy = note.moods
-        listCopy.append(mood)
-        
-        if let jsonString = toJsonString(data: listCopy) {
-            note.moodsRawValue = jsonString
-        }
-    }
-    
-    private func removeMood(mood: Mood) {
-        var listCopy = note.moods
-        if let index = listCopy.firstIndex(where: { $0.display.lowercased() == mood.display.lowercased() }) {
-            listCopy.remove(at: index)
-        }
-        
-        if let jsonString = toJsonString(data: listCopy) {
-            note.moodsRawValue = jsonString
-        }
-    }
-    
-    private func updateMoodFromDataList(mood: Mood, value: Bool) {
-        if let index = allMoods.firstIndex(where: { $0.display.lowercased() == mood.display.lowercased() }) {
-            var updatedMood = allMoods[index]
-            updatedMood.isOnList = value
-            allMoods[index] = updatedMood
-        }
-    }
-    
-    func formattedDate(_ date: Date = Date()) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "de_DE")
-        formatter.dateFormat = "dd.MM.yyyy HH:mm"
-        
-        return formatter.string(from: date)
-    }
-}
+} 

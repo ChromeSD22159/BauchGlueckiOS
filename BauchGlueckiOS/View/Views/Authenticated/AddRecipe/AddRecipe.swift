@@ -69,8 +69,8 @@ struct AddRecipe: View {
                 }
                 .navigationTitle(navTitle)
                 .navigationBarTitleDisplayMode(.inline)
+                .onTapGesture { focusedField = closeKeyboard(focusedField: focusedField) }
             }
-           
         }
     }
     
@@ -317,6 +317,14 @@ struct AddRecipe: View {
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
             isPresented = false
         }
+    }
+    
+    private func closeKeyboard(focusedField: FocusedField?) -> FocusedField? {
+        if focusedField != nil {
+            return nil
+        }
+        
+        return focusedField
     }
     
     enum FocusedField {

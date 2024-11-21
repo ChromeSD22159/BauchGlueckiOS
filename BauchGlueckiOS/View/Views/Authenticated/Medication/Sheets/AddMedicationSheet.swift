@@ -11,28 +11,26 @@ import FirebaseAuth
 struct AddMedicationSheet: View {
     @Environment(\.theme) private var theme
     @Environment(\.modelContext) var modelContext
-    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var services: Services
     
-    @State private var isSheet = false
+    @State private var isPresented = false
    
     @FocusState private var focusedField: FocusedField?
     @State private var name = ""
     @State private var dosis = ""
     @State private var error = ""
-    @State var isValid: Bool = false
     @State private var intakeTimeEntries: [IntakeTimeEntry] = []
     
     var body: some View {
         Button(
             action: {
-                isSheet = !isSheet
+                isPresented = !isPresented
             }, label: {
                 Image(systemName: "pills.fill")
                     .foregroundStyle(theme.color.onBackground)
             }
         )
-        .sheet(isPresented: $isSheet, onDismiss: {}, content: {
+        .sheet(isPresented: $isPresented, onDismiss: {}, content: {
             SheetHolder(title: "Medikation anlegen", backgroundImage: true) {
                 VStack {
                     TextFieldWithIcon(
@@ -111,10 +109,9 @@ struct AddMedicationSheet: View {
                 
                 Controll()
                 
-                ErrorRow()
-                
                 Spacer()
             }
+            .onTapGesture { focusedField = closeKeyboard(focusedField: focusedField) }
             .onSubmit {
                 switch focusedField {
                     case .name: focusedField = .dosis
@@ -127,6 +124,14 @@ struct AddMedicationSheet: View {
     
     enum FocusedField {
         case name, dosis
+    }
+    
+    private func closeKeyboard(focusedField: FocusedField?) -> FocusedField? {
+        if focusedField != nil {
+            return nil
+        }
+        
+        return focusedField
     }
     
     @ViewBuilder func FootLine(text: String) -> some View {
@@ -142,95 +147,58 @@ struct AddMedicationSheet: View {
         HStack {
             IconTextButton(
                 text: "Abbrechen",
-                onEditingChanged: { dismiss() }
+                onEditingChanged: { isPresented.toggle() }
             )
             
-            IconTextButton(
-                text: "Speichern",
-                onEditingChanged: {
-                    insert()
-                    services.weightService.sendUpdatedWeightsToBackend()
-                }
-            )
+            TryButton(text: "Speichern") {
+                try insert()
+                services.weightService.sendUpdatedWeightsToBackend()
+            }
+            .withErrorHandling()
+            .buttonStyle(CapsuleButtonStyle())
         }
     }
     
-    @ViewBuilder func ErrorRow() -> some View {
-        HStack {
-            Text(error)
-                .foregroundStyle(Color.red)
-                .opacity(error.isEmpty ? 0 : 1)
-                .font(.footnote)
-        }
-    }
-    
-    private func insert() {
+    private func insert() throws {
+        guard name.count > 3 else { throw MedicationError.invalidName }
+        
+        guard !dosis.isEmpty else { throw MedicationError.invalidDosis }
+        
+        guard let user = Auth.auth().currentUser else { throw UserError.notLoggedIn }
+        
         Task {
+             
+            let medicationID = UUID()
+            let newMedication = Medication(
+                id: medicationID,
+                medicationId: medicationID.uuidString,
+                userId: user.uid,
+                name: name,
+                dosage: dosis,
+                isDeleted: false,
+                updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds
+            )
             
-            do {
-                @State var isValid: Bool = false
-                
-                if name.count <= 3 {
-                    throw ValidationError.invalidName
-                }
-                
-                if dosis.isEmpty {
-                    throw ValidationError.invalidDosis
-                }
-                
-                guard let user = Auth.auth().currentUser else {
-                    throw UserError.notLoggedIn
-                }
-                
-                let medicationID = UUID()
-                let newMedication = Medication(
-                    id: medicationID,
+            modelContext.insert(newMedication)
+            
+            for intakeTimeEntry in intakeTimeEntries {
+                let intakeTimeId = UUID()
+                let intakeTime = IntakeTime(
+                    id: intakeTimeId,
+                    intakeTimeId: intakeTimeId.uuidString,
+                    intakeTime: "\(intakeTimeEntry.hour):\(intakeTimeEntry.minute)",
                     medicationId: medicationID.uuidString,
-                    userId: user.uid,
-                    name: name,
-                    dosage: dosis,
                     isDeleted: false,
-                    updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds
+                    updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
+                    medication: newMedication
                 )
-                
-                modelContext.insert(newMedication)
-                
-                for intakeTimeEntry in intakeTimeEntries {
-                    let intakeTimeId = UUID()
-                    let intakeTime = IntakeTime(
-                        id: intakeTimeId,
-                        intakeTimeId: intakeTimeId.uuidString,
-                        intakeTime: "\(intakeTimeEntry.hour):\(intakeTimeEntry.minute)",
-                        medicationId: medicationID.uuidString,
-                        isDeleted: false,
-                        updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
-                        medication: newMedication
-                    )
 
-                    newMedication.intakeTimes.append(intakeTime)
-                    
-                    NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: newMedication, forIntakeTime: intakeTime)
-                }
+                newMedication.intakeTimes.append(intakeTime)
                 
-                dismiss()
-            } catch let error {
-                printError(error.localizedDescription)
+                NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: newMedication, forIntakeTime: intakeTime)
             }
             
-        }
-    }
-    
-    private func printError(_ text: String) {
-        Task {
-            try await DelayUtil.awaitAction(
-                seconds: 2,
-                startAction: {
-                    error = text
-                },
-                delayedAction: {
-                    error = ""
-                }
-            )
+            isPresented.toggle()
         }
     }
     
@@ -248,23 +216,29 @@ struct AddMedicationSheet: View {
     
     private func deleteTimeEntry(_ entry: IntakeTimeEntry) {
         intakeTimeEntries.removeAll { $0.id == entry.id }
-    }
-    
-    enum ValidationError: String, Error {
-        case invalidName = "Der Name muss mindestens 3 Buchstaben beinhalten."
-        case invalidDosis = "Die Dosis sollte nicht leer sein."
-        case userNotFound = "Ein Fehler mit deinem Profil ist aufgetreten. Kontaktiere den Entwickler."
-        case medikationExist = "Ein Medikament mit dem Namen existiert bereits."
-    }
+    } 
 }
 
 #Preview {
     @Previewable @State var hour: Int = Calendar.current.component(.hour, from: Date())
     @Previewable @State var minute: Int = Calendar.current.component(.minute, from: Date())
     
-    TimerPicker(hour: $hour, minute: $minute)
+    //TimerPicker(hour: $hour, minute: $minute)
+    
+    TryButton(text: "Speichern") {
+        
+    }
+    .buttonStyle(CapsuleButtonStyle())
+    
+    IconTextButton(
+        text: "Speichern",
+        onEditingChanged: {
+        }
+    )
 }
 
+
+// MARK: - REFACTOR
 struct TimerPicker: View {
     @Binding var hour: Int
     @Binding var minute: Int

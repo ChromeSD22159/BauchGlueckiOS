@@ -9,10 +9,10 @@ import SwiftData
 
 struct EditMedicationSheet: View {
     @Bindable var medication: Medication
+    @Binding var isPresented: Bool
     
     @Environment(\.theme) private var theme
-    @Environment(\.modelContext) var modelContext
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var modelContext 
     @EnvironmentObject var services: Services
    
     @FocusState private var focusedField: FocusedField?
@@ -132,12 +132,11 @@ struct EditMedicationSheet: View {
                 .padding(.horizontal, theme.layout.padding)
             }
             
-            Controll()
-            
-            ErrorRow()
+            Controll() 
             
             Spacer()
         }
+        .onTapGesture { focusedField = closeKeyboard(focusedField: focusedField) }
         .onAppear {
             intakeTimeEntries = medication.intakeTimes.map { intakeTime in
                 let components = intakeTime.intakeTime.split(separator: ":").compactMap { Int($0) }
@@ -170,91 +169,59 @@ struct EditMedicationSheet: View {
         HStack {
             IconTextButton(
                 text: "Abbrechen",
-                onEditingChanged: { dismiss() }
+                onEditingChanged: { isPresented.toggle() }
             )
             
-            IconTextButton(
-                text: "Speichern",
-                onEditingChanged: {
-                    update()
-                    services.weightService.sendUpdatedWeightsToBackend()
-                }
-            )
-        }
-    }
-    
-    @ViewBuilder func ErrorRow() -> some View {
-        HStack {
-            Text(error)
-                .foregroundStyle(Color.red)
-                .opacity(error.isEmpty ? 0 : 1)
-                .font(.footnote)
-        }
-    }
-    
-    private func update() {
-        Task {
-            do {
-                if medication.name.count <= 3 {
-                    throw ValidationError.invalidName
-                }
-                
-                if medication.dosage.isEmpty {
-                    throw ValidationError.invalidDosis
-                }
-                
-                medication.intakeTimes.removeAll { intakeTime in
-                    // remove Notification
-                    NotificationService.shared.removeRecurringNotification(forIntakeTime: intakeTime)
-                    
-                    return !intakeTimeEntries.contains { entry in
-                        intakeTime.intakeTime == "\(entry.hour):\(entry.minute)"
-                    }
-                }
-                
-                for intakeTimeEntry in intakeTimeEntries {
-                    let intakeTimeString = "\(intakeTimeEntry.hour):\(intakeTimeEntry.minute)"
-                    
-                    let exist = medication.intakeTimes.first { intake in
-                        intake.intakeTime == intakeTimeString
-                    }
-                    
-                    if exist == nil {
-                        let intakeTimeId = UUID()
-                        let intakeTime = IntakeTime(
-                            id: intakeTimeId,
-                            intakeTimeId: intakeTimeId.uuidString,
-                            intakeTime: intakeTimeString,
-                            medicationId: medication.medicationId,
-                            isDeleted: false,
-                            updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
-                            medication: medication
-                        )
-
-                        medication.intakeTimes.append(intakeTime)
-          
-                        NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: medication, forIntakeTime: intakeTime)
-                    }
-                }
-                
-                dismiss()
-            } catch let error {
-                printError(error.localizedDescription)
+            TryButton(text: "Speichern") {
+                try update()
+                services.weightService.sendUpdatedWeightsToBackend()
             }
+            .withErrorHandling()
+            .buttonStyle(CapsuleButtonStyle())
         }
     }
     
-    private func printError(_ text: String) {
+    private func update() throws {
+        guard medication.name.count > 3 else { throw MedicationError.invalidName }
+        
+        guard !medication.dosage.isEmpty else { throw MedicationError.invalidDosis }
+        
         Task {
-            try await DelayUtil.awaitAction(
-                seconds: 2,
-                startAction: {
-                    error = text
-                },
-                delayedAction: {
-                    error = ""
+            medication.intakeTimes.removeAll { intakeTime in
+                // remove Notification
+                NotificationService.shared.removeRecurringNotification(forIntakeTime: intakeTime)
+                
+                return !intakeTimeEntries.contains { entry in
+                    intakeTime.intakeTime == "\(entry.hour):\(entry.minute)"
                 }
-            )
+            }
+            
+            for intakeTimeEntry in intakeTimeEntries {
+                let intakeTimeString = "\(intakeTimeEntry.hour):\(intakeTimeEntry.minute)"
+                
+                let exist = medication.intakeTimes.first { intake in
+                    intake.intakeTime == intakeTimeString
+                }
+                
+                if exist == nil {
+                    let intakeTimeId = UUID()
+                    let intakeTime = IntakeTime(
+                        id: intakeTimeId,
+                        intakeTimeId: intakeTimeId.uuidString,
+                        intakeTime: intakeTimeString,
+                        medicationId: medication.medicationId,
+                        isDeleted: false,
+                        updatedAtOnDevice: Date().timeIntervalSince1970Milliseconds,
+                        medication: medication
+                    )
+
+                    medication.intakeTimes.append(intakeTime)
+      
+                    NotificationService.shared.checkAndUpdateRecurringNotification(forMedication: medication, forIntakeTime: intakeTime)
+                }
+            }
+            
+            isPresented.toggle()
         }
     }
     
@@ -285,9 +252,11 @@ struct EditMedicationSheet: View {
         }
     }
     
-    enum ValidationError: String, Error {
-        case invalidName = "Der Name muss mindestens 3 Buchstaben beinhalten."
-        case invalidDosis = "Die Dosis sollte nicht leer sein."
-        case userNotFound = "Ein Fehler mit deinem Profil ist aufgetreten. Kontaktiere den Entwickler."
+    private func closeKeyboard(focusedField: FocusedField?) -> FocusedField? {
+        if focusedField != nil {
+            return nil
+        }
+        
+        return focusedField
     }
 }

@@ -66,6 +66,7 @@ struct ForgotPassword: View, Navigable {
                 .padding(.horizontal, theme.layout.padding)
             }
         }
+        .onTapGesture { focusedField = closeKeyboard(focusedField: focusedField) }
         .onSubmit {
             switch focusedField {
                 case .email:
@@ -78,6 +79,14 @@ struct ForgotPassword: View, Navigable {
     
     enum FocusedField {
         case email, password
+    }
+    
+    private func closeKeyboard(focusedField: FocusedField?) -> FocusedField? {
+        if focusedField != nil {
+            return nil
+        }
+        
+        return focusedField
     }
 }
  

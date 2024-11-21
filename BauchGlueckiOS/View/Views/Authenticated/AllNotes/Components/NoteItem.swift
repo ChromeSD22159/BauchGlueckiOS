@@ -51,10 +51,10 @@ struct NoteItem: View {
                 Spacer()
             }
         }
+        .sectionShadow(innerPadding: theme.layout.padding, margin: theme.layout.padding) 
         .onTapGesture {
-            sheet = true
+            sheet.toggle()
         }
-        .sectionShadow(innerPadding: theme.layout.padding, margin: theme.layout.padding)
         .sheet(isPresented: $sheet, onDismiss: {}, content: {
             NavigationView {
                 EditNoteSheet(note: $note, allMoods: $allMoods, maxCharacters: maxCharacters)

@@ -13,10 +13,7 @@ struct LoginScreen: View, Navigable {
     @Environment(\.theme) private var theme
     var navigate: (Screen) -> Void
     @EnvironmentObject var firebase: FirebaseService
-    @EnvironmentObject var services: Services
-    
-    // ERRORHANDLING
-    @EnvironmentObject var errorHandling: ErrorHandling 
+    @EnvironmentObject var services: Services 
     
     // FormStates
     @FocusState private var focusedField: FocusedField?
@@ -77,9 +74,7 @@ struct LoginScreen: View, Navigable {
                             try handleLoginSubmit()
                         })
                         .buttonStyle(CapsuleButtonStyle())
-                    }
-                     
-                    //ErrorText(text: firebase.error?.localizedDescription ?? "")
+                    } 
                     
                     HStack {
                         Text("Passwort vergessen?")

@@ -31,7 +31,7 @@ struct MedicationCard: View {
             intakeTimesView()
         }
         .sheet(isPresented: $isSheetPresented) {
-            EditMedicationSheet(medication: medication)
+            EditMedicationSheet(medication: medication, isPresented: $isSheetPresented)
         }
         .padding(theme.layout.padding)
         .background(theme.color.surface)
