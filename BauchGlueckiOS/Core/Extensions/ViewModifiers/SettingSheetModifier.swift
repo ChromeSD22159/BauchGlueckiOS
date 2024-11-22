@@ -29,7 +29,7 @@ struct SettingSheet: ViewModifier {
         self.isSettingSheet = isSettingSheet
         self.onDismiss = onDismiss
         self.services = services
-        _viewModel = StateObject(wrappedValue: SettingViewModel(authManager: authManager))
+        self._viewModel = StateObject(wrappedValue: SettingViewModel(authManager: authManager))
     }
 
     func body(content: Content) -> some View {

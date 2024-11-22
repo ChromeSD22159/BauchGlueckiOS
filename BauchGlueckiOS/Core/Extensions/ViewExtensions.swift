@@ -118,6 +118,10 @@ extension View {
     func cardStyle() -> some View {
         modifier(CardStyle())
     }
+     
+    func viewSize(name: String, debugColor: Color = Color.clear) -> some View {
+        modifier(ViewSize(name: name, debugColor: debugColor))
+    }
 }
 
 struct NavigateToModifier<Target: View, Toolbar: View>: ViewModifier {

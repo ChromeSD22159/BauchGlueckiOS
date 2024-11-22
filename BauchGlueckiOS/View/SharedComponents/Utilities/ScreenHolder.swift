@@ -16,8 +16,7 @@ struct ScreenHolder<Content: View>: View {
             theme.color.background.ignoresSafeArea()
             
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 24) {
-                    
+                VStack(spacing: 24) { 
                     content()
                 }.padding(.top, 10)
             }

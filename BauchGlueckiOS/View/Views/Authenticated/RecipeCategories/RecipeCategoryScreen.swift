@@ -15,15 +15,19 @@ struct RecipeCategoryScreen: View {
     var body: some View {
         ScreenHolder {
             
-            // MARK: CATECORY SLIDER
+            // MARK: - CATECORY SLIDER
             CategorySlider()
+                .viewSize(name: "CategorySlider")
             
-            // MARK: RANDOMRECIPE
+            // MARK: - RANDOMRECIPE
             RandomRecipe()
+                .viewSize(name: "RandomRecipe")
             
-            // MARK: RANDOMRECIPES
-            RandomRecipes(recipeCount: 6)
+            // MARK: - RANDOMRECIPES
+            RandomRecipes(recipeCount: 6) 
+                .viewSize(name: "RandomRecipes")
         }
+        .viewSize(name: "ScreenHolder")
     }
     
     private struct RandomRecipe: View {
@@ -111,7 +115,7 @@ struct RecipeCategoryScreen: View {
                         firebase: firebase,
                         destination: Destination.recipeCategoryList,
                         showSettingButton: false,
-                        target: { DetailRecipeView(firebase: firebase, recipe: randomRecipe) }
+                        target: { DetailRecipeView(firebase: firebase, recipe: randomRecipe, theme: theme) }
                     )
                     
                 }
@@ -197,39 +201,19 @@ struct RecipeCategoryScreen: View {
             }
         }
         
-        private let columns = [
-           GridItem(.flexible(), spacing: 16),
-           GridItem(.flexible(), spacing: 16),
-        ]
-        
         init(recipeCount: Int = 10) {
             self.recipeCount = recipeCount
         }
         
+        let test = GridUtils.createGridItems(count: 2)
+        
         var body: some View {
             VStack(spacing: 10) {
                 SectionHeader(title: "Zufalls Rezepte")
-                LazyVGrid(columns: [
-                    GridItem(.flexible(), spacing: 16),
-                    GridItem(.flexible(), spacing: 16),
-                 ], spacing: 16) {
-                    ForEach(randomRecipes, id: \.self) { recipe in
-                        RecipePreviewCard(
-                            mainImage: recipe.mainImage,
-                            name: recipe.name,
-                            fat: recipe.fat,
-                            protein: recipe.protein
-                        )
-                        .navigateTo(
-                            firebase: firebase,
-                            destination: Destination.recipeCategoryList,
-                            showSettingButton: false,
-                            target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
-                        )
-                    }
-                }
+                RecipeGrid(recipes: recipes, resultCount: false, firebase: firebase)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 16)
         }
     }
-}
+} 

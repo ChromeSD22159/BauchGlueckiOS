@@ -20,14 +20,11 @@ struct SearchRecipeScreen: View {
         self.firebase = firebase
     }
     
-    let columns = [
-       GridItem(.flexible(), spacing: 16),
-       GridItem(.flexible(), spacing: 16), 
-    ]
-    
     @Query() var recipes: [Recipe]
      
-    var body: some View { 
+    let spacing: CGFloat = 16
+    
+    var body: some View {
         ZStack {
             theme.color.background.ignoresSafeArea()
             
@@ -37,7 +34,7 @@ struct SearchRecipeScreen: View {
                     VStack {
                         SearchRecipeSectionHeader(title: "Kategorien", trailingText: "\(RecipeCategory.allCases.count.formatted(.number)) Kategrien")
                         ScrollView(.horizontal, showsIndicators: false) {
-                            LazyHStack(spacing: 16) {
+                            LazyHStack(spacing: spacing) {
                                 ForEach(RecipeCategory.allCases, id: \.categoryID) { category in
                                     VStack {
                                         Image(category.sliderImage)
@@ -54,40 +51,19 @@ struct SearchRecipeScreen: View {
                                 }
                             }
                         }
-                        .contentMargins([.leading, .trailing], 16)
+                        .contentMargins([.leading, .trailing], spacing)
                         .contentMargins([.bottom], 5)
                     }
                     
-                    
                     VStack {
                         SearchRecipeSectionHeader(title: "Rezepte", trailingText: "\(searchResults.count.formatted(.number)) Rezepte")
-                        LazyVGrid(columns: columns, spacing: 16) {
-                            ForEach(searchResults, id: \.self) { recipe in
-                                RecipePreviewCard(
-                                    mainImage: recipe.mainImage,
-                                    name: recipe.name,
-                                    fat: recipe.fat,
-                                    protein: recipe.protein
-                                )
-                                .navigateTo(
-                                    firebase: firebase,
-                                    destination: Destination.recipeCategoryList,
-                                    showSettingButton: false,
-                                    target: { DetailRecipeView(firebase: firebase, recipe: recipe, date: date) }
-                                )
-                            }
-                        }
-                        .padding(.horizontal, 16)
                         
-                        Text("\(searchResults.count) Rezepte gefunden!")
-                            .font(.footnote)
-                            .padding(.top, 20)
-                            .padding(.horizontal, theme.layout.padding)
+                        RecipeGrid(recipes: searchResults, date: date, resultCount: true, firebase: firebase)
                     }
                     
                 }
             }
-            .contentMargins([.top, .bottom], 16)
+            .contentMargins([.top, .bottom], spacing)
         }
         .searchable(text: $searchText, isPresented: $searchIsActive, prompt: "Rezepte, Zutaten oder Zubereitung suchen")
         .onAppear {
@@ -156,5 +132,20 @@ struct SearchRecipeSectionHeader: View {
 
 #Preview {
     SearchRecipeScreen(firebase: FirebaseService(), date: .init(timeIntervalSince1970: 0))
-        .modelContainer(previewDataScource)
+        .previewEnvironment()
+}
+
+// TODO: REFACTOR
+extension View {
+    func previewEnvironment() -> some View {
+        modifier(PreviewEnvironment())
+    }
+}
+
+struct PreviewEnvironment: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .environment(\.theme, Theme())
+            .modelContainer(previewDataScource)
+    }
 }

@@ -23,28 +23,12 @@ struct RecipeListScreen: View {
         self.categoryId = categoryId
     }
     
-    let columns = [
-       GridItem(.flexible()),
-       GridItem(.flexible())
-   ]
+    let spacing: CGFloat = 16
     
     var body: some View {
         ScreenHolder {
             if let viewModel = viewModel {
-                LazyVGrid(columns: columns, spacing: 10) {
-                    ForEach(viewModel.recipes, id: \.self) { recipe in
-                        
-                        RecipePreviewCard(mainImage: recipe.mainImage, name: recipe.name, fat: recipe.fat, protein: recipe.protein)
-                            .navigateTo(
-                                firebase: firebase,
-                                destination: Destination.recipeCategoryList,
-                                showSettingButton: false,
-                                target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
-                            )
-                        
-                    }
-                }
-                .padding(theme.layout.padding)
+                RecipeGrid(recipes: viewModel.recipes, resultCount: false, firebase: firebase)
             }
         }
         .onAppear {
@@ -54,40 +38,4 @@ struct RecipeListScreen: View {
             }
         }
     }
-}
-
-@Observable
-class RecipeListViewModel: ObservableObject {
-    var recipes: [Recipe] = []
-    var categoryId: String = ""
-    var modelContext: ModelContext
-    private var firebase: FirebaseService
-    
-    init(firebase: FirebaseService, modelContext: ModelContext) {
-        self.firebase = firebase
-        self.modelContext = modelContext
-    }
-    
-    func inizialize(categoryId: String) {
-        loadRecipes(categoryId: categoryId)
-    }
-    
-    func loadRecipes(categoryId: String) {
-        let predicate = #Predicate<Recipe> { recipe in
-            if let recipeCategory = recipe.category {
-                return recipeCategory.categoryId == categoryId
-            }  else { return false }
-        }
-        
-        let fetch = FetchDescriptor<Recipe>(
-            predicate: predicate,
-            sortBy: [ .init(\.name) ]
-        )
-        
-        do {
-            recipes = try modelContext.fetch(fetch)
-        } catch {
-            print("Error fetching recipes: \(error)")
-        }
-    }
-}
+} 

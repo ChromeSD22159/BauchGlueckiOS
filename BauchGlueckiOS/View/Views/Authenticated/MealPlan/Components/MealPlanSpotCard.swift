@@ -30,7 +30,7 @@ struct MealPlanSpotCard: View {
                         .navigateTo(
                             firebase: firebase,
                             destination: Destination.mealPlan,
-                            target: { DetailRecipeView(firebase: firebase, recipe: recipe) }
+                            target: { DetailRecipeView(firebase: firebase, recipe: recipe, theme: theme) }
                         )
                     
                     Image(systemName: "info.circle")
@@ -69,7 +69,7 @@ struct MealPlanSpotCard: View {
                         firebase: firebase,
                         destination: Destination.mealPlan,
                         target: {
-                            DetailRecipeView(firebase: firebase, recipe: recipe)
+                            DetailRecipeView(firebase: firebase, recipe: recipe, theme: theme)
                         },
                         toolbarItems: {}
                     )
