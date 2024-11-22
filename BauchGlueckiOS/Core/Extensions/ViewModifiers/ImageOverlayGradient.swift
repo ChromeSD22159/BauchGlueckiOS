@@ -18,6 +18,9 @@ struct ImageOverlayGradient: ViewModifier {
     let width: CGFloat
     let height: CGFloat
     let opacity: Double
+    
+    @Environment(\.theme) private var theme
+    
     func body(content: Content) -> some View {
         content
             .frame(width: width, height: height)
@@ -26,10 +29,10 @@ struct ImageOverlayGradient: ViewModifier {
                 Rectangle()
                     .fill(
                         LinearGradient(colors: [
-                            Theme.shared.background.opacity(0.7),
-                            Theme.shared.background.opacity(0.5),
-                            Theme.shared.background.opacity(0.0),
-                            Theme.shared.background.opacity(0.0)
+                            theme.color.background.opacity(0.7),
+                            theme.color.background.opacity(0.5),
+                            theme.color.background.opacity(0.0),
+                            theme.color.background.opacity(0.0)
                         ], startPoint: .top, endPoint: .bottom)
                     )
             }

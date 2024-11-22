@@ -26,6 +26,7 @@ extension View {
 
 struct DatePickerSheet: ViewModifier {
     @State private var date: Date = Date()
+    @Environment(\.theme) private var theme
     
     var isSheet: Binding<Bool>
     var onDateSelect: (Date) -> Void
@@ -55,7 +56,7 @@ struct DatePickerSheet: ViewModifier {
                         )
                         .datePickerStyle(.graphical)
                         .presentationDragIndicator(.visible)
-                        .tint(Theme.shared.primary)
+                        .tint(theme.color.primary)
                         
                         Button(action: {
                             isSheet.wrappedValue.toggle()
@@ -69,8 +70,8 @@ struct DatePickerSheet: ViewModifier {
                             }
                             .padding(.vertical, 7)
                             .padding(.horizontal, 10)
-                            .foregroundStyle(Theme.shared.onPrimary)
-                            .background(Theme.shared.backgroundGradient)
+                            .foregroundStyle(theme.color.onPrimary)
+                            .background(theme.color.backgroundGradient)
                             .clipShape(Capsule())
                             .padding(.horizontal, 10)
                         })

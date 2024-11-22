@@ -9,7 +9,7 @@ import SwiftUI
 import StoreKit
 
 struct SettingSheet: ViewModifier {
-    let theme: Theme = Theme.shared
+    @Environment(\.theme) private var theme
     
     @EnvironmentObject var authManager: FirebaseService
     var services: Services
@@ -39,7 +39,7 @@ struct SettingSheet: ViewModifier {
             }, content: {
                 NavigationView {
                     ZStack {
-                        theme.background.ignoresSafeArea()
+                        theme.color.background.ignoresSafeArea()
                         
                         List {
                             
@@ -50,7 +50,7 @@ struct SettingSheet: ViewModifier {
                                 NavigationLink {
                                     ProfileEditView(viewModel: viewModel)
                                         .navigationBackButton(
-                                            color: theme.onBackground,
+                                            color: theme.color.onBackground,
                                             destination: Destination.settings,
                                             firebase: authManager,
                                             onDismissAction: {
@@ -60,7 +60,7 @@ struct SettingSheet: ViewModifier {
                                         )
                                 } label: {
                                     SettingRowItem(icon: "person.fill", text: "Profile")
-                                        .listRowBackground(theme.backgroundGradient)
+                                        .listRowBackground(theme.color.backgroundGradient)
                                 }
        
                                 SettingRowItem(image: .iconStromach, text: "Bypass since:", surgeryDateBinding: viewModel.surgeryDateBinding)
@@ -69,12 +69,12 @@ struct SettingSheet: ViewModifier {
                                     HStack {
                                         ZStack {
                                             Circle()
-                                                .fill(theme.backgroundGradient)
+                                                .fill(theme.color.backgroundGradient)
                                                 .frame(width: 30, height: 30)
                                             
                                             Image(systemName: "arrow.triangle.2.circlepath")
                                                 .padding(10)
-                                                .foregroundStyle(theme.onPrimary)
+                                                .foregroundStyle(theme.color.onPrimary)
                                         }
                                         Text("Backend Syncing")
                                     }
@@ -142,7 +142,7 @@ struct SettingSheet: ViewModifier {
                                 },
                                 background: .backgroundGradient
                             )
-                            .listRowBackground(theme.backgroundGradient)
+                            .listRowBackground(theme.color.backgroundGradient)
                                 
                         }
                     }
@@ -160,24 +160,24 @@ struct SettingSheet: ViewModifier {
                     Image(.iconStromach)
                         .resizable()
                         .frame(width: 32.0, height: 32.0)
-                        .foregroundStyle(theme.onPrimary)
+                        .foregroundStyle(theme.color.onPrimary)
                     
                     VStack(alignment: .leading, spacing: 5) {
                         Text(viewModel.greeting)
-                            .font(theme.headlineText)
+                            .font(theme.font.headlineText)
                         
                         Text("Unglaublich, wie schnell die Zeit vergeht!").font(.footnote)
                         Text(viewModel.timeSinceSurgery).font(.footnote)
                     }
-                    .foregroundStyle(theme.onPrimary)
+                    .foregroundStyle(theme.color.onPrimary)
                     .font(.callout)
                     .frame(maxWidth: .infinity)
                 }
                 .padding(.vertical, 10)
             }
         }
-        .foregroundStyle(theme.backgroundGradient)
-        .listRowBackground(theme.backgroundGradient)
+        .foregroundStyle(theme.color.backgroundGradient)
+        .listRowBackground(theme.color.backgroundGradient)
     }
     
     private func requestAppReview() {
@@ -194,6 +194,8 @@ struct SettingSheet: ViewModifier {
 }
 
 struct SettingRowItem: View {
+    @Environment(\.theme) private var theme
+    
     var icon: String?
     var image: ImageResource?
     var text: LocalizedStringKey
@@ -202,9 +204,7 @@ struct SettingRowItem: View {
     var fill: SettingRowItem.RowItemFill
     var surgeryDateBinding: Binding<Date>?
     var action: () -> Void
-    var toggle: Binding<Bool>?
-    
-    let theme = Theme.shared
+    var toggle: Binding<Bool>? 
     
     init(icon: String? = "", image: ImageResource? = nil, text: LocalizedStringKey) {
         self.icon = icon
@@ -285,7 +285,7 @@ struct SettingRowItem: View {
                 case .toggle: Toggle(isOn: toggle ?? .constant(false), label: {}).labelsHidden()
             }
         }
-        .foregroundStyle(fill == .regular ? theme.onBackground : theme.onPrimary)
+        .foregroundStyle(fill == .regular ? theme.color.onBackground : theme.color.onPrimary)
         .font(.callout)
         .padding(.vertical, 5)
     }
@@ -293,24 +293,24 @@ struct SettingRowItem: View {
     @ViewBuilder func BackgroundCircleIcon(icon:String) -> some View {
         ZStack {
             Circle()
-                .fill(theme.backgroundGradient)
+                .fill(theme.color.backgroundGradient)
                 .frame(width: 30, height: 30)
             
             Image(systemName: icon)
                 .padding(10)
-                .foregroundStyle(theme.onPrimary)
+                .foregroundStyle(theme.color.onPrimary)
         }
     }
     
     @ViewBuilder func BackgroundCircleImage(image: ImageResource) -> some View {
         ZStack {
             Circle()
-                .fill(theme.backgroundGradient)
+                .fill(theme.color.backgroundGradient)
                 .frame(width: 30, height: 30)
             
             Image(image)
                 .padding(10)
-                .foregroundStyle(theme.onPrimary)
+                .foregroundStyle(theme.color.onPrimary)
         }
     }
 }

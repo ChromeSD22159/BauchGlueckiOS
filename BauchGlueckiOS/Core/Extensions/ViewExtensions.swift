@@ -62,13 +62,12 @@ extension View {
     ) -> some View {
         self.modifier(
             NavigationBackButton<T>(
-                color: color,
+                toolbarItems: toolbarItems, color: color,
                 icon: icon,
                 destination: destination,
                 firebase: firebase,
                 onDismissAction: onDismissAction,
-                showSettingButton: showSettingButton,
-                toolbarItems: toolbarItems
+                showSettingButton: showSettingButton
             )
         )
     }
@@ -134,7 +133,7 @@ struct NavigateToModifier<Target: View, Toolbar: View>: ViewModifier {
             content  
             NavigationLink(
                 destination: target().navigationBackButton(
-                    color: Theme.shared.onBackground,
+                    color: Theme.color.onBackground,
                     destination: destination,
                     firebase: firebase,
                     showSettingButton: showSettingButton,

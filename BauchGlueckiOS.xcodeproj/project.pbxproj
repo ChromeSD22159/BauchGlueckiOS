@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		B61100862CE6229F0012F30B /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B61100852CE6229F0012F30B /* FirebaseCrashlytics */; };
-		B61102372CE72E170012F30B /* AppTrackingTransparency.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B61102362CE72E170012F30B /* AppTrackingTransparency.framework */; };
 		B615106D2CE240A000F3F737 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B615106C2CE240A000F3F737 /* README.md */; };
 		B6167C9B2CC94A8300451BAB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9A2CC94A8300451BAB /* WidgetKit.framework */; };
 		B6167C9D2CC94A8300451BAB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6167C9C2CC94A8300451BAB /* SwiftUI.framework */; };
@@ -24,7 +23,6 @@
 		B64864A32CC28B88007D7228 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B64864A22CC28B84007D7228 /* .gitignore */; };
 		B675A0602CD8CD5000FC9FA9 /* SwiftSVG in Frameworks */ = {isa = PBXBuildFile; productRef = B675A05F2CD8CD5000FC9FA9 /* SwiftSVG */; };
 		B6ADCE8F2CC3259D001AFC57 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCE8E2CC3259D001AFC57 /* FirebaseMessaging */; };
-		B6ADCE982CC33108001AFC57 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCE972CC33108001AFC57 /* GoogleMobileAds */; };
 		B6ADCEAA2CC67F86001AFC57 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B6ADCEA92CC67F86001AFC57 /* Alamofire */; };
 /* End PBXBuildFile section */
 
@@ -101,8 +99,13 @@
 		B61AF14D2CC9ABE3009F9878 /* Exceptions for "BauchGlueckiOS" folder in "BGWidgetExtentionExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Fonts/rodetta_stamp.ttf,
-				Fonts/rodetta.ttf,
+				Core/Fonts/rodetta_stamp.ttf,
+				Core/Fonts/rodetta.ttf,
+				Core/Theme/CapsuleButtonStyle.swift,
+				Core/Theme/Theme.swift,
+				Core/Theme/ThemeColor.swift,
+				Core/Theme/ThemeFont.swift,
+				Core/Theme/ThemeLayout.swift,
 			);
 			target = B6167C982CC94A8300451BAB /* BGWidgetExtentionExtension */;
 		};
@@ -152,10 +155,8 @@
 			files = (
 				B6ADCE8F2CC3259D001AFC57 /* FirebaseMessaging in Frameworks */,
 				B64864222CC24071007D7228 /* FirebaseAnalytics in Frameworks */,
-				B6ADCE982CC33108001AFC57 /* GoogleMobileAds in Frameworks */,
 				B64864262CC24071007D7228 /* FirebaseCore in Frameworks */,
 				B64864282CC24071007D7228 /* FirebaseDatabase in Frameworks */,
-				B61102372CE72E170012F30B /* AppTrackingTransparency.framework in Frameworks */,
 				B6ADCEAA2CC67F86001AFC57 /* Alamofire in Frameworks */,
 				B64864392CC24568007D7228 /* GoogleSignInSwift in Frameworks */,
 				B648642A2CC24071007D7228 /* FirebaseFirestore in Frameworks */,
@@ -257,7 +258,6 @@
 				B64864362CC24568007D7228 /* GoogleSignIn */,
 				B64864382CC24568007D7228 /* GoogleSignInSwift */,
 				B6ADCE8E2CC3259D001AFC57 /* FirebaseMessaging */,
-				B6ADCE972CC33108001AFC57 /* GoogleMobileAds */,
 				B6ADCEA92CC67F86001AFC57 /* Alamofire */,
 				B675A05F2CD8CD5000FC9FA9 /* SwiftSVG */,
 				B61100852CE6229F0012F30B /* FirebaseCrashlytics */,
@@ -297,7 +297,6 @@
 			packageReferences = (
 				B64864202CC24070007D7228 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B64864352CC24568007D7228 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
-				B6ADCE962CC33108001AFC57 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 				B6ADCEA82CC67F86001AFC57 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				B675A05E2CD8CD5000FC9FA9 /* XCRemoteSwiftPackageReference "SwiftSVG" */,
 			);
@@ -550,7 +549,6 @@
 				INFOPLIST_FILE = BauchGlueckiOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "BauchGlück";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "Diese App verwendet Ihre Daten, um personalisierte Werbung bereitzustellen und die Benutzererfahrung zu verbessern.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -589,7 +587,6 @@
 				INFOPLIST_FILE = BauchGlueckiOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "BauchGlück";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "Diese App verwendet Ihre Daten, um personalisierte Werbung bereitzustellen und die Benutzererfahrung zu verbessern.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -670,14 +667,6 @@
 				kind = branch;
 			};
 		};
-		B6ADCE962CC33108001AFC57 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 11.10.0;
-			};
-		};
 		B6ADCEA82CC67F86001AFC57 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
@@ -743,11 +732,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B64864202CC24070007D7228 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
-		};
-		B6ADCE972CC33108001AFC57 /* GoogleMobileAds */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6ADCE962CC33108001AFC57 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
-			productName = GoogleMobileAds;
 		};
 		B6ADCEA92CC67F86001AFC57 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;

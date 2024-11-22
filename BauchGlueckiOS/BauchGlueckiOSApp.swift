@@ -12,13 +12,16 @@ import GoogleSignIn
 struct BauchGlueckiOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate 
  
+    @StateObject var errorHandling = ErrorHandling()
+    
     var body: some Scene {
         WindowGroup {
             ContentView(launchDelay: 0.5, localData: localDataScource.mainContext)
                 .googleSignInOnOpen()
+                .environment(\.theme, Theme())
+                .environmentObject(errorHandling)
         }
-        
-    } 
+    }
 }
 
 extension View {

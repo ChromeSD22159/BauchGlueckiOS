@@ -11,7 +11,7 @@ import Alamofire
 @MainActor
 class MedicationService {
     private var context: ModelContext
-    private var table: Entitiy
+    private var table: TableEntitiy
     private var apiService: StrapiApiClient
     private var syncHistoryRepository: SyncHistoryService
     private var headers: HTTPHeaders {
