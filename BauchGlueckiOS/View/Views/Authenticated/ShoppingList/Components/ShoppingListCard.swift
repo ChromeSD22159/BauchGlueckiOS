@@ -8,15 +8,13 @@ import SwiftUI
 
 struct ShoppingListCard: View {
     @Environment(\.theme) private var theme
-    @EnvironmentObject var firebase: FirebaseService
     @Bindable var shoppingList: ShoppingList
     var body: some View {
         HStack {
             Image(systemName: !shoppingList.isComplete ? "exclamationmark.triangle.fill" : "checkmark.seal.fill")
             
             Text("\(shoppingList.startDate) - \(shoppingList.endDate)")
-                .navigateTo(
-                    firebase: firebase,
+                .navigateTo( 
                     destination: Destination.shoppingList,
                     target: { ShoppingListDetailScreen(shoppingListId: shoppingList.id) }
                 )
@@ -53,6 +51,5 @@ struct ShoppingListCard: View {
 }
 
 #Preview {
-    ShoppingListCard(shoppingList: mockShoppingLists.first!)
-        .environmentObject(FirebaseService())
+    ShoppingListCard(shoppingList: mockShoppingLists.first!) 
 }

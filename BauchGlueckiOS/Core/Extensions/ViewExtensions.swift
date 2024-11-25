@@ -8,8 +8,7 @@
 import SwiftUI
 
 extension View {
-    func navigateTo<Target: View, Toolbar: View>(
-        firebase: FirebaseService,
+    func navigateTo<Target: View, Toolbar: View>( 
         destination: Destination,
         showSettingButton: Bool = true,
         @ViewBuilder target: @escaping () -> Target = { EmptyView() },
@@ -18,7 +17,6 @@ extension View {
         modifier(
             NavigateTo<Target, Toolbar>(
                 destination: destination,
-                firebase: firebase,
                 showSettingButton: showSettingButton,
                 target: target,
                 toolbarItems: toolbarItems
@@ -30,21 +28,19 @@ extension View {
         destination: Destination,
         isActive: Binding<Bool>,
         showSettingButton: Bool,
-        firebase: FirebaseService,
         @ViewBuilder target: @escaping () -> Target,
         @ViewBuilder toolbarItems: @escaping () -> Toolbar = { EmptyView() }
     ) -> some View {
         modifier(NavigateToModifier(
             destination: destination,
             isActive: isActive,
-            firebase: firebase,
             target: target,
             toolbarItems: toolbarItems
         ))
     }
     
-    func settingSheet(isSettingSheet: Binding<Bool>, authManager: FirebaseService, services: Services, onDismiss: @escaping () -> Void) -> some View {
-        modifier(SettingSheet(isSettingSheet: isSettingSheet, authManager: authManager, services: services, onDismiss: onDismiss))
+    func settingSheet(isSettingSheet: Binding<Bool>, userViewModel: UserViewModel, onDismiss: @escaping () -> Void) -> some View { 
+        return modifier(SettingSheet(isSettingSheet: isSettingSheet, userViewModel: userViewModel, onDismiss: onDismiss))
     }
     
     func textFieldClearButton(text: Binding<String>) -> some View {
@@ -55,7 +51,6 @@ extension View {
         color: Color,
         icon: String = "arrow.backward",
         destination: Destination,
-        firebase: FirebaseService,
         onDismissAction: @escaping () -> Void  = {},
         showSettingButton: Bool = true,
         @ViewBuilder toolbarItems: @escaping () -> T = { EmptyView() }
@@ -65,7 +60,6 @@ extension View {
                 toolbarItems: toolbarItems, color: color,
                 icon: icon,
                 destination: destination,
-                firebase: firebase,
                 onDismissAction: onDismissAction,
                 showSettingButton: showSettingButton
             )
@@ -118,13 +112,16 @@ extension View {
     func cardStyle() -> some View {
         modifier(CardStyle())
     }
+     
+    func viewSize(name: String, debugColor: Color = Color.clear) -> some View {
+        modifier(ViewSize(name: name, debugColor: debugColor))
+    }
 }
 
 struct NavigateToModifier<Target: View, Toolbar: View>: ViewModifier {
     let destination: Destination
     let isActive: Binding<Bool>
     let showSettingButton: Bool = true
-    let firebase: FirebaseService
     let target: () -> Target
     let toolbarItems: () -> Toolbar
     
@@ -135,7 +132,6 @@ struct NavigateToModifier<Target: View, Toolbar: View>: ViewModifier {
                 destination: target().navigationBackButton(
                     color: Theme.color.onBackground,
                     destination: destination,
-                    firebase: firebase,
                     showSettingButton: showSettingButton,
                     toolbarItems: toolbarItems
                 ),

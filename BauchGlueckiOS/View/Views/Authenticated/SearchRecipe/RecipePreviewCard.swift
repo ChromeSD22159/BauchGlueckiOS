@@ -14,38 +14,29 @@ struct RecipePreviewCard: View {
     var name: String
     var fat: Double
     var protein: Double
+    let width: CGFloat
     
-    init(mainImage: MainImage? = nil, name: String, fat: Double, protein: Double) {
+    init(mainImage: MainImage? = nil, name: String, fat: Double, protein: Double, width: CGFloat) {
         self.mainImage = mainImage
         self.name = name
         self.fat = fat
-        self.protein = protein 
+        self.protein = protein
+        self.width = width
     }
     
     var body: some View {
-        VStack {
+        ZStack(alignment: .bottom) {
             if AppStorageService.backendReachableState, let image = mainImage {
                 
                 AsyncCachedImage(url: URL(string: services.apiService.baseURL + image.url)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .clipped()
+                    ClippedImage(image: image, size: width)
+                    
                 } placeholder: {
-                    Image(uiImage: .placeholder)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .clipped()
+                    ClippedImage(image: Image(uiImage: .placeholder), size: width)
                 }
                 
             } else {
-                Image(.placeholder)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .clipped()
+                ClippedImage(image: Image(uiImage: .placeholder), size: width)
             }
             
             VStack(alignment: .leading, spacing: 10) {
@@ -75,7 +66,6 @@ struct RecipePreviewCard: View {
             .foregroundStyle(theme.color.onBackground)
             .padding(.vertical, theme.layout.padding / 2)
             .padding(.horizontal, theme.layout.padding)
-            .frame(maxWidth: .infinity)
             .background(theme.color.surface.opacity(0.9))
         }
         .sectionShadow()
@@ -83,16 +73,20 @@ struct RecipePreviewCard: View {
 }
  
 #Preview("PRE") {
-    @Previewable @State var viewModel = RecipeListViewModel(firebase: FirebaseService(), modelContext: previewDataScource.mainContext)
+    @Previewable @State var viewModel = RecipeListViewModel(modelContext: previewDataScource.mainContext)
    
     let context = previewDataScource.mainContext
     let columns = GridUtils.createGridItems(count: 2, spacing: 10)
     
+   
     LazyVGrid(columns: columns, spacing: 10) {
-        ForEach(mockRecipes, id: \.self) { recipe in
-            RecipePreviewCard(name: "sadsa", fat: 22.0, protein: 22.0 )
+        GeometryReader { geometry in
+            ForEach(mockRecipes, id: \.self) { recipe in
+                RecipePreviewCard(name: "sadsa", fat: 22.0, protein: 22.0, width: geometry.size.width)
+                    .aspectRatio(1.0, contentMode: .fit)
+            }
         }
     }
     .padding(Theme.layout.padding)
-    .environmentObject(Services(firebase: FirebaseService(), context: context)) 
+    .environmentObject(Services(context: context))
 }

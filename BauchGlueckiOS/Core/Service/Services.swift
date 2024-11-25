@@ -11,7 +11,6 @@ import SwiftData
 @MainActor
 class Services: ObservableObject {
     let apiService: StrapiApiClient
-    let firebase: FirebaseService
     let countdownService: CountdownService
     let weightService: WeightService
     let waterIntakeService: WaterIntakeService
@@ -19,9 +18,8 @@ class Services: ObservableObject {
     let mealPlanService: MealPlanService
     let medicationService: MedicationService
     let syncHistoryService: SyncHistoryService
-    init(env: EnvironmentVariables = .localFrederik, firebase: FirebaseService, context: ModelContext) {
+    init(env: EnvironmentVariables = .localFrederik, context: ModelContext) {
         let syncHistoryService = SyncHistoryService(context: context)
-        self.firebase = firebase
         self.apiService = StrapiApiClient(environment: env)
         self.countdownService = CountdownService(context: context, apiService: self.apiService)
         self.weightService = WeightService(context: context, apiService: self.apiService, syncHistoryService: syncHistoryService)
@@ -40,7 +38,7 @@ class Services: ObservableObject {
     }
     
     func appStartOpenAd() {
-        firebase.readAppSettings(completion: { result in
+        FirebaseService.readAppSettings(completion: { result in
             switch result {
                 case .success(let appSettings):
                 
@@ -57,3 +55,11 @@ class Services: ObservableObject {
         })
     }
 }
+
+
+
+
+
+
+
+

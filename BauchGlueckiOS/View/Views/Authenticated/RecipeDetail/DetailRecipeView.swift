@@ -9,7 +9,8 @@ import SwiftUI
 import SwiftData
  
 struct DetailRecipeView: View {
-    @Environment(\.theme) private var theme
+    var theme: Theme
+    
     @EnvironmentObject var services: Services
     
     @State var scrollOffset: CGPoint = .zero
@@ -60,16 +61,15 @@ struct DetailRecipeView: View {
     @State private var navigateToMealPlan = false
     
     var recipe: Recipe
-    var firebase: FirebaseService
     var date: Date?
     
-    init(firebase: FirebaseService, recipe: Recipe, date: Date? = nil) { 
+    init(recipe: Recipe, date: Date? = nil, theme: Theme) {
+        self.theme = theme
         self.recipe = recipe
-        self.firebase = firebase
         self.date = date
         self.appearance = UINavigationBarAppearance()
         self.appearance.configureWithOpaqueBackground()
-        self.appearance.backgroundColor = self.theme.color.background.opacity(0.0).toUIColor
+        self.appearance.backgroundColor = theme.color.background.opacity(0.0).toUIColor
         
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
@@ -164,10 +164,9 @@ struct DetailRecipeView: View {
         .navigateTo(
             destination: Destination.detailRecipes,
             isActive: $navigateToMealPlan,
-            showSettingButton: false,
-            firebase: firebase,
+            showSettingButton: false, 
             target: {
-                MealPlanScreen(firebase: firebase, services: services, currentDate: date)
+                MealPlanScreen(services: services, currentDate: date)
             }
         )
     }

@@ -18,9 +18,10 @@ struct HomeScreen: View, PageIdentifier {
     
     var page: Destination
 
-    @Environment(\.modelContext) var modelContext
-    @EnvironmentObject var firebase: FirebaseService
+    @Environment(\.modelContext) var modelContext 
     @EnvironmentObject var services: Services
+    
+    @EnvironmentObject var userViewModel: UserViewModel
     
     @State var isSettingSheet: Bool = false
     @State var isUserProfileSheet: Bool = false
@@ -47,9 +48,8 @@ struct HomeScreen: View, PageIdentifier {
                         .environment(mealPlanViewModel)
                         .sectionShadow(margin: theme.layout.padding)
                         .navigateTo(
-                            firebase: firebase,
                             destination: Destination.home,
-                            target: { MealPlanScreen(firebase: firebase, services: services) }
+                            target: { MealPlanScreen(services: services) }
                         )
                         
                         SectionImageCard(
@@ -60,7 +60,6 @@ struct HomeScreen: View, PageIdentifier {
                         .environment(mealPlanViewModel)
                         .sectionShadow(margin: theme.layout.padding)
                         .navigateTo(
-                            firebase: firebase,
                             destination: Destination.home,
                             target: { RecipeCategoryScreen() },
                             toolbarItems: {
@@ -75,27 +74,23 @@ struct HomeScreen: View, PageIdentifier {
                         )
                         .sectionShadow(margin: theme.layout.padding)
                         .navigateTo(
-                            firebase: firebase,
                             destination: Destination.shoppingList,
                             target: { ShoppingListScreen() }
-                        )
+                        ) 
                         
-                        if let startWeight = firebase.userProfile?.startWeight {
+                        if let userProfile = userViewModel.userProfile {
                             WeightChart()
                                 .navigateTo(
-                                    firebase: firebase,
                                     destination: Destination.weight,
-                                    target: { WeightsScreen(startWeight: startWeight) },
+                                    target: { WeightsScreen(startWeight: userProfile.startWeight) },
                                     toolbarItems: {
-                                        AddWeightSheetButton(startWeight: startWeight)
+                                        AddWeightSheetButton(startWeight: userProfile.startWeight)
                                     }
                                 )
                         }
-                       
 
                         HomeCountdownTimerWidgetCard()
                             .navigateTo(
-                                firebase: firebase,
                                 destination: Destination.timer,
                                 target: { TimerScreenButton() },
                                 toolbarItems: {
@@ -108,8 +103,7 @@ struct HomeScreen: View, PageIdentifier {
                         ImageCard()
                         
                         NextMedication()
-                            .navigateTo(
-                                firebase: firebase,
+                            .navigateTo( 
                                 destination: Destination.medication,
                                 target: { MedicationScreen(modelContext: modelContext, services: services) },
                                 toolbarItems: {
@@ -117,9 +111,8 @@ struct HomeScreen: View, PageIdentifier {
                                 }
                             )
                         
-                        if let intakeTarget = firebase.userProfile?.waterDayIntake {
-                            WaterIntakeCard(intakeTarget: intakeTarget)
-                                .sectionShadow(margin: theme.layout.padding)
+                        if let userProfile = userViewModel.userProfile {
+                            WaterIntakeCard(intakeTarget: userProfile.waterDayIntake)
                         }
                     }
                     .padding(.top, 10)
@@ -144,10 +137,10 @@ struct HomeScreen: View, PageIdentifier {
             openOnboardingSheetWhenNoProfileIsGiven()
             
             if mealPlanViewModel == nil {
-               mealPlanViewModel = MealPlanViewModel(firebase: firebase, service: services)
+               mealPlanViewModel = MealPlanViewModel(service: services)
             }
         })
-        .fullScreenCover(isPresented: $isUserProfileSheet, onDismiss: {
+        .fullScreenCover(isPresented: $userViewModel.isUserProfileSheet, onDismiss: {
             services.fetchFrombackend()
         }, content: {
             OnBoardingUserProfileSheet(isUserProfileSheet: $isUserProfileSheet)
@@ -159,19 +152,20 @@ struct HomeScreen: View, PageIdentifier {
                 services.fetchFrombackend()
             }
         )
-        .settingSheet(isSettingSheet: $isSettingSheet, authManager: firebase, services: services, onDismiss: {})
+        .settingSheet(isSettingSheet: $isSettingSheet, userViewModel: userViewModel, onDismiss: {})
       
     }
-    
+     
     private func openOnboardingSheetWhenNoProfileIsGiven() {
-        if let userID = Auth.auth().currentUser?.uid {
-            firebase.readUserProfileById(userId: userID, completion: { profile in
-                if profile == nil {
-                    isUserProfileSheet = true
-                }
-            })
+        Task {
+            do {
+                let _ = try await FirebaseService.checkUserProfilExist()
+            } catch {
+                isUserProfileSheet = true
+            }
         }
     }
+   
 }
 
 #Preview {

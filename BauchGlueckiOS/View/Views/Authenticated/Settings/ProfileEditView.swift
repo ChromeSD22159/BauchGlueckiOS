@@ -10,6 +10,9 @@ import SwiftUI
 
 struct ProfileEditView: View {
     @StateObject var viewModel: SettingViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var errorHandling: ErrorHandling
+    
     @Environment(\.theme) private var theme
     
     var body: some View {
@@ -29,7 +32,7 @@ struct ProfileEditView: View {
     @ViewBuilder func ChangeImage() -> some View {
         Section {
             HStack(spacing: 20) {
-                if let profile = viewModel.userProfile, let imageUrl = profile.profileImageURL  {
+                if let profile = userViewModel.userProfile, let imageUrl = profile.profileImageURL  {
                     
                     AsyncCachedImage(url: URL(string: imageUrl)) { image in
                         image
@@ -56,6 +59,11 @@ struct ProfileEditView: View {
                     }
                 }
                 
+                Image(uiImage: userViewModel.userImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 30)
+                
                 Button(action: {
                     viewModel.showImageSheet.toggle()
                 }, label: {
@@ -69,19 +77,15 @@ struct ProfileEditView: View {
                 })
             }
             .sheet(isPresented: $viewModel.showImageSheet, onDismiss: {
-                viewModel.authManager.uploadAndSaveProfileImage { result in
-                    switch result {
-                        case .success(let profile):
-                            if let imageUrl = profile.profileImageURL, let url = URL(string: imageUrl) {
-                                URLCacheManager.shared.invalidateURLCache(for: url)
-                            }
-                            viewModel.loadUserProfile()
-                        
-                        case .failure(let error): print(error.localizedDescription)
+                Task {
+                    do {
+                        try await viewModel.uploadProfileImage()
+                    } catch {
+                        print(error)
                     }
                 }
             }) {
-                ImagePicker(sourceType: .photoLibrary, selectedImage: $viewModel.authManager.userProfileImage)
+                ImagePicker(sourceType: .photoLibrary, selectedImage: $userViewModel.userImage)
             }
         } header: {
             Text("Profil Bild")

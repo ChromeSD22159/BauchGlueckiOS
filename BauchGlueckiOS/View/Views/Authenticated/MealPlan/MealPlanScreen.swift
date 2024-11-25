@@ -11,16 +11,16 @@ import FirebaseAuth
 
 struct MealPlanScreen: View {
     @Environment(\.theme) private var theme
+     
+    @EnvironmentObject var userViewModel: UserViewModel
     
-    let firebase: FirebaseService
     let services: Services
     let currentDate: Date?
     @State var vm: MealPlanViewModel
     
-    init(firebase: FirebaseService, services: Services, currentDate: Date? = nil) {
-        self.firebase = firebase
+    init(services: Services, currentDate: Date? = nil) {
         self.services = services
-        self.vm = MealPlanViewModel(firebase: firebase, service: services)
+        self.vm = MealPlanViewModel(service: services)
         self.currentDate = currentDate
     }
     
@@ -43,7 +43,7 @@ struct MealPlanScreen: View {
                                     date: date,
                                     selectedDate: vm.currentDate,
                                     currentMealCount: vm.countPlanedMealForDate(date: date),
-                                    targetMealCount: firebase.userProfile?.totalMeals ?? 0
+                                    targetMealCount: userViewModel.userProfile?.totalMeals ?? 0
                                 ) { date in
                                     vm.setCurrentDate(date: date)
                                 }
@@ -55,7 +55,7 @@ struct MealPlanScreen: View {
                     .contentMargins(.trailing, theme.layout.padding)
                     
                     // Nutrition CARD
-                    if let surgeryDateTimeStamp = firebase.userProfile?.surgeryDateTimeStamp {
+                    if let surgeryDateTimeStamp = userViewModel.userProfile?.surgeryDateTimeStamp {
                         CurrentCalorienLevel(
                             operationTimestamp: Int64(surgeryDateTimeStamp),
                             protein: vm.totalNutrition(for: .protein),
@@ -66,7 +66,7 @@ struct MealPlanScreen: View {
                     }
                     
                     // MEALSPOTS
-                    if let count = firebase.userProfile?.totalMeals {
+                    if let count = userViewModel.userProfile?.totalMeals {
                  
                         if let spot = vm.mealPlanForSelectedDate?.slots {
                             ForEach(spot) {
@@ -86,10 +86,10 @@ struct MealPlanScreen: View {
                                             vm.removeMealSpotFromPlan(mealPlanDay: mealPlan, mealPlanSpotId: spot.MealPlanSpotId.uuidString)
                                         }
                                 } else {
-                                    EmptyMealSpot(index: index, firebase: firebase, date: vm.currentDate)
+                                    EmptyMealSpot(index: index, date: vm.currentDate)
                                 }
                             } else {
-                                EmptyMealSpot(index: index, firebase: firebase, date: vm.currentDate)
+                                EmptyMealSpot(index: index, date: vm.currentDate)
                             }
                         }
                     }

@@ -185,14 +185,14 @@ struct ErrorHandlingTapModifier: ViewModifier {
 struct TryButton<Content: View>: View {
     @EnvironmentObject var errorHandling: ErrorHandling
     let label: Content
-    var action: () throws -> Void
+    var action: () async throws -> Void
 
-    init(@ViewBuilder label: () -> Content, action: @escaping () throws -> Void = {}) {
+    init(@ViewBuilder label: () -> Content, action: @escaping () async throws -> Void = {}) {
         self.label = label()
         self.action = action
     }
 
-    init(text: String, action: @escaping () throws -> Void = {}) where Content == Text {
+    init(text: String, action: @escaping () async throws -> Void = {}) where Content == Text {
         self.label = Text(text)
         self.action = action
     }
@@ -202,10 +202,12 @@ struct TryButton<Content: View>: View {
     }
 
     private func performAction() {
-        do {
-            try action()
-        } catch {
-            errorHandling.handle(error: error)
+        Task {
+            do {
+                try await action()
+            } catch {
+                errorHandling.handle(error: error)
+            }
         }
     }
 }

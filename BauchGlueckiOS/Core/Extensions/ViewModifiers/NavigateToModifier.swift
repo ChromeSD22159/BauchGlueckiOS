@@ -9,8 +9,7 @@ import SwiftUI
 
 struct NavigateTo<Target: View, Toolbar: View>: ViewModifier {
     
-    var destination: Destination
-    var firebase: FirebaseService
+    var destination: Destination 
     var showSettingButton: Bool
     
     @Environment(\.theme) private var theme
@@ -23,8 +22,7 @@ struct NavigateTo<Target: View, Toolbar: View>: ViewModifier {
             target()
                 .navigationBackButton(
                     color: theme.color.onBackground,
-                    destination: destination,
-                    firebase: firebase,
+                    destination: destination, 
                     showSettingButton: showSettingButton,
                     toolbarItems: toolbarItems
                 )

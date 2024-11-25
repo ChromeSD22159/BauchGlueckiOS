@@ -9,21 +9,49 @@ import FirebaseAuth
 
 struct SignInWithProvider: View {
     @Environment(\.theme) private var theme
-    @EnvironmentObject var firebase: FirebaseService
-    @EnvironmentObject var services: Services
+    
+    @EnvironmentObject var errorHandling: ErrorHandling
+    @EnvironmentObject var userViewModel: UserViewModel
     
     var result: (Result<User, any Error>) -> Void
     
     var body: some View {
         HStack(spacing: theme.layout.padding) {
-            Button(action: {
-                firebase.signInWithGoogle(onComplete: result)
+            Button(action: { 
+                Task {
+                    FirebaseService.signInWithGoogle() { result in
+                       switch result {
+                           case .success(let user):
+                               Task {
+                                   userViewModel.user = user
+                                   userViewModel.userProfile = try await FirebaseService.readUserProfileById(userId: user.uid)
+                                   self.result(.success(user))
+                               }
+                           
+                          
+                           case .failure(let error): errorHandling.handle(error: error)
+                       }
+                    }
+                }
             }) {
                 Image(.google)
             }
             
             Button(action: {
-                firebase.signInWithApple(onComplete: result)
+                Task {
+                    FirebaseService.signInWithApple() { result in
+                       switch result {
+                           case .success(let user):
+                               Task {
+                                   userViewModel.user = user
+                                   userViewModel.userProfile = try await FirebaseService.readUserProfileById(userId: user.uid)
+                                   self.result(.success(user))
+                               }
+                           
+                           case .failure(let error): errorHandling.handle(error: error)
+                       }
+                    } 
+                }
             }) {
                 Image(.apple)
             }

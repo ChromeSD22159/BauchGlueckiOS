@@ -274,27 +274,26 @@ struct AddRecipe: View {
                 let filteredIngredients = ingredients.filter { ingredient in
                     !ingredient.name.isEmpty && !ingredient.amount.isEmpty
                 }
-                
-                service.recipesService.uploadRequest(
-                    recipeImage: recipeImage,
-                    recipeDescription: recipeDescription,
-                    recipeName: recipeName,
-                    recipePreperation: recipePreperation,
-                    recipePreperationTime: preparationTime,
-                    ingredients: filteredIngredients,
-                    selectedCategory: selectedCategory
-                ) { result in
-                    
-                    DispatchQueue.main.async {
-                       switch result {
-                           case .success(let response):
-                                print(response.description)
-                                closeOverlay()
-                           case .failure(let error):
-                                print(error.localizedDescription)
+               
+                Task {
+                    service.recipesService.uploadRequest(
+                        recipeImage: recipeImage,
+                        recipeDescription: recipeDescription,
+                        recipeName: recipeName,
+                        recipePreperation: recipePreperation,
+                        recipePreperationTime: preparationTime,
+                        ingredients: filteredIngredients,
+                        selectedCategory: selectedCategory,
+                        successFullUploadet: { result in
+                            if case .failure(let error) = result {
+                                //throw error.asAFError(orFailWith: "Fehler beim Uploaden")
                                 showError(text: "Speichern fehlgeschlagen: \(error.localizedDescription)")
-                       }
-                   }
+                            } else {
+                                service.fetchFrombackend()
+                                closeOverlay()
+                            }
+                        }
+                    )
                 }
             }
         }

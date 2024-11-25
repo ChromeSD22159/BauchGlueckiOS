@@ -10,26 +10,25 @@ import SwiftData
 import FirebaseAuth
  
 struct ContentView: View {
-    
-    @StateObject var firebase: FirebaseService
+    @EnvironmentObject var errorHandling: ErrorHandling
+     
     @StateObject var services: Services
     
     @State var screen: Screen = .Launch
     @State var notificationManager: NotificationService? = nil
     @State var backendIsReachable = false
      
+    var userViewModel: UserViewModel = UserViewModel()
+    
     let launchDelay: Double
     let localData: ModelContext
     
     init(launchDelay: Double, localData: ModelContext) {
-        let firebaseService = FirebaseService()
         let services = Services(
             env: .production,
-            firebase: firebaseService,
             context: localData
         )
-        
-        _firebase = StateObject(wrappedValue: firebaseService)
+         
         _services = StateObject(wrappedValue: services)
         self.launchDelay = launchDelay
         self.localData = localData
@@ -42,24 +41,37 @@ struct ContentView: View {
                 case .Login: LoginScreen(navigate: handleNavigation)
                 case .Register: RegisterScreen(navigate: handleNavigation)
                 case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
-                case .Home: HomeScreen(page: .home)
-                                .onAppear {
-                                    // MARK: ADS
-                                    //services.appStartOpenAd()
-                                }
-                                .onAppLifeCycle(appearAndActive: {
-                                    services.recipesService.fetchRecipesFromBackend()
-                                })
+                case .Home: HomeScreen(page: .home) 
             }
         }
-        .onAppEnterBackground { await firebase.markUserOffline() }
-        .onAppEnterForeground { checkBackendIsReachable() }
-        .environmentObject(firebase)
+        .onAppEnterBackground { markUserOnline() }
         .environmentObject(services)
+        .environmentObject(userViewModel)
         .environment(\.modelContext, localDataScource.mainContext)
         .onAppear {
-            checkBackendIsReachable()
+            Task {
+                do {
+                    try await checkBackendIsReachable()
+                    
+                    try await userViewModel.checkIfUserIsLoggedIn()
+                } catch {
+                    userViewModel.isUserProfileSheet = true
+                }
+            }
+             
             markUserOnlineOnStart(launchDelay: launchDelay)
+        }
+    }
+    
+    private func markUserOnline() {
+        Task {
+            do {
+                if let user = Auth.auth().currentUser {
+                    try await FirebaseService.markUserOnline(user: user)
+                }
+            } catch {
+                //print(error)
+            }
         }
     }
     
@@ -70,36 +82,29 @@ struct ContentView: View {
     }
     
     private func markUserOnlineOnStart(launchDelay: Double) {
-        DispatchQueue.main.async {
+        Task {
             notificationManager = NotificationService()
-
-            firebase.authListener { auth, user in 
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + launchDelay, execute: {
-                    if (user != nil) {
-                        handleNavigation(screen: .Home)
-                        Task {
-                            try await firebase.markUserOnline()
-                            
-                            try await services.apiService.sendDeviceTokenToBackend()
-                        }
-                    } else {
-                        handleNavigation(screen: .Login)
-                    }
-                })
-            }
             
-            Task {
+            do {
+                if let user = Auth.auth().currentUser {
+                    handleNavigation(screen: .Home)
+                    try await FirebaseService.markUserOnline(user: user)
+                    
+                    try await services.apiService.sendDeviceTokenToBackend()
+                } else {
+                    handleNavigation(screen: .Login)
+                }
+                
                 await notificationManager?.getAuthStatus()
                 await notificationManager?.request()
+            } catch {
+                errorHandling.handle(error: error)
             }
         }
     }
     
-    private func checkBackendIsReachable() {
-        Task {
-            backendIsReachable = try await services.apiService.isServerReachable()
-        }
+    private func checkBackendIsReachable() async throws {
+        backendIsReachable = try await services.apiService.isServerReachable() 
     }
 }
 

@@ -14,9 +14,9 @@ enum LoginError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .emailIsEmpty: return "⚠️ Die E-Mail-Adresse darf nicht leer sein."
-        case .passwordIsEmpty: return "⚠️ Das Passwort darf nicht leer sein."
-        case .signInFailed: return "⚠️ SignIn fehlgeschlagen, bitte prüfen Sie Ihre Eingaben."
+            case .emailIsEmpty: return "⚠️ Die E-Mail-Adresse darf nicht leer sein."
+            case .passwordIsEmpty: return "⚠️ Das Passwort darf nicht leer sein."
+            case .signInFailed: return "⚠️ SignIn fehlgeschlagen, bitte prüfen Sie Ihre Eingaben."
         }
     }
 }

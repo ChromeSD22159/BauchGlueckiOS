@@ -10,7 +10,6 @@ struct EmptyMealSpot: View {
     @Environment(\.theme) private var theme
     
     let index: Int
-    let firebase: FirebaseService
     let date: Date
     
     var body: some View {
@@ -33,15 +32,14 @@ struct EmptyMealSpot: View {
         .padding(theme.layout.padding)
         .sectionShadow()
         .padding(.horizontal, theme.layout.padding)
-        .navigateTo(
-            firebase: firebase,
+        .navigateTo( 
             destination: Destination.mealPlan,
-            target: { SearchRecipeScreen(firebase: firebase, date: date) },
+            target: { SearchRecipeScreen(date: date) },
             toolbarItems: { }
         )
     }
 }
  
 #Preview {
-    EmptyMealSpot(index: 1, firebase: FirebaseService(), date: Date())
+    EmptyMealSpot(index: 1, date: Date())
 }
