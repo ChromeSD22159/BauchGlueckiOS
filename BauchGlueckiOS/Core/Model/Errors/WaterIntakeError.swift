@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum WaterIntakeError: Error, LocalizedError {
+enum WaterIntakeError: Error, LocalizedError, ErrorDescriptionProtocol {
     case emailIsEmpty
 
     var errorDescription: String? {

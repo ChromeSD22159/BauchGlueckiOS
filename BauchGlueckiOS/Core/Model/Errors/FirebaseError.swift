@@ -7,7 +7,7 @@
 
 import Foundation
  
-enum FirebaseError: Error, LocalizedError {
+enum FirebaseError: Error, LocalizedError, ErrorDescriptionProtocol {
     case userNotFound
     case userEmailNotFound
     case googleAuthFailure

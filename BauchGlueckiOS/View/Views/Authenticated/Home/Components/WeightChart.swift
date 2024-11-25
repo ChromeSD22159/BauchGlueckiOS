@@ -8,66 +8,23 @@ import SwiftUI
 import SwiftData
 import FirebaseAuth
 
-struct WeightChart: View {
-    @Query() var weights: [Weight]
+struct WeightChart: View { 
     
     @Environment(\.theme) private var theme
-    
-    private var gradient = LinearGradient(colors: [
-        Theme.color.primary.opacity(0.55),
-        Theme.color.primary.opacity(0.1)
-    ], startPoint: .top, endPoint: .bottom)
-    
-    @State private var weeklyAverage: [WeeklyAverage] = []
-    @State private var animatedWeeklyAverage: [WeeklyAverage] = []
-    
-    var isAscendingTrend: Bool {
-        guard weeklyAverage.count == 7 else {
-            return false
-        }
-        
-        var ascendingCount = 0
-        var descendingCount = 0
- 
-        for i in 0..<weeklyAverage.count - 1 {
-            if weeklyAverage[i].avgValue < weeklyAverage[i + 1].avgValue {
-                ascendingCount += 1
-            } else if weeklyAverage[i].avgValue > weeklyAverage[i + 1].avgValue {
-                descendingCount += 1
-            }
-        }
- 
-        if ascendingCount > descendingCount {
-            return true
-        }  else {
-            return false
-        }
-    }
-    
-    init() {
-        let userID = Auth.auth().currentUser?.uid ?? ""
-                
-        let predicate = #Predicate<Weight> { weight in
-            weight.userId == userID && weight.isDeleted == false
-        }
-        
-        let fetch = Query(filter: predicate)
-        
-        self._weights = fetch
-    }
+    @EnvironmentObject var homeViewModel: HomeViewModel  
     
     var body: some View {
         ZStack {
             
-            if weights.count == 0 {
+            if homeViewModel.weights.count == 0 {
                 HomeWeightMockCard()
                     .padding(.horizontal, theme.layout.padding)
             } else {
                 VStack {
                     HStack {
-                        Image(systemName: isAscendingTrend ? "arrow.up.forward.circle.fill" : "arrow.down.forward.circle.fill")
+                        Image(systemName: homeViewModel.isAscendingWeightTrend ? "arrow.up.forward.circle.fill" : "arrow.down.forward.circle.fill")
                         
-                        Text(isAscendingTrend ? "Aufsteigender" : "Absteigender" + " Trend")
+                        Text(homeViewModel.isAscendingWeightTrend ? "Aufsteigender" : "Absteigender" + " Trend")
                             .font(.footnote)
                          
                         Spacer()
@@ -75,13 +32,13 @@ struct WeightChart: View {
                     .foregroundStyle(theme.color.onBackground)
                     
                     HStack(alignment: .bottom, spacing: 10) {
-                        ForEach(animatedWeeklyAverage, id: \.week) { week in
+                        ForEach(homeViewModel.animatedWeeklyAverage, id: \.week) { week in
                             VStack(spacing: 30) {
                                 Spacer()
                                 
                                 HStack(alignment: .bottom) {
                                     Capsule()
-                                        .frame(width: 25, height: calculateHeight(input: week.avgValue) )
+                                        .frame(width: 25, height: WeightChartUtil.calculateHeight(input: week.avgValue) )
                                         .foregroundStyle(theme.color.primary)
                                 }
                                 
@@ -103,15 +60,21 @@ struct WeightChart: View {
                 }
                 .padding(theme.layout.padding)
                 .padding(theme.layout.padding)
-                .background(gradient)
+                .background(theme.color.chartBackgroundGradient)
                 .cornerRadius(theme.layout.radius)
                 .padding(.horizontal, theme.layout.padding)
-                .onAppLifeCycle(appearAndActive: calculateWeeklyAverage)
+                .onAppLifeCycle(appearAndActive: homeViewModel.calculateWeeklyAverage)
             }
         }
+        .onAppear {
+            homeViewModel.fetchWeights()
+        }
     }
-    
-    private func calculateHeight(input: Double) -> Double {
+}
+
+// TODO: REDACTOR
+struct WeightChartUtil {
+    static func calculateHeight(input: Double) -> Double {
         // Definiere die Mindest- und Maximalhöhe
         let minHeight: Double = 0
         let maxHeight: Double = 200
@@ -123,72 +86,30 @@ struct WeightChart: View {
         return min(maxHeight, max(minHeight, normalizedHeight))
     }
     
-    private func calculateWeeklyAverage() {
+    static func mockChartData() -> [WeeklyAverage] {
+        var mockList: [WeeklyAverage] = []
         let calendar = Calendar.current
-
-        // Finde den nächsten Sonntag (Ende der Woche)
         let today = Date()
-        guard let endOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))?.addingTimeInterval(6 * 24 * 60 * 60) else {
-            return
-        }
-
-        // Erstelle eine leere Liste für die letzten 7 Wochen beginnend von heute
-        var weeklyData: [Date: [Double]] = [:]
+        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
         
-        for weekOffset in 0..<7 {
-            if let weekStartDate = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: endOfWeek),
-               let mondayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weekStartDate)) {
-                weeklyData[mondayOfWeek] = []
+        for i in (0..<7).reversed() {
+            if let newDate = calendar.date(byAdding: .day, value: -(i * 7), to: startOfWeek) {
+                withAnimation(.easeIn) {
+                    mockList.append(WeeklyAverage(avgValue: 10, week: newDate))
+                }
             }
         }
-
-        // Filtere die abgerufenen Einträge nach dem Zeitraum der letzten 7 Wochen
-        weights.forEach { weight in
-            guard let weighedDate = weight.toDate(),
-                  let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weighedDate)) else {
-                return
-            }
-
-            if let sevenWeeksAgo = calendar.date(byAdding: .weekOfYear, value: -7, to: endOfWeek),
-               weighedDate >= sevenWeeksAgo && weighedDate <= endOfWeek {
-                weeklyData[startOfWeek, default: []].append(weight.value)
-            }
-        }
-
-        // Berechne das durchschnittliche Gewicht pro Woche und erstelle WeeklyAverage-Einträge
-        let weeklyAverages: [WeeklyAverage] = weeklyData.map { weekStart, weights in
-            let avgWeight = weights.isEmpty ? 0.0 : weights.reduce(0, +) / Double(weights.count)
-            return WeeklyAverage(avgValue: avgWeight, week: weekStart)
-        }
         
-        // Sortiere die Wochen nach Datum
-        let sortedWeeklyAverages = weeklyAverages.sorted { $0.week < $1.week }
+        sleep(UInt32(0.5))
         
-        self.weeklyAverage = sortedWeeklyAverages.map { weeklyAverage in
-            WeeklyAverage(avgValue: weeklyAverage.avgValue , week: weeklyAverage.week)
-        }
-        
-        self.animatedWeeklyAverage = sortedWeeklyAverages.map { weeklyAverage in
-            WeeklyAverage(avgValue: 0.0, week: weeklyAverage.week)
-        }
-        
-        for i in 0..<weeklyAverage.count {
+        for i in 0..<mockList.count {
            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.1) {
                withAnimation(.easeIn(duration: 0.25)) {
-                   animatedWeeklyAverage[i].avgValue = sortedWeeklyAverages[i].avgValue
+                   mockList[i].avgValue = Double.random(in: 50...100)
                }
            }
        }
+        
+        return mockList
     }
-}
-
-
-// TODO: REDACTOR
-extension Weight {
-    func toDate() -> Date? {
-       let dateFormatter = ISO8601DateFormatter()
-       dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
-        return dateFormatter.date(from: self.weighed)
-    }
-}
+} 

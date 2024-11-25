@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum UserError: Error, LocalizedError {
+enum UserError: Error, LocalizedError, ErrorDescriptionProtocol {
     case notLoggedIn
 
     var errorDescription: String? {

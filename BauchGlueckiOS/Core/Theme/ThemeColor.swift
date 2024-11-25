@@ -7,7 +7,7 @@
 
 import SwiftUI 
 
-struct ThemeColor {
+struct ThemeColor { 
     var primary: Color = Color.prime
     var onPrimary: Color = Color.onPrimary
     var background: Color = Color.background
@@ -15,4 +15,9 @@ struct ThemeColor {
     var surface = Color.surface
     
     var backgroundGradient = LinearGradient(colors: [.prime, .prime.opacity(0.5)], startPoint: .top, endPoint: .bottom)
+    
+    var chartBackgroundGradient = LinearGradient(colors: [
+        Color.prime.opacity(0.55),
+        Color.prime.opacity(0.1)
+    ], startPoint: .top, endPoint: .bottom)
 }

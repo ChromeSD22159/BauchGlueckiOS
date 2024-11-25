@@ -9,11 +9,6 @@ import SwiftUI
 struct HomeWeightMockCard: View {
     @Environment(\.theme) private var theme
     
-    var gradient = LinearGradient(colors: [
-        Theme.color.primary.opacity(0.55),
-        Theme.color.primary.opacity(0.1)
-    ], startPoint: .top, endPoint: .bottom)
-    
     @State var mockList: [WeeklyAverage] = []
 
     var isAscendingTrend: Bool {
@@ -58,7 +53,7 @@ struct HomeWeightMockCard: View {
                             
                             HStack(alignment: .bottom) {
                                 Capsule()
-                                    .frame(width: 25, height: calculateHeight(input: week.avgValue) )
+                                    .frame(width: 25, height: WeightChartUtil.calculateHeight(input: week.avgValue) )
                                     .foregroundStyle(theme.color.primary)
                             }
                             
@@ -80,7 +75,7 @@ struct HomeWeightMockCard: View {
             }
             .padding(theme.layout.padding)
             .padding(theme.layout.padding)
-            .background(gradient)
+            .background(theme.color.chartBackgroundGradient)
             .cornerRadius(theme.layout.radius)
             
             VStack {
@@ -89,45 +84,9 @@ struct HomeWeightMockCard: View {
             }
         }
         .onAppLifeCycle(appearAndActive: {
-            loadData()
+            mockList = WeightChartUtil.mockChartData()
         })
-    }
-    
-    private func loadData() {
-        mockList = []
-        let calendar = Calendar.current
-        let today = Date()
-        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
-        for i in (0..<7).reversed() {
-            if let newDate = calendar.date(byAdding: .day, value: -(i * 7), to: startOfWeek) {
-                withAnimation(.easeIn) {
-                    mockList.append(WeeklyAverage(avgValue: 10, week: newDate))
-                }
-            }
-        }
-        
-        sleep(UInt32(0.5))
-        
-        for i in 0..<mockList.count {
-           DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.1) {
-               withAnimation(.easeIn(duration: 0.25)) {
-                   mockList[i].avgValue = Double.random(in: 50...100)
-               }
-           }
-       }
-    }
-    
-    private func calculateHeight(input: Double) -> Double {
-        // Definiere die Mindest- und Maximalhöhe
-        let minHeight: Double = 0
-        let maxHeight: Double = 200
-
-        // Normalisiere den Eingabewert auf den Bereich 0 bis 300
-        let normalizedHeight = (input / 100) * maxHeight
-
-        // Stelle sicher, dass die Höhe innerhalb des Bereichs 0 bis 300 bleibt
-        return min(maxHeight, max(minHeight, normalizedHeight))
-    }
+    } 
 }
 
 #Preview {

@@ -11,27 +11,19 @@ import FirebaseAuth
  
 struct ContentView: View {
     @EnvironmentObject var errorHandling: ErrorHandling
-     
-    @StateObject var services: Services
-    
+      
     @State var screen: Screen = .Launch
     @State var notificationManager: NotificationService? = nil
     @State var backendIsReachable = false
      
-    var userViewModel: UserViewModel = UserViewModel()
+    @State var services: Services = Services(env: .production, context: localDataScource.mainContext)
+    @State var userViewModel: UserViewModel = UserViewModel()
+    @State var homeViewModel: HomeViewModel = HomeViewModel(context: localDataScource.mainContext)
     
     let launchDelay: Double
-    let localData: ModelContext
     
-    init(launchDelay: Double, localData: ModelContext) {
-        let services = Services(
-            env: .production,
-            context: localData
-        )
-         
-        _services = StateObject(wrappedValue: services)
+    init(launchDelay: Double) {
         self.launchDelay = launchDelay
-        self.localData = localData
     }
     
     var body: some View {
@@ -41,7 +33,7 @@ struct ContentView: View {
                 case .Login: LoginScreen(navigate: handleNavigation)
                 case .Register: RegisterScreen(navigate: handleNavigation)
                 case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
-                case .Home: HomeScreen(page: .home) 
+                case .Home: HomeScreen(page: .home).environmentObject(homeViewModel)
             }
         }
         .onAppEnterBackground { markUserOnline() }
@@ -109,5 +101,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(launchDelay: 0.5, localData: previewDataScource.mainContext) 
+    ContentView(launchDelay: 0.5) 
 }

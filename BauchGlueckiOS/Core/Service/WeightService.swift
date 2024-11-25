@@ -110,6 +110,33 @@ class WeightService {
         return nil
     }
     
+    func getLastWeight() -> Weight? {
+        guard let user = Auth.auth().currentUser else { return nil }
+        
+        let id = user.uid
+        
+        let predicate = #Predicate { (weight: Weight) in
+            weight.userId == id
+        }
+        
+        let query = FetchDescriptor<Weight>(
+            predicate: predicate
+        )
+         
+        do {
+            let result = try context.fetch(query)
+            
+            let sorted = result.sorted(by: {
+                guard let firstDate = $0.weighedDate(), let secondDate = $1.weighedDate() else { return false }
+                return secondDate > firstDate
+            })
+            
+            return sorted.last
+        } catch {
+            return nil
+        }
+    }
+    
     func softDeleteMany(weights: [Weight]) async throws {
         weights.forEach { weight in
             weight.isDeleted = true
@@ -119,8 +146,7 @@ class WeightService {
         try context.save()
         syncWeights()
     }
-     
-    
+      
     func fetchWeightsFromBackend() {
         guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
         

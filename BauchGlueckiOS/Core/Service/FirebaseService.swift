@@ -21,6 +21,25 @@ class FirebaseService: ObservableObject {
         return user
     }
     
+    static func readCurrentUserProfile() async throws -> UserProfile {
+        let user = try await FirebaseService.getUser()
+        
+        let documentRef = Firestore.firestore().collection(FirebaseCollection.UserProfile.rawValue).document(user.uid)
+        
+        do {
+            let documentSnapshot = try await documentRef.getDocument()
+             
+            guard let data = documentSnapshot.data() else {
+                throw NSError(domain: "UserProfileError", code: -1, userInfo: [NSLocalizedDescriptionKey: "User profile not found"])
+            }
+            
+            let userProfile = try Firestore.Decoder().decode(UserProfile.self, from: data)
+            return userProfile
+        } catch {
+            throw error
+        }
+    }
+    
     static func readUserProfileById(userId: String) async throws -> UserProfile {
         let documentRef = Firestore.firestore().collection(FirebaseCollection.UserProfile.rawValue).document(userId)
         

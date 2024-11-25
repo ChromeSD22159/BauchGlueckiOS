@@ -88,5 +88,5 @@ struct RecipePreviewCard: View {
         }
     }
     .padding(Theme.layout.padding)
-    .environmentObject(Services(context: context))
+    .environmentObject(Services(context: previewDataScource.mainContext))
 }

@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 import FirebaseAuth
-
+ 
 @Observable
 class WeightViewModel: ObservableObject {
     private var modelContext: ModelContext
@@ -39,6 +39,10 @@ class WeightViewModel: ObservableObject {
         
         self.weeklyAverage = lastSevenWeeksData
         self.findLowestAndHeighestWeightLost(data: lastFourteenWeeksData)
+    }
+    
+    func setStartWeight(_ weight: Double) {
+        self.startWeight = weight
     }
     
     func loadWeights() -> [Weight] {

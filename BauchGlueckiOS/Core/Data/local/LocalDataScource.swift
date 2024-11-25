@@ -6,7 +6,7 @@
 //
 import SwiftData
  
-var localDataScource: ModelContainer = {
+var localDataScource: ModelContainer = { 
     let schema = Schema([
         CountdownTimer.self,
         Node.self,

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum LoginError: Error, LocalizedError {
+enum LoginError: Error, LocalizedError, ErrorDescriptionProtocol {
     case emailIsEmpty
     case passwordIsEmpty
     case signInFailed

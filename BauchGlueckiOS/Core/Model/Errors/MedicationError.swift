@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum MedicationError: Error, LocalizedError {
+enum MedicationError: Error, LocalizedError, ErrorDescriptionProtocol {
     case invalidName
     case invalidDosis
     case userNotFound
