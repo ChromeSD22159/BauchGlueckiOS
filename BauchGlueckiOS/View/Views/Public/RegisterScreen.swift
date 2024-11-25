@@ -12,7 +12,7 @@ struct RegisterScreen: View, Navigable {
     var navigate: (Screen) -> Void
     
     @Environment(\.theme) private var theme
-    @EnvironmentObject var firebase: FirebaseService
+    @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var services: Services
     
     @FocusState private var focusedField: FocusedField?
@@ -102,7 +102,7 @@ struct RegisterScreen: View, Navigable {
                         TryButton(label: {
                             Label("", systemImage: "arrow.right").labelStyle(.iconOnly)
                         }, action: {
-                            try handleRegisterSubmit()
+                            try await handleRegisterSubmit()
                         })
                         .buttonStyle(CapsuleButtonStyle())
                     }
@@ -145,7 +145,7 @@ struct RegisterScreen: View, Navigable {
         }
     }
     
-    private func handleRegisterSubmit() throws {
+    private func handleRegisterSubmit() async throws {
         guard !email.isEmpty
         else { throw RegisterError.emailIsEmpty }
         
@@ -157,30 +157,21 @@ struct RegisterScreen: View, Navigable {
         
         guard password == verifyPassword
         else { throw RegisterError.passwordsDoNotMatch }
-        
-        firebase.register(
+         
+        try await userViewModel.register(
             userProfile: UserProfile(
                 firstName: name,
                 email: email,
                 userNotifierToken: DeviceTokenService.shared.getSavedDeviceToken() ?? ""
             ),
             password: password
-        ) { result , error in
-            if let user = result?.user {
-                firebase.readUserProfileById(userId: user.uid, completion: {_ in
-                    
-                })
-                
-                Task {
-                    try await services.apiService.sendDeviceTokenToBackend()
-                }
-            }
-        }
+        )
+        
+        try await services.apiService.sendDeviceTokenToBackend()
     }
 }
 
 #Preview("Light") {
-    RegisterScreen(navigate: {_ in })
-        .environmentObject(FirebaseService())
+    RegisterScreen(navigate: {_ in }) 
         .environmentObject(ErrorHandling())
 }

@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-struct ImageCard: View {
-    @EnvironmentObject var firebase: FirebaseService
+struct ImageCard: View { 
     @Environment(\.modelContext) var modelContext
     @Environment(\.theme) private var theme
     
@@ -57,7 +56,6 @@ struct ImageCard: View {
                         .font(.footnote)
                         .foregroundStyle(theme.color.onPrimary)
                         .navigateTo(
-                            firebase: firebase,
                             destination: Destination.addNote,
                             target: { AddNote(modelContext: modelContext) },
                             toolbarItems: {
@@ -74,8 +72,7 @@ struct ImageCard: View {
                     Text("Alle Einträge")
                         .font(.footnote)
                         .foregroundStyle(theme.color.onPrimary)
-                        .navigateTo(
-                            firebase: firebase,
+                        .navigateTo( 
                             destination: Destination.notes,
                             target: { AllNotes() },
                             toolbarItems: {

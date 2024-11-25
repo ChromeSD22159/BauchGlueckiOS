@@ -8,26 +8,25 @@
 import Foundation
 import SwiftUI
 import FirebaseAuth
-
+ 
 class SettingViewModel: ObservableObject {
-    var authManager: FirebaseService
+    private var userViewModel: UserViewModel
     
-    @Published var userProfile: UserProfile? = nil
-    
-    init(authManager: FirebaseService) {
-        self.authManager = authManager
-        
-        loadUserProfile()
+    init(userViewModel: UserViewModel) {
+        self.userViewModel = userViewModel
+        Task {
+            try await loadUserProfile()
+        }
     }
     
-    @FocusState var isFocused: Bool
+    var isFocused: Bool = false
     
-    @Published var showImageSheet = false
+    @Published var showImageSheet: Bool = false
 
     var greeting: LocalizedStringKey {
         let cal = Calendar.current
         let hour = cal.component(.hour, from: Date())
-        let user = "\(authManager.userProfile?.firstName ?? "Unknown")!"
+        let user = "\(userViewModel.userProfile?.firstName ?? "Unknown")!"
         
         let formattedString: String
         
@@ -42,7 +41,7 @@ class SettingViewModel: ObservableObject {
     }
     
     var timeSinceSurgery: LocalizedStringKey {
-        guard let surgeryDate = authManager.userProfile?.surgeryDate else { return "Kein Operationsdatum" }
+        guard let surgeryDate = userViewModel.userProfile?.surgeryDate else { return "Kein Operationsdatum" }
 
         let calendar = Calendar.current
         let today = Date()
@@ -73,109 +72,108 @@ class SettingViewModel: ObservableObject {
 
     var firstNameBinding: Binding<String> {
         Binding(
-            get: { self.authManager.userProfile?.firstName ?? "" },
+            get: { self.userViewModel.userProfile?.firstName ?? "" },
             set: { newValue in
-                self.authManager.userProfile?.firstName = newValue
+                self.userViewModel.userProfile?.firstName = newValue
             }
         )
     }
     
     var surgeryDateBinding: Binding<Date> {
         Binding(
-            get: { self.authManager.userProfile?.surgeryDate ?? Date() },
+            get: { self.userViewModel.userProfile?.surgeryDate ?? Date() },
             set: { newValue in
-                self.authManager.userProfile?.surgeryDate = newValue
+                self.userViewModel.userProfile?.surgeryDate = newValue
             }
         )
     }
     
     var startWeigtBinding: Binding<Double> {
         Binding(
-            get: { self.authManager.userProfile?.startWeight ?? 100 },
+            get: { self.userViewModel.userProfile?.startWeight ?? 100 },
             set: { newValue in
-                self.authManager.userProfile?.startWeight = newValue
+                self.userViewModel.userProfile?.startWeight = newValue
             }
         )
     }
 
     var waterDayIntakeBinding: Binding<Double> {
         Binding(
-            get: { self.authManager.userProfile?.waterDayIntake ?? 2.0 },
+            get: { self.userViewModel.userProfile?.waterDayIntake ?? 2.0 },
             set: { newValue in
-                self.authManager.userProfile?.waterDayIntake = newValue
+                self.userViewModel.userProfile?.waterDayIntake = newValue
             }
         )
     }
     
     var mainMealsBinding: Binding<Int> {
         Binding(
-            get: { self.authManager.userProfile?.mainMeals ?? 3 },
+            get: { self.userViewModel.userProfile?.mainMeals ?? 3 },
             set: { newValue in
-                self.authManager.userProfile?.mainMeals = newValue
+                self.userViewModel.userProfile?.mainMeals = newValue
             }
         )
     }
     
     var betweenMealsBinding: Binding<Int> {
         Binding(
-            get: { self.authManager.userProfile?.betweenMeals ?? 3 },
+            get: { self.userViewModel.userProfile?.betweenMeals ?? 3 },
             set: { newValue in
-                self.authManager.userProfile?.betweenMeals = newValue
+                self.userViewModel.userProfile?.betweenMeals = newValue
             }
         )
     }
     
-    var SyncingBinding: Binding<Bool> {
+    var syncingBinding: Binding<Bool> {
         Binding(
-            get: { self.authManager.userProfile?.syncData ?? true },
+            get: { self.userViewModel.userProfile?.syncData ?? true },
             set: { newValue in
-                self.authManager.userProfile?.syncData = newValue
+                self.userViewModel.userProfile?.syncData = newValue
             }
         )
     }
     
-    func updateProfile() {
+    func updateProfile() async throws {
         guard
             let user = Auth.auth().currentUser
         else {
             return print("Cant updateProfile: Not logged In")
         }
         
-        authManager.readUserProfileById(userId: user.uid, completion: { profile in
+        var profile = try await FirebaseService.readUserProfileById(userId: user.uid)
+        
+        profile.firstName = self.firstNameBinding.wrappedValue
+        profile.surgeryDateTimeStamp = self.surgeryDateBinding.wrappedValue.timeIntervalSince1970 * 1000
+        profile.mainMeals = self.mainMealsBinding.wrappedValue
+        profile.betweenMeals = self.betweenMealsBinding.wrappedValue
+        profile.startWeight = self.startWeigtBinding.wrappedValue
+        profile.waterDayIntake = self.waterDayIntakeBinding.wrappedValue
+        
+        do {
+            try await FirebaseService.saveUserProfile(userProfile: profile)
             
-            if var new: UserProfile = profile {
-                new.uid = user.uid
-                new.firstName = self.firstNameBinding.wrappedValue
-                new.surgeryDateTimeStamp = self.surgeryDateBinding.wrappedValue.timeIntervalSince1970 * 1000
-                new.mainMeals = self.mainMealsBinding.wrappedValue
-                new.betweenMeals = self.betweenMealsBinding.wrappedValue
-                new.startWeight = self.startWeigtBinding.wrappedValue
-                new.waterDayIntake = self.waterDayIntakeBinding.wrappedValue
-                
-                self.authManager.saveUserProfile(userProfile: new, completion: {_ in 
-                    
-                })
-                
-                self.loadUserProfile()
-            }
-        })
-    }
-    
-    func updateProfileImage() {
-        authManager.uploadAndSaveProfileImage {_ in }
-    }
-    
-    func loadUserProfile() {
-        if let user = Auth.auth().currentUser {
-            authManager.readUserProfileById(userId: user.uid) { userProfile in
-                var new = userProfile
-                
-                if let image = userProfile?.profileImageURL {
-                    new?.profileImageURL = URLCacheManager.shared.generateUniqueUrl(for: image).absoluteString
-                }
-                
-                self.userProfile = new
-            }
+            try await loadUserProfile()
+        } catch {
+            throw error
         }
-    } 
-} 
+    }
+    
+    func uploadProfileImage() async throws {
+        if self.userViewModel.userImage.cgImage != nil {
+            let profile = try await FirebaseService.uploadAndSaveProfileImage(userProfileImage: self.userViewModel.userImage) 
+        }
+    }
+    
+    func loadUserProfile() async throws {
+        guard let user = Auth.auth().currentUser else { throw FirebaseError.userNotFound }
+        
+        do {
+            let profile = try await FirebaseService.readUserProfileById(userId: user.uid)
+            DispatchQueue.main.async {
+                self.userViewModel.userProfile = profile
+            }
+        } catch {
+            throw error
+        }
+    }
+}

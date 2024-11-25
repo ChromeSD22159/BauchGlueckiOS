@@ -12,10 +12,8 @@ class RecipeListViewModel: ObservableObject {
     var recipes: [Recipe] = []
     var categoryId: String = ""
     var modelContext: ModelContext
-    private var firebase: FirebaseService
     
-    init(firebase: FirebaseService, modelContext: ModelContext) {
-        self.firebase = firebase
+    init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
     

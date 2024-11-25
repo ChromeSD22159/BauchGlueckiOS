@@ -16,11 +16,9 @@ class MealPlanViewModel {
     var mealPlans: [MealPlanDay] = []
     
     let mealPlanService: MealPlanService
-    let firebase: FirebaseService 
     var dates: [Date]
     
-    init(firebase: FirebaseService, service: Services) {
-        self.firebase = firebase
+    init(service: Services) { 
         self.dates = DateHelper.nextThirtyDays
         self.mealPlanService = service.mealPlanService
  

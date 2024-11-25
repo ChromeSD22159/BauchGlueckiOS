@@ -9,7 +9,8 @@ import SwiftUI
 
 struct OnBoardingUserProfileSheet: View {
     @Environment(\.theme) private var theme
-    @EnvironmentObject var firebase: FirebaseService
+    @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var errorHandling: ErrorHandling
     
     @Binding var isUserProfileSheet: Bool
     
@@ -107,7 +108,11 @@ struct OnBoardingUserProfileSheet: View {
                         IconTextButton(
                             text: "Speichern",
                             onEditingChanged: {
-                                saveProfile()
+                                do {
+                                    try saveProfile()
+                                } catch {
+                                    errorHandling.handle(error: error)
+                                }
                             }
                         )
                         .disabled(isValitInputs ? false : true)
@@ -139,31 +144,34 @@ struct OnBoardingUserProfileSheet: View {
         isUserProfileSheet = false
     }
     
-    private func saveProfile() {
-        if let user = firebase.user {
+    private func saveProfile() throws {
+        guard let user = userViewModel.user else {
+            throw FirebaseError.userNotFound
+        }
+        
+        if (userViewModel.userProfile != nil) {
+            withAnimation {
+                isUserProfileSheet = false
+            }
+        } else {
+            let profile = UserProfile(
+                uid: user.uid,
+                firstName: name,
+                email: email,
+                surgeryDateTimeStamp: TimeInterval(surgeryDateBinding.timeIntervalSince1970Milliseconds),
+                mainMeals: 3,
+                betweenMeals: 3,
+                profileImageURL: nil,
+                startWeight: startWeight,
+                userNotifierToken: DeviceTokenService.shared.getSavedDeviceToken() ?? ""
+            )
             
-            if (firebase.userProfile != nil) {
-                withAnimation {
-                    isUserProfileSheet = false
-                }
-            } else {
-                let profile = UserProfile(
-                    uid: user.uid,
-                    firstName: name,
-                    email: email,
-                    surgeryDateTimeStamp: TimeInterval(surgeryDateBinding.timeIntervalSince1970Milliseconds),
-                    mainMeals: 3,
-                    betweenMeals: 3,
-                    profileImageURL: nil,
-                    startWeight: startWeight,
-                    userNotifierToken: DeviceTokenService.shared.getSavedDeviceToken() ?? ""
-                )
-                
-                firebase.saveUserProfile(userProfile: profile, completion: {_ in })
-                
-                withAnimation {
-                    isUserProfileSheet = false
-                }
+            Task {
+                try await FirebaseService.saveUserProfile(userProfile: profile)
+            }
+            
+            withAnimation {
+                isUserProfileSheet = false
             }
         }
     }

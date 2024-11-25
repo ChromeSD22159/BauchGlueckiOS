@@ -61,13 +61,11 @@ struct DetailRecipeView: View {
     @State private var navigateToMealPlan = false
     
     var recipe: Recipe
-    var firebase: FirebaseService
     var date: Date?
     
-    init(firebase: FirebaseService, recipe: Recipe, date: Date? = nil, theme: Theme) {
+    init(recipe: Recipe, date: Date? = nil, theme: Theme) {
         self.theme = theme
         self.recipe = recipe
-        self.firebase = firebase
         self.date = date
         self.appearance = UINavigationBarAppearance()
         self.appearance.configureWithOpaqueBackground()
@@ -166,10 +164,9 @@ struct DetailRecipeView: View {
         .navigateTo(
             destination: Destination.detailRecipes,
             isActive: $navigateToMealPlan,
-            showSettingButton: false,
-            firebase: firebase,
+            showSettingButton: false, 
             target: {
-                MealPlanScreen(firebase: firebase, services: services, currentDate: date)
+                MealPlanScreen(services: services, currentDate: date)
             }
         )
     }

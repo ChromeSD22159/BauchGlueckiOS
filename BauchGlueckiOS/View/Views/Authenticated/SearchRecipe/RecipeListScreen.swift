@@ -14,12 +14,10 @@ struct RecipeListScreen: View {
     @Environment(\.modelContext) var modelContext
     
     var categoryId: String
-    var firebase: FirebaseService
     
     @State var viewModel: RecipeListViewModel? = nil
     
-    init(firebase: FirebaseService, categoryId: String) {
-        self.firebase = firebase
+    init(categoryId: String) {
         self.categoryId = categoryId
     }
     
@@ -28,12 +26,12 @@ struct RecipeListScreen: View {
     var body: some View {
         ScreenHolder {
             if let viewModel = viewModel {
-                RecipeGrid(recipes: viewModel.recipes, resultCount: false, firebase: firebase)
+                RecipeGrid(recipes: viewModel.recipes, resultCount: false)
             }
         }
         .onAppear {
             if viewModel == nil {
-                   viewModel = RecipeListViewModel(firebase: firebase, modelContext: modelContext)
+                   viewModel = RecipeListViewModel(modelContext: modelContext)
                    viewModel?.inizialize(categoryId: categoryId)
             }
         }

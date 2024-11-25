@@ -10,14 +10,12 @@ import SwiftData
 struct SearchRecipeScreen: View {
     @Environment(\.theme) private var theme
     private var date: Date
-    private var firebase: FirebaseService
     
     @State var searchText: String = ""
     @State var searchIsActive: Bool = false
         
-    init(firebase: FirebaseService, date: Date) {
+    init(date: Date) {
         self.date = date
-        self.firebase = firebase
     }
     
     @Query() var recipes: [Recipe]
@@ -58,7 +56,7 @@ struct SearchRecipeScreen: View {
                     VStack {
                         SearchRecipeSectionHeader(title: "Rezepte", trailingText: "\(searchResults.count.formatted(.number)) Rezepte")
                         
-                        RecipeGrid(recipes: searchResults, date: date, resultCount: true, firebase: firebase)
+                        RecipeGrid(recipes: searchResults, date: date, resultCount: true)
                     }
                     
                 }
@@ -131,7 +129,7 @@ struct SearchRecipeSectionHeader: View {
 }
 
 #Preview {
-    SearchRecipeScreen(firebase: FirebaseService(), date: .init(timeIntervalSince1970: 0))
+    SearchRecipeScreen(date: .init(timeIntervalSince1970: 0))
         .previewEnvironment()
 }
 

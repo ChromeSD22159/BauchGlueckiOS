@@ -12,8 +12,9 @@ struct LoginScreen: View, Navigable {
     
     @Environment(\.theme) private var theme
     var navigate: (Screen) -> Void
-    @EnvironmentObject var firebase: FirebaseService
+    
     @EnvironmentObject var services: Services
+    @EnvironmentObject var userViewModel: UserViewModel
     
     // FormStates
     @FocusState private var focusedField: FocusedField?
@@ -71,7 +72,9 @@ struct LoginScreen: View, Navigable {
                         TryButton(label: {
                             Label("", systemImage: "arrow.right").labelStyle(.iconOnly)
                         }, action: {
-                            try handleLoginSubmit()
+                            try await handleLoginSubmit()
+                            
+                            services.medicationService.setAllMedicationNotifications()
                         })
                         .buttonStyle(CapsuleButtonStyle())
                     } 
@@ -87,12 +90,14 @@ struct LoginScreen: View, Navigable {
                         }
                     }.padding(.top, Theme.layout.padding)
   
-                    SignInWithProvider() { result in
-                        switch result {
-                            case .success: services.medicationService.setAllMedicationNotifications()
-                            case .failure: break
+                    
+                        SignInWithProvider() { result in
+                            switch result {
+                                case .success: services.medicationService.setAllMedicationNotifications()
+                                case .failure: break
+                            }
                         }
-                    }
+                   
                 }
                 .padding(.horizontal, theme.layout.padding)
             }
@@ -122,7 +127,7 @@ struct LoginScreen: View, Navigable {
         }
     }
     
-    private func handleLoginSubmit() throws {
+    private func handleLoginSubmit() async throws {
         guard !email.isEmpty else {
             throw LoginError.emailIsEmpty
         }
@@ -131,22 +136,13 @@ struct LoginScreen: View, Navigable {
             throw LoginError.passwordIsEmpty
         }
         
-        withAnimation {
-            firebase.login(email: email, password: password) { auth, _error in
-                if let _ = auth?.user.uid {
-                    Task {
-                        try await services.apiService.sendDeviceTokenToBackend()
-                        
-                        services.medicationService.setAllMedicationNotifications()
-                    }
-                }
-            }
-        }
+        let _ = try await userViewModel.login(email: email, password: password)
+        
+        navigate(Screen.Home)
     }
 } 
 
 #Preview("Light") {
-    LoginScreen(navigate: {_ in })
-    .environmentObject(FirebaseService())
+    LoginScreen(navigate: {_ in }) 
     .environmentObject(ErrorHandling())
 }

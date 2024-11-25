@@ -34,7 +34,6 @@ struct RecipeCategoryScreen: View {
         @Environment(\.theme) private var theme
         @Environment(\.modelContext) var modelContext
         @EnvironmentObject var services: Services
-        @EnvironmentObject var firebase: FirebaseService
         
         @Query() var allRecipes: [Recipe]
         
@@ -112,10 +111,9 @@ struct RecipeCategoryScreen: View {
                     }
                     .sectionShadow(margin: 16)
                     .navigateTo(
-                        firebase: firebase,
                         destination: Destination.recipeCategoryList,
                         showSettingButton: false,
-                        target: { DetailRecipeView(firebase: firebase, recipe: randomRecipe, theme: theme) }
+                        target: { DetailRecipeView(recipe: randomRecipe, theme: theme) }
                     )
                     
                 }
@@ -127,7 +125,6 @@ struct RecipeCategoryScreen: View {
         @Environment(\.theme) private var theme
         
         @EnvironmentObject var services: Services
-        @EnvironmentObject var firebase: FirebaseService
         
         var body: some View {
             VStack(spacing: 10) {
@@ -146,10 +143,9 @@ struct RecipeCategoryScreen: View {
                             }
                             .frame(width: 150, height: 80)
                             .sectionShadow(innerPadding: 10)
-                            .navigateTo(
-                                firebase: firebase,
+                            .navigateTo( 
                                 destination: Destination.recipeCategories,
-                                target: { RecipeListScreen(firebase: firebase, categoryId: category.categoryID) },
+                                target: { RecipeListScreen(categoryId: category.categoryID) },
                                 toolbarItems: {
                                     AddRecipeButtonWithPicker()
                                 }
@@ -186,8 +182,7 @@ struct RecipeCategoryScreen: View {
     }
     
     private struct RandomRecipes: View {
-        @EnvironmentObject var services: Services
-        @EnvironmentObject var firebase: FirebaseService
+        @EnvironmentObject var services: Services 
         
         @Query() var recipes: [Recipe]
         
@@ -210,7 +205,7 @@ struct RecipeCategoryScreen: View {
         var body: some View {
             VStack(spacing: 10) {
                 SectionHeader(title: "Zufalls Rezepte")
-                RecipeGrid(recipes: recipes, resultCount: false, firebase: firebase)
+                RecipeGrid(recipes: recipes, resultCount: false)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 16)

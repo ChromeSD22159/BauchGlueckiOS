@@ -6,8 +6,7 @@
 //
 import SwiftUI
 
-struct MealPlanSpotCard: View {
-    @EnvironmentObject var firebase: FirebaseService
+struct MealPlanSpotCard: View { 
     @State var isActive: Bool = false
     @Environment(\.theme) private var theme
     var recipe: Recipe
@@ -28,9 +27,8 @@ struct MealPlanSpotCard: View {
                     Image(systemName: "eye")
                         .foregroundStyle(theme.color.onBackground)
                         .navigateTo(
-                            firebase: firebase,
                             destination: Destination.mealPlan,
-                            target: { DetailRecipeView(firebase: firebase, recipe: recipe, theme: theme) }
+                            target: { DetailRecipeView(recipe: recipe, theme: theme) }
                         )
                     
                     Image(systemName: "info.circle")
@@ -66,10 +64,9 @@ struct MealPlanSpotCard: View {
                         Text("Rezept ansehen")
                     }
                     .navigateTo(
-                        firebase: firebase,
                         destination: Destination.mealPlan,
                         target: {
-                            DetailRecipeView(firebase: firebase, recipe: recipe, theme: theme)
+                            DetailRecipeView(recipe: recipe, theme: theme)
                         },
                         toolbarItems: {}
                     )

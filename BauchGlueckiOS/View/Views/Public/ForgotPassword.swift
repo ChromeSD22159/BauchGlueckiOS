@@ -13,7 +13,8 @@ struct ForgotPassword: View, Navigable {
     
     var navigate: (Screen) -> Void
     
-    @EnvironmentObject var firebase: FirebaseService
+    @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var errorHandling : ErrorHandling
     @FocusState private var focusedField: FocusedField?
     @State private var email: String = ""
 
@@ -56,12 +57,17 @@ struct ForgotPassword: View, Navigable {
                             text: "E-Mail anfordern!",
                             onEditingChanged: {
                                 guard !email.isEmpty else { return }
-                                firebase.forgotPassword(email: email)
+                                
+                                Task {
+                                    do {
+                                        try await FirebaseService.forgotPassword(email: email)
+                                    } catch {
+                                        errorHandling.handle(error: error)
+                                    }
+                                }
                             }
                         )
                     }
-                     
-                    ErrorText(text: firebase.error?.localizedDescription ?? "")
                 }
                 .padding(.horizontal, theme.layout.padding)
             }
@@ -91,6 +97,5 @@ struct ForgotPassword: View, Navigable {
 }
  
 #Preview("Light") {
-    ForgotPassword(navigate: {_ in })
-        .environmentObject(FirebaseService())
+    ForgotPassword(navigate: {_ in }) 
 }

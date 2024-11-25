@@ -22,67 +22,65 @@ struct RecipesDataService {
     
     func fetchRecipesFromBackend(
         table: TableEntitiy = .Recipe
-    ) {
+    ) async throws {
         guard (Auth.auth().currentUser != nil), AppStorageService.whenBackendReachable() else { return }
         
         let syncHistoryRepository = SyncHistoryService(context: context)
         let headers: HTTPHeaders = [.authorization(bearerToken: apiService.bearerToken)]
   
-        Task {
-            do {
-                let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
-                let fetchURL = apiService.baseURL + "/api/recipes/getUpdatedRecipesEntries?timeStamp=\(lastSync)"
+        do {
+            let lastSync = try await syncHistoryRepository.getLastSyncHistoryByEntity(entity: table)?.lastSync ?? -1
+            let fetchURL = apiService.baseURL + "/api/recipes/getUpdatedRecipesEntries?timeStamp=\(lastSync)"
+            
+            print("<<< URL \(fetchURL)")
+            
+            let response = await AF.request(fetchURL, headers: headers)
+                .cacheResponse(using: .doNotCache)
+                .validate()
+                .serializingDecodable([RecipeResponse].self)
+                .response
+            
+            switch response.result {
+            case .success(let recipes):
                 
-                print("<<< URL \(fetchURL)")
+                print("<<< \(recipes.count) Recipes fetched")
                 
-                let response = await AF.request(fetchURL, headers: headers)
-                    .cacheResponse(using: .doNotCache)
-                    .validate()
-                    .serializingDecodable([RecipeResponse].self)
-                    .response
-                
-                switch response.result {
-                case .success(let recipes):
+                for recipeResponse in recipes {
                     
-                    print("<<< \(recipes.count) Recipes fetched")
                     
-                    for recipeResponse in recipes {
-                        
-                        
-                        guard let recipe = insertOrUpdateRecipe(context: context, serverRecipe: recipeResponse) else {
-                            print("Error processing recipe with ID \(recipeResponse.id)")
-                            continue
-                        }
-                        
-                        var ingredients: [Ingredient] = []
-                        for ingredient in recipeResponse.ingredients {
-                            if let updatesIngretient = insertOrUpdateIngredient(context: context, serverIngredient: ingredient) {
-                                ingredients.append(updatesIngretient)
-                            }
-                        }
-                        recipe.ingredients = ingredients
-                        
-                        if let mainImageResponse = recipeResponse.mainImage {
-                            recipe.mainImage = insertOrUpdateImage(context: context, serverImage: mainImageResponse)
-                        }
-                        
-                        if let categoryResponse = recipeResponse.category {
-                            recipe.category = insertOrUpdateCategory(context: context, serverCategory: categoryResponse)
-                        }
+                    guard let recipe = insertOrUpdateRecipe(context: context, serverRecipe: recipeResponse) else {
+                        print("Error processing recipe with ID \(recipeResponse.id)")
+                        continue
                     }
                     
-                    try context.save()
-                    
-                    syncHistoryRepository.saveSyncHistoryStamp(entity: table)
-                    
-                case .failure(let error):
-                    if response.response?.statusCode == 430 {
-                        print("Recipes: NothingToSync")
-                        throw NetworkError.NothingToSync
-                    } else {
-                        print("Recipes: \(error.localizedDescription)")
-                        throw NetworkError.unknown
+                    var ingredients: [Ingredient] = []
+                    for ingredient in recipeResponse.ingredients {
+                        if let updatesIngretient = insertOrUpdateIngredient(context: context, serverIngredient: ingredient) {
+                            ingredients.append(updatesIngretient)
+                        }
                     }
+                    recipe.ingredients = ingredients
+                    
+                    if let mainImageResponse = recipeResponse.mainImage {
+                        recipe.mainImage = insertOrUpdateImage(context: context, serverImage: mainImageResponse)
+                    }
+                    
+                    if let categoryResponse = recipeResponse.category {
+                        recipe.category = insertOrUpdateCategory(context: context, serverCategory: categoryResponse)
+                    }
+                }
+                
+                try context.save()
+                
+                syncHistoryRepository.saveSyncHistoryStamp(entity: table)
+                
+            case .failure(let error):
+                if response.response?.statusCode == 430 {
+                    print("Recipes: NothingToSync")
+                    throw NetworkError.NothingToSync
+                } else {
+                    print("Recipes: \(error.localizedDescription)")
+                    throw NetworkError.unknown
                 }
             }
         }
@@ -262,8 +260,7 @@ struct RecipesDataService {
                         
                         DispatchQueue.main.async {
                             switch res {
-                            case .success(let response):
-                                fetchRecipesFromBackend()
+                            case .success(let response): 
                                 successFullUploadet(.success(response))
                             case .failure(let error):
                                 print("Error Fetching Recipes: \(error.localizedDescription)")

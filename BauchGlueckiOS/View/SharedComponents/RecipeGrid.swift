@@ -14,7 +14,6 @@ struct RecipeGrid: View {
     var recipes: [Recipe]
     var date: Date? = nil
     var resultCount: Bool
-    var firebase: FirebaseService
     
     let colums: Int = 2
     
@@ -30,15 +29,14 @@ struct RecipeGrid: View {
                             protein: recipe.protein,
                             width: calcItemWidth(width: geometry.size.width)
                         )
-                        .navigateTo(
-                            firebase: firebase,
+                        .navigateTo( 
                             destination: Destination.recipeCategoryList,
                             showSettingButton: false,
-                            target: { DetailRecipeView(firebase: firebase, recipe: recipe, date: date, theme: theme) }
+                            target: { DetailRecipeView(recipe: recipe, date: date, theme: theme) }
                         )
                     }
                 }
-                .viewSize(name: "LazyVGrid", debug: .red)
+                .viewSize(name: "LazyVGrid", debugColor: .red)
                 //.frame(height: (calcItemWidth(width: geometry.size.width) + spacing) * calcNumOfRows(columns: colums))
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, spacing)

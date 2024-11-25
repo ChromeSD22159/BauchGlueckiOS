@@ -73,7 +73,7 @@ struct RecipePreviewCard: View {
 }
  
 #Preview("PRE") {
-    @Previewable @State var viewModel = RecipeListViewModel(firebase: FirebaseService(), modelContext: previewDataScource.mainContext)
+    @Previewable @State var viewModel = RecipeListViewModel(modelContext: previewDataScource.mainContext)
    
     let context = previewDataScource.mainContext
     let columns = GridUtils.createGridItems(count: 2, spacing: 10)
@@ -88,5 +88,5 @@ struct RecipePreviewCard: View {
         }
     }
     .padding(Theme.layout.padding)
-    .environmentObject(Services(firebase: FirebaseService(), context: context))
+    .environmentObject(Services(context: context))
 }
