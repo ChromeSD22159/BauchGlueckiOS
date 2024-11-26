@@ -11,7 +11,7 @@ import FirebaseAuth
  
 @Observable
 class WeightViewModel: ObservableObject {
-    private var modelContext: ModelContext
+    var services: Services
     
     var weights: [Weight] = []
     var weeklyAverage: [WeeklyAverageData] = []
@@ -24,11 +24,13 @@ class WeightViewModel: ObservableObject {
         self.startWeight - self.currentWeight
     }
     
-    init(startWeight: Double, modelContext: ModelContext) {
+    init(startWeight: Double, services: Services) {
         self.startWeight = startWeight
-        self.modelContext = modelContext
+        self.services = services
         
-        self.weights = loadWeights()
+        Task {
+            await loadWeights()
+        }
     }
     
     func inizialize() {
@@ -45,22 +47,30 @@ class WeightViewModel: ObservableObject {
         self.startWeight = weight
     }
     
-    func loadWeights() -> [Weight] {
+    func loadWeights() async {
+        
         let userId = Auth.auth().currentUser?.uid ?? ""
         
         let predicate = #Predicate<Weight> { weight in
             weight.userId == userId
         }
         
-        let descriptor = FetchDescriptor(
+        let fetchDescriptor = FetchDescriptor(
             predicate: predicate
         )
         
         do {
-            return try modelContext.fetch(descriptor)
+            let results = try await MainActor.run {
+                try self.services.context.fetch(fetchDescriptor)
+            }
+            await MainActor.run {
+                self.weights = results
+            }
         } catch {
             print(error.localizedDescription)
-            return []
+            await MainActor.run {
+                self.weights = []
+            }
         }
     }
     

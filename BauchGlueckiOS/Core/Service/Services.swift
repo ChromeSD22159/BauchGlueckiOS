@@ -11,7 +11,7 @@ import SwiftData
 @MainActor
 @Observable
 class Services: ObservableObject {
-    
+    let context: ModelContext
     let apiService: StrapiApiClient
     let countdownService: CountdownService
     let weightService: WeightService
@@ -21,7 +21,9 @@ class Services: ObservableObject {
     let medicationService: MedicationService
     let syncHistoryService: SyncHistoryService
     
-    init(env: EnvironmentVariables = .localFrederik, context: ModelContext) { 
+    init(env: EnvironmentVariables = .localFrederik, context: ModelContext) {
+        self.context = context
+        
         let syncHistoryService = SyncHistoryService(context: context)
         self.apiService = StrapiApiClient(environment: env)
         self.countdownService = CountdownService(context: context, apiService: self.apiService)

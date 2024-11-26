@@ -31,20 +31,31 @@ class HomeViewModel: ObservableObject {
     func fetchWeights() {
         Task {
             guard let userID = Auth.auth().currentUser?.uid else { return }
-                    
+            
             let predicate = #Predicate<Weight> { weight in
                 weight.userId == userID && weight.isDeleted == false
             }
             
-            let fetchDes = FetchDescriptor<Weight>(
+            let fetchDescriptor = FetchDescriptor<Weight>(
                 predicate: predicate
             )
             
             do {
-                weights = []
-                weights = try context.fetch(fetchDes)
+                // Perform the fetch in the appropriate thread
+                let results = try await MainActor.run {
+                    try self.context.fetch(fetchDescriptor)
+                }
+                
+                // Update weights on the main thread
+                await MainActor.run {
+                    self.weights = results
+                }
             } catch {
-                weights = []
+                // Handle error on the main thread
+                await MainActor.run {
+                    self.weights = []
+                }
+                print("Error fetching weights: \(error)")
             }
         }
     }

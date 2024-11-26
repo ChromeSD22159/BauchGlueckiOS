@@ -11,30 +11,38 @@ import SwiftData
 class RecipeListViewModel: ObservableObject {
     var recipes: [Recipe] = []
     var categoryId: String = ""
-    var modelContext: ModelContext
+    var context: ModelContext
     
     init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+        self.context = modelContext
     }
     
     func inizialize(categoryId: String) {
-        loadRecipes(categoryId: categoryId)
+        Task {
+            await loadRecipes(categoryId: categoryId)
+        }
     }
     
-    func loadRecipes(categoryId: String) {
+    func loadRecipes(categoryId: String) async {
         let predicate = #Predicate<Recipe> { recipe in
             if let recipeCategory = recipe.category {
                 return recipeCategory.categoryId == categoryId
             }  else { return false }
         }
         
-        let fetch = FetchDescriptor<Recipe>(
+        let fetchDescriptor = FetchDescriptor<Recipe>(
             predicate: predicate,
             sortBy: [ .init(\.name) ]
         )
         
         do {
-            recipes = try modelContext.fetch(fetch)
+            let results = try await MainActor.run {
+                try self.context.fetch(fetchDescriptor)
+            }
+             
+            await MainActor.run {
+                self.recipes = results
+            }
         } catch {
             print("Error fetching recipes: \(error)")
         }

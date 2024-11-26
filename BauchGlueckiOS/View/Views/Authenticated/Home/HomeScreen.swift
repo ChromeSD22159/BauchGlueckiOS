@@ -13,17 +13,17 @@ struct HomeScreen: View {
     @Environment(\.theme) private var theme
     
     var page: Destination
-
-    @Environment(\.modelContext) var modelContext 
     @EnvironmentObject var services: Services
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var homeViewModel: HomeViewModel
     
-    @State var mealPlanViewModel: MealPlanViewModel?
-    @State var weightViewModel: WeightViewModel = WeightViewModel(startWeight: 0, modelContext: localDataScource.mainContext)
+    @State var mealPlanViewModel: MealPlanViewModel
+    @State var weightViewModel: WeightViewModel
     
-    init(page: Destination) {
+    init(page: Destination, services: Services) {
         self.page = page
+        self._mealPlanViewModel = State(initialValue: MealPlanViewModel(service: services))
+        self._weightViewModel = State(initialValue: WeightViewModel(startWeight: 0, services: services))
     }
     
     var body: some View {
@@ -103,7 +103,7 @@ struct HomeScreen: View {
                         NextMedication()
                             .navigateTo( 
                                 destination: Destination.medication,
-                                target: { MedicationScreen(modelContext: modelContext, services: services) },
+                                target: { MedicationScreen(services: services) },
                                 toolbarItems: {
                                     AddMedicationSheet()
                                 }
@@ -134,11 +134,7 @@ struct HomeScreen: View {
         .onAppLifeCycle(appearAndActive: {
             homeViewModel.openOnboardingSheetWhenNoProfileIsGiven()
             
-            services.fetchFrombackend() 
-            
-            if mealPlanViewModel == nil {
-               mealPlanViewModel = MealPlanViewModel(service: services)
-            } 
+            services.fetchFrombackend()
         })
         .fullScreenCover(isPresented: $userViewModel.isUserProfileSheet, onDismiss: {
             services.fetchFrombackend()

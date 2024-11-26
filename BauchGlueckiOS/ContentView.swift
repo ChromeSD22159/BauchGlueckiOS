@@ -33,7 +33,7 @@ struct ContentView: View {
                 case .Login: LoginScreen(navigate: handleNavigation)
                 case .Register: RegisterScreen(navigate: handleNavigation)
                 case .ForgotPassword: ForgotPassword(navigate: handleNavigation)
-                case .Home: HomeScreen(page: .home).environmentObject(homeViewModel)
+            case .Home: HomeScreen(page: .home, services: services).environmentObject(homeViewModel)
             }
         }
         .onAppEnterBackground { markUserOnline() }

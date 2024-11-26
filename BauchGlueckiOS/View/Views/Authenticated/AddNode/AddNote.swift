@@ -15,7 +15,8 @@ struct AddNote: View {
     @Environment(\.theme) private var theme
     
     @StateObject private var viewModel: AddNodeViewModel
-
+    @EnvironmentObject var services: Services
+    
     init(modelContext: ModelContext) {
         _viewModel = StateObject(wrappedValue: AddNodeViewModel(modelContext: modelContext))
     }
@@ -108,7 +109,7 @@ struct AddNote: View {
             .withErrorHandling()
             .buttonStyle(CapsuleButtonStyle())
         }.navigationDestination(isPresented: $navigateToNextView, destination: {
-            HomeScreen(page: .home).navigationBarBackButtonHidden()
+            HomeScreen(page: .home, services: services).navigationBarBackButtonHidden()
         })
     }
     

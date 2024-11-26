@@ -18,35 +18,29 @@ struct RecipeGrid: View {
     let colums: Int = 2
     
     var body : some View {
-        GeometryReader { geometry in
-            VStack {
-                LazyVGrid(columns: GridUtils.createGridItems(count: 2, spacing: spacing), spacing: spacing) {
-                    ForEach(recipes, id: \.self) { recipe in
-                        RecipePreviewCard(
-                            mainImage: recipe.mainImage,
-                            name: recipe.name,
-                            fat: recipe.fat,
-                            protein: recipe.protein,
-                            width: calcItemWidth(width: geometry.size.width)
-                        )
-                        .navigateTo( 
-                            destination: Destination.recipeCategoryList,
-                            showSettingButton: false,
-                            target: { DetailRecipeView(recipe: recipe, date: date, theme: theme) }
-                        )
-                    }
+        VStack {
+            LazyVGrid(columns: GridUtils.createGridItems(count: 2, spacing: spacing), spacing: spacing) {
+                ForEach(recipes, id: \.self) { recipe in
+                    RecipePreviewCard(
+                        mainImage: recipe.mainImage,
+                        name: recipe.name,
+                        fat: recipe.fat,
+                        protein: recipe.protein,
+                        width: calcItemWidth(width: ScreenSizeUtil.width)
+                    )
+                    .navigateTo(
+                        destination: Destination.recipeCategoryList,
+                        showSettingButton: false,
+                        target: { DetailRecipeView(recipe: recipe, date: date, theme: theme) }
+                    )
                 }
-                .viewSize(name: "LazyVGrid", debugColor: .red)
-                //.frame(height: (calcItemWidth(width: geometry.size.width) + spacing) * calcNumOfRows(columns: colums))
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, spacing)
-                  
-                if resultCount {
-                    Text("\(recipes.count) Rezepte gefunden!")
-                        .font(.footnote)
-                        .padding(.top, 20)
-                        .padding(.horizontal, theme.layout.padding)
-                }
+            } 
+              
+            if resultCount {
+                Text("\(recipes.count) Rezepte gefunden!")
+                    .font(.footnote)
+                    .padding(.top, 20)
+                    .padding(.horizontal, theme.layout.padding)
             }
         }
     }

@@ -166,7 +166,7 @@ struct DetailRecipeView: View {
             isActive: $navigateToMealPlan,
             showSettingButton: false, 
             target: {
-                MealPlanScreen(services: services, currentDate: date)
+                MealPlanScreen(currentDate: date, services: services)
             }
         )
     }
