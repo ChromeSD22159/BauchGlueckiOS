@@ -16,7 +16,7 @@ struct BauchGlueckiOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView(launchDelay: 0.5, localData: localDataScource.mainContext)
+            ContentView(launchDelay: 0.5)
                 .googleSignInOnOpen()
                 .environment(\.theme, Theme())
                 .environmentObject(errorHandling)

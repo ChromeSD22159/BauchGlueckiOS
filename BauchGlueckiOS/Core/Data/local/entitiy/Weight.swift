@@ -84,4 +84,18 @@ extension Weight {
     func update() {
         self.updatedAtOnDevice = Date().timeIntervalSince1970Milliseconds
     }
+    
+    func toDate() -> Date? {
+       let dateFormatter = ISO8601DateFormatter()
+       dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        return dateFormatter.date(from: self.weighed)
+    }
+    
+    func weighedDate() -> Date? {
+       let dateFormatter = ISO8601DateFormatter()
+       dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        return dateFormatter.date(from: self.weighed)
+    }
 }

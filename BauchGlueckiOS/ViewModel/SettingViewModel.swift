@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 import FirebaseAuth
- 
+
 class SettingViewModel: ObservableObject {
     private var userViewModel: UserViewModel
     

@@ -10,7 +10,10 @@ import FirebaseAuth
 
 struct AddWeightSheetButton: View {
     @Environment(\.theme) private var theme
-    @EnvironmentObject var service: Services
+    @EnvironmentObject var services: Services
+    @EnvironmentObject var homeViewModel: HomeViewModel
+    @EnvironmentObject var weightViewModel: WeightViewModel
+    
     @State private var isSheet = false
     
     var startWeight: Double
@@ -27,6 +30,7 @@ struct AddWeightSheetButton: View {
         .sheet(isPresented:$isSheet) {
             SheetHolder(title: "Gewicht eintragen") {
                 let config = AppConfig.shared.weightConfig
+                
                 AddWeightSheetContent(
                     durationRange: config.weightRange,
                     stepsEach: config.stepsEach,
@@ -42,20 +46,21 @@ struct AddWeightSheetButton: View {
     }
     
     private func updateBackend() {
-        service.weightService.sendUpdatedWeightsToBackend()
+        services.weightService.sendUpdatedWeightsToBackend()
+        homeViewModel.fetchWeights()
+        weightViewModel.inizialize()
     }
 }
 
 struct AddWeightSheetContent: View {
     @Environment(\.modelContext) var modelContext: ModelContext
     @Environment(\.theme) private var theme
-    
-    @Query() var weights: [Weight]
+    @EnvironmentObject var services: Services
+    @EnvironmentObject var errorHandling: ErrorHandling
     
     // FormStates
     @State private var currentWeight: Double = 90.0
-    @State var lastWeight: Double = 0.0
-    @State private var error: String = ""
+    @State var lastWeight: Double = 1.0
 
     private var startWeight: Double
     private var durationRange: ClosedRange<Double>
@@ -76,17 +81,6 @@ struct AddWeightSheetContent: View {
         self.currentWeight = startWeight
         self.startWeight = startWeight
         self.close = close
-        
-        let userId = Auth.auth().currentUser?.uid ?? ""
-        
-        let predicate = #Predicate<Weight> { weight in
-            weight.userId == userId
-        }
-        
-        self._weights = Query(
-            filter: predicate,
-            sort: \Weight.weighed
-        )
     }
     
     var body: some View {
@@ -205,31 +199,20 @@ struct AddWeightSheetContent: View {
                     Text("Speichern")
                         .padding(theme.layout.padding)
                 })
+                .withErrorHandling()
                 .frame(height: 30)
                 .frame(minWidth: 100)
                 .foregroundStyle(theme.color.onPrimary)
                 .background(theme.color.backgroundGradient)
                 .cornerRadius(100)
             }
-            
-            HStack {
-                Text(error)
-                    .foregroundStyle(Color.red)
-                    .opacity(error.isEmpty ? 0 : 1)
-                    .font(.footnote)
-            }
         }
         .padding(.horizontal, theme.layout.padding)
         .padding(.top, 30)
         .onAppear {
-            let sortedWeights = self.weights.sorted(by: { first, second in
-                guard let firstDate = ISO8601DateFormatter().date(from: first.weighed), let secondDate = ISO8601DateFormatter().date(from: second.weighed) else { return false }
-                return firstDate > secondDate
-            })
-            
             withAnimation(.easeInOut) {
-                self.lastWeight = sortedWeights.first?.value ?? self.startWeight
-                self.currentWeight = sortedWeights.first?.value ?? self.startWeight
+                self.lastWeight = self.services.weightService.getLastWeight()?.value ?? self.startWeight
+                self.currentWeight = self.services.weightService.getLastWeight()?.value ?? self.startWeight
             }
         }
     }
@@ -273,12 +256,10 @@ struct AddWeightSheetContent: View {
     private func insertWeight(close: () -> Void) {
         do {
             if currentWeight <= 30.0 {
-                printError(ValidationError.invalidWeight.rawValue)
-                throw ValidationError.invalidWeight
+                throw WeightError.invalidWeight
             }
             
             guard let user = Auth.auth().currentUser else {
-                printError(ValidationError.userNotFound.rawValue)
                 throw UserError.notLoggedIn
             }
              
@@ -296,7 +277,7 @@ struct AddWeightSheetContent: View {
             
             close()
         } catch let error {
-            print(error.localizedDescription)
+            errorHandling.handle(error: error)
         }
     }
     
@@ -312,22 +293,5 @@ struct AddWeightSheetContent: View {
         }
     }
     
-    private func printError(_ text: String) {
-        Task {
-            try await DelayUtil.awaitAction(
-                seconds: 2,
-                startAction: {
-                    error = text
-                },
-                delayedAction: {
-                    error = ""
-                }
-            )
-        }
-    }
     
-    enum ValidationError: String, Error {
-        case invalidWeight = "Der Name muss mindestens 3 Buchstaben beinhalten."
-        case userNotFound = "Ein Fehler mit deinem Profil ist aufgetreten. Kontaktiere den Entwickler."
-    }
 }

@@ -12,8 +12,8 @@ struct MedicationScreen: View {
     @Environment(\.theme) private var theme
     @State var viewModel: MedicationViewModel
  
-    init(modelContext: ModelContext, services: Services) {
-        self._viewModel = State(wrappedValue: MedicationViewModel(modelContext: modelContext, services: services))
+    init(services: Services) {
+        self._viewModel = State(wrappedValue: MedicationViewModel(services: services))
     }
     
     var body: some View {
@@ -49,8 +49,9 @@ struct MedicationScreen: View {
             }
         }
         .onAppear {
-            viewModel.loadMedications()
+            Task {
+                await viewModel.loadMedications()
+            }
         }
     }
-     
 }

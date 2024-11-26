@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum RegisterError: Error, LocalizedError {
+enum RegisterError: Error, LocalizedError, ErrorDescriptionProtocol {
     case emailIsEmpty
     case passwordIsEmpty
     case verifyPasswordIsEmpty

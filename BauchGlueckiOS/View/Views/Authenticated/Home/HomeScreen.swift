@@ -9,28 +9,22 @@ import SwiftUI
 import FirebaseAuth
 import SwiftData 
 
-struct HomeScreen: View, PageIdentifier {
+struct HomeScreen: View {
     @Environment(\.theme) private var theme
     
-    func navigate(to destination: Destination) {
-        path.append(destination)
-    }
-    
     var page: Destination
-
-    @Environment(\.modelContext) var modelContext 
     @EnvironmentObject var services: Services
-    
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var homeViewModel: HomeViewModel
     
-    @State var isSettingSheet: Bool = false
-    @State var isUserProfileSheet: Bool = false
-    @State var mealPlanViewModel: MealPlanViewModel?
+    @State var mealPlanViewModel: MealPlanViewModel
+    @State var weightViewModel: WeightViewModel
     
-    
-    @State private var path: [Destination] = []
-    
-    @Query() var recipes: [Recipe]
+    init(page: Destination, services: Services) {
+        self.page = page
+        self._mealPlanViewModel = State(initialValue: MealPlanViewModel(service: services))
+        self._weightViewModel = State(initialValue: WeightViewModel(startWeight: 0, services: services))
+    }
     
     var body: some View {
         NavigationStack {
@@ -82,9 +76,13 @@ struct HomeScreen: View, PageIdentifier {
                             WeightChart()
                                 .navigateTo(
                                     destination: Destination.weight,
-                                    target: { WeightsScreen(startWeight: userProfile.startWeight) },
+                                    target: {
+                                        WeightsScreen(startWeight: userProfile.startWeight)
+                                            .environment(weightViewModel)
+                                    },
                                     toolbarItems: {
                                         AddWeightSheetButton(startWeight: userProfile.startWeight)
+                                            .environment(weightViewModel)
                                     }
                                 )
                         }
@@ -105,7 +103,7 @@ struct HomeScreen: View, PageIdentifier {
                         NextMedication()
                             .navigateTo( 
                                 destination: Destination.medication,
-                                target: { MedicationScreen(modelContext: modelContext, services: services) },
+                                target: { MedicationScreen(services: services) },
                                 toolbarItems: {
                                     AddMedicationSheet()
                                 }
@@ -126,7 +124,7 @@ struct HomeScreen: View, PageIdentifier {
 
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Image(systemName: "gear")
-                            .onTapGesture { isSettingSheet = !isSettingSheet }
+                            .onTapGesture { homeViewModel.toggleSettingSheet() }
                     }
                 }
                 .navigationTitle("")
@@ -134,38 +132,17 @@ struct HomeScreen: View, PageIdentifier {
             }
         }
         .onAppLifeCycle(appearAndActive: {
-            openOnboardingSheetWhenNoProfileIsGiven()
+            homeViewModel.openOnboardingSheetWhenNoProfileIsGiven()
             
-            if mealPlanViewModel == nil {
-               mealPlanViewModel = MealPlanViewModel(service: services)
-            }
+            services.fetchFrombackend()
         })
         .fullScreenCover(isPresented: $userViewModel.isUserProfileSheet, onDismiss: {
             services.fetchFrombackend()
         }, content: {
-            OnBoardingUserProfileSheet(isUserProfileSheet: $isUserProfileSheet)
+            OnBoardingUserProfileSheet(isUserProfileSheet: $homeViewModel.isUserProfileSheet)
         })
-        .onAppLifeCycle(
-            appear: {
-                services.fetchFrombackend()
-            }, active: {
-                services.fetchFrombackend()
-            }
-        )
-        .settingSheet(isSettingSheet: $isSettingSheet, userViewModel: userViewModel, onDismiss: {})
-      
+        .settingSheet(isSettingSheet: $homeViewModel.isSettingSheet, userViewModel: userViewModel, onDismiss: {})
     }
-     
-    private func openOnboardingSheetWhenNoProfileIsGiven() {
-        Task {
-            do {
-                let _ = try await FirebaseService.checkUserProfilExist()
-            } catch {
-                isUserProfileSheet = true
-            }
-        }
-    }
-   
 }
 
 #Preview {

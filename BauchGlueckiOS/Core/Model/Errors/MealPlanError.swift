@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum MealPlanError: Error, LocalizedError {
+enum MealPlanError: Error, LocalizedError, ErrorDescriptionProtocol {
     case notLoggedIn
 
     var errorDescription: String? {

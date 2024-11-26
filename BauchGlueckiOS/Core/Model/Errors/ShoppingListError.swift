@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum ShoppingListError: Error, LocalizedError {
+enum ShoppingListError: Error, LocalizedError, ErrorDescriptionProtocol {
     case noMealPlansFound
     case noIngredientsFound
     case invalidDateRange

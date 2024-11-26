@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum CountdownTimerError: Error, LocalizedError {
+enum CountdownTimerError: Error, LocalizedError, ErrorDescriptionProtocol {
     case emailIsEmpty
 
     var errorDescription: String? {

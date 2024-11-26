@@ -182,7 +182,7 @@ struct RecipeCategoryScreen: View {
     }
     
     private struct RandomRecipes: View {
-        @EnvironmentObject var services: Services 
+        @EnvironmentObject var services: Services
         
         @Query() var recipes: [Recipe]
         
@@ -205,8 +205,7 @@ struct RecipeCategoryScreen: View {
         var body: some View {
             VStack(spacing: 10) {
                 SectionHeader(title: "Zufalls Rezepte")
-                RecipeGrid(recipes: recipes, resultCount: false)
-                    .fixedSize(horizontal: false, vertical: true)
+                RecipeGrid(recipes: recipes, resultCount: false) 
             }
             .padding(.horizontal, 16)
         }

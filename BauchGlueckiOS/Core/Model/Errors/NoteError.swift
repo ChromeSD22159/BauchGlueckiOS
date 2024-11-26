@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum NoteError: Error, LocalizedError {
+enum NoteError: Error, LocalizedError, ErrorDescriptionProtocol {
     case notLoggedIn
     case invalidText
     case noteNotFound

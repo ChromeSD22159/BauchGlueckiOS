@@ -9,11 +9,9 @@ import SwiftData
 import FirebaseAuth
 
 @Observable class MedicationViewModel: ObservableObject {
-    let modelContext: ModelContext
     let services: Services
     
-    init(modelContext: ModelContext, services: Services) {
-        self.modelContext = modelContext
+    init(services: Services) {
         self.services = services
     }
     
@@ -36,7 +34,7 @@ import FirebaseAuth
     ]
     
     // Handles DropDown selection actions
-    func handleDropDownSelection(item: DropDownOption, medication: Medication) {
+    @MainActor func handleDropDownSelection(item: DropDownOption, medication: Medication) {
         if item.displayText == "Löschen" {
             deleteMedication(medication)
         } else if item.displayText == "Bearbeiten" {
@@ -44,7 +42,7 @@ import FirebaseAuth
         } else if item.displayText == "Delete Intakes DB" {
             medication.intakeTimes.forEach { time in
                 time.intakeStatuses.forEach {
-                    modelContext.delete($0)
+                    services.context.delete($0)
                 }
             }
         }
@@ -53,29 +51,39 @@ import FirebaseAuth
     var isEditMedicationSheet: Bool = false
     
     /// Fetch all Medication from user
-    func loadMedications() {
-        let userID = Auth.auth().currentUser?.uid ?? ""
-        
-        let predicate = #Predicate<Medication> { med in
-            med.userId == userID
-        }
-        
-        let sortDescriptor = [
-            SortDescriptor(\Medication.name, order: .forward)
-        ]
-        
-        let fetchDescriptor = FetchDescriptor(predicate: predicate, sortBy: sortDescriptor)
-         
-        do {
-            medications = try modelContext.fetch(fetchDescriptor)
-        } catch {
-            medications = []
+    func loadMedications() async {
+        Task {
+            let userID = Auth.auth().currentUser?.uid ?? ""
+            
+            let predicate = #Predicate<Medication> { med in
+                med.userId == userID
+            }
+            
+            let sortDescriptor = [
+                SortDescriptor(\Medication.name, order: .forward)
+            ]
+            
+            let fetchDescriptor = FetchDescriptor(predicate: predicate, sortBy: sortDescriptor)
+             
+            do {
+                let results = try await MainActor.run {
+                    try self.services.context.fetch(fetchDescriptor)
+                }
+                await MainActor.run {
+                    self.medications = results
+                }
+            } catch {
+                await MainActor.run {
+                    self.medications = []
+                }
+                
+            }
         }
     }
     
     /// Delete
-    func deleteMedication(_ medication: Medication) {
-        MedicationDataService.delete(context: modelContext, medication: medication)
+    @MainActor func deleteMedication(_ medication: Medication) {
+        MedicationDataService.delete(context: services.context, medication: medication)
     }
     
     func getMedicationByIndex(_ index: Int) -> Medication {
