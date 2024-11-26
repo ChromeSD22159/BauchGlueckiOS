@@ -34,6 +34,13 @@
 			remoteGlobalIDString = B6167C982CC94A8300451BAB;
 			remoteInfo = BGWidgetExtentionExtension;
 		};
+		B6A417DF2CF6865C0030929A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B664D4632CC1007B0092FE3E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B664D46A2CC1007B0092FE3E;
+			remoteInfo = BauchGlueckiOS;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -79,6 +86,7 @@
 		B6167CBB2CC952E100451BAB /* BGWidgetExtentionExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BGWidgetExtentionExtension.entitlements; sourceTree = "<group>"; };
 		B64864A22CC28B84007D7228 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BauchGlueckiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6A417DB2CF6865C0030929A /* BauchGlueckiOSUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BauchGlueckiOSUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -137,6 +145,11 @@
 			path = BauchGlueckiOS;
 			sourceTree = "<group>";
 		};
+		B6A417DC2CF6865C0030929A /* BauchGlueckiOSUnitTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BauchGlueckiOSUnitTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +181,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B6A417D82CF6865C0030929A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -179,6 +199,7 @@
 				B64864A22CC28B84007D7228 /* .gitignore */,
 				B664D46D2CC1007B0092FE3E /* BauchGlueckiOS */,
 				B6167C9E2CC94A8300451BAB /* BGWidgetExtention */,
+				B6A417DC2CF6865C0030929A /* BauchGlueckiOSUnitTests */,
 				B6ADCE8D2CC3259D001AFC57 /* Frameworks */,
 				B664D46C2CC1007B0092FE3E /* Products */,
 			);
@@ -189,6 +210,7 @@
 			children = (
 				B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */,
 				B6167C992CC94A8300451BAB /* BGWidgetExtentionExtension.appex */,
+				B6A417DB2CF6865C0030929A /* BauchGlueckiOSUnitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -266,6 +288,29 @@
 			productReference = B664D46B2CC1007B0092FE3E /* BauchGlueckiOS.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B6A417DA2CF6865C0030929A /* BauchGlueckiOSUnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6A417E12CF6865C0030929A /* Build configuration list for PBXNativeTarget "BauchGlueckiOSUnitTests" */;
+			buildPhases = (
+				B6A417D72CF6865C0030929A /* Sources */,
+				B6A417D82CF6865C0030929A /* Frameworks */,
+				B6A417D92CF6865C0030929A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B6A417E02CF6865C0030929A /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B6A417DC2CF6865C0030929A /* BauchGlueckiOSUnitTests */,
+			);
+			name = BauchGlueckiOSUnitTests;
+			packageProductDependencies = (
+			);
+			productName = BauchGlueckiOSUnitTests;
+			productReference = B6A417DB2CF6865C0030929A /* BauchGlueckiOSUnitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -273,7 +318,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1600;
+				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					B6167C982CC94A8300451BAB = {
@@ -281,6 +326,10 @@
 					};
 					B664D46A2CC1007B0092FE3E = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					B6A417DA2CF6865C0030929A = {
+						CreatedOnToolsVersion = 16.1;
+						TestTargetID = B664D46A2CC1007B0092FE3E;
 					};
 				};
 			};
@@ -307,6 +356,7 @@
 			targets = (
 				B664D46A2CC1007B0092FE3E /* BauchGlueckiOS */,
 				B6167C982CC94A8300451BAB /* BGWidgetExtentionExtension */,
+				B6A417DA2CF6865C0030929A /* BauchGlueckiOSUnitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -328,6 +378,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B6A417D92CF6865C0030929A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -345,6 +402,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B6A417D72CF6865C0030929A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -352,6 +416,11 @@
 			isa = PBXTargetDependency;
 			target = B6167C982CC94A8300451BAB /* BGWidgetExtentionExtension */;
 			targetProxy = B6167CA82CC94A8500451BAB /* PBXContainerItemProxy */;
+		};
+		B6A417E02CF6865C0030929A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B664D46A2CC1007B0092FE3E /* BauchGlueckiOS */;
+			targetProxy = B6A417DF2CF6865C0030929A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -610,6 +679,44 @@
 			};
 			name = Release;
 		};
+		B6A417E22CF6865C0030929A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZD275Y62U7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.frederikkohler.BauchGlueckiOSUnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BauchGlueckiOS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BauchGlueckiOS";
+			};
+			name = Debug;
+		};
+		B6A417E32CF6865C0030929A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZD275Y62U7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.frederikkohler.BauchGlueckiOSUnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BauchGlueckiOS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BauchGlueckiOS";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -636,6 +743,15 @@
 			buildConfigurations = (
 				B664D47C2CC1007D0092FE3E /* Debug */,
 				B664D47D2CC1007D0092FE3E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B6A417E12CF6865C0030929A /* Build configuration list for PBXNativeTarget "BauchGlueckiOSUnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6A417E22CF6865C0030929A /* Debug */,
+				B6A417E32CF6865C0030929A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

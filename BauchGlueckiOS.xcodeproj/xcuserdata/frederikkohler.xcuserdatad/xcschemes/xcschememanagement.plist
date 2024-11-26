@@ -7,22 +7,37 @@
 		<key>BGWidgetExtentionExtension.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>4</integer>
 		</dict>
 		<key>BauchGlueckiOS.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>BauchGlueckiOSUnitTests.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
 		<key>Promises (Playground).xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>5</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>B6167C982CC94A8300451BAB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>B664D46A2CC1007B0092FE3E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B6A417DA2CF6865C0030929A</key>
 		<dict>
 			<key>primary</key>
 			<true/>

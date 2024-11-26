@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "073A8938-040A-45D3-AE9B-3645EC3DFDE9",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "language" : "de",
+    "locationScenario" : {
+      "identifier" : "Berlin, Germany",
+      "referenceType" : "built-in"
+    },
+    "region" : "DE"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:BauchGlueckiOS.xcodeproj",
+        "identifier" : "B6A417DA2CF6865C0030929A",
+        "name" : "BauchGlueckiOSUnitTests"
+      }
+    }
+  ],
+  "version" : 1
+}
