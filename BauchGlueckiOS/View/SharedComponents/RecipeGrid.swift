@@ -36,9 +36,8 @@ struct RecipeGrid: View {
                 }
             } 
               
-            if resultCount {
-                Text("\(recipes.count) Rezepte gefunden!")
-                    .font(.footnote)
+            if resultCount { 
+                FootLineText("\(recipes.count) Rezepte gefunden!")
                     .padding(.top, 20)
                     .padding(.horizontal, theme.layout.padding)
             }

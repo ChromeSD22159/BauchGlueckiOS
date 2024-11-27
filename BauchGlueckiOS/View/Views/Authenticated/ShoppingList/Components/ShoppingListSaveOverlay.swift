@@ -20,13 +20,9 @@ struct ShoppingListSaveOverlay: View {
                 Text("Speichern")
                 
                 if (hasError != nil) {
-                    Text("Fehler beim Speichern: \(hasError?.localizedDescription ?? "")")
-                        .font(.footnote)
-                        .foregroundStyle(theme.color.onBackground)
+                    FootLineText("Fehler beim Speichern: \(hasError?.localizedDescription ?? "")", color: theme.color.onBackground)
                 } else {
-                    Text("Einkaufsliste wird erstellt...")
-                        .font(.footnote)
-                        .foregroundStyle(theme.color.onBackground)
+                    FootLineText("Einkaufsliste wird erstellt...", color: theme.color.onBackground) 
                 }
                 
             }

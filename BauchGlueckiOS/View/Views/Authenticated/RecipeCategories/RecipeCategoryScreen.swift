@@ -17,17 +17,13 @@ struct RecipeCategoryScreen: View {
             
             // MARK: - CATECORY SLIDER
             CategorySlider()
-                .viewSize(name: "CategorySlider")
             
             // MARK: - RANDOMRECIPE
             RandomRecipe()
-                .viewSize(name: "RandomRecipe")
             
             // MARK: - RANDOMRECIPES
-            RandomRecipes(recipeCount: 6) 
-                .viewSize(name: "RandomRecipes")
+            RandomRecipes(recipeCount: 6)
         }
-        .viewSize(name: "ScreenHolder")
     }
     
     private struct RandomRecipe: View {
@@ -93,8 +89,7 @@ struct RecipeCategoryScreen: View {
                         
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
-                                Text(randomRecipe.name)
-                                    .font(theme.font.headlineTextSmall)
+                                HeadLineText(randomRecipe.name)
                                 
                                 Spacer()
                                 
@@ -137,9 +132,7 @@ struct RecipeCategoryScreen: View {
                                     .resizable()
                                     .frame(width: 60, height: 60)
                                 
-                                Text("\(category.displayName)")
-                                    .font(theme.font.headlineTextSmall)
-                                    .foregroundColor(theme.color.onBackground)
+                                HeadLineText("\(category.displayName)", color: theme.color.onBackground)
                             }
                             .frame(width: 150, height: 80)
                             .sectionShadow(innerPadding: 10)
@@ -210,4 +203,4 @@ struct RecipeCategoryScreen: View {
             .padding(.horizontal, 16)
         }
     }
-} 
+}  

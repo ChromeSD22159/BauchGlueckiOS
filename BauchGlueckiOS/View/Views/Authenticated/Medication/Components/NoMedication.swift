@@ -10,12 +10,10 @@ struct NoMedication: View {
     @Environment(\.theme) private var theme
     
     var body: some View {
-        VStack {
-            Text("Medikamente für \(DateFormatteUtil.formattedFullDate(Date()))")
-                .font(theme.font.headlineTextSmall)
+        VStack { 
+            HeadLineText("Medikamente für \(DateFormatteUtil.formattedFullDate(Date()))")
             
-            Text("Du hast heute keine Medikamente zum einnehmen.")
-                .font(.footnote)
+            FootLineText("Du hast heute keine Medikamente zum einnehmen.") 
         }
         .padding(theme.layout.padding)
         .foregroundStyle(theme.color.onBackground)

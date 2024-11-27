@@ -23,11 +23,10 @@ struct SheetContentView: View {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Wähle deinen Einkaufszeitraum")
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .font(.headline).font(theme.font.headlineTextMedium)
+                    .font(theme.font.headlineTextMedium)
                 
-                Text("Erstelle deine erste Einkaufsliste basierend auf deinem MealPlan!")
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .font(.footnote)
+                FootLineText("Erstelle deine erste Einkaufsliste basierend auf deinem MealPlan!")
+                    .frame(maxWidth: .infinity, alignment: .center) 
                 
                 DatePicker(
                     "Start Datum",
@@ -46,10 +45,9 @@ struct SheetContentView: View {
                 )
                 .font(.footnote)
                 .datePickerStyle(DefaultDatePickerStyle())
-                
-                Text("Gewählter Zeitraum: \(formattedDateRange())")
+                 
+                FootLineText("Gewählter Zeitraum: \(formattedDateRange())")
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .font(.footnote)
                 
                 Button(action: generateShoppingList, label: {
                     Text("Bestätigen")

@@ -50,8 +50,7 @@ struct WeightsScreen: View {
                         }
                         
                         HStack {
-                            Text(WeightFormatUtils.fromTillDateString(from: highest.startDate, till: highest.endDate))
-                                .font(.footnote)
+                            FootLineText(WeightFormatUtils.fromTillDateString(from: highest.startDate, till: highest.endDate))
                             
                             Spacer()
                         }
@@ -73,8 +72,7 @@ struct WeightsScreen: View {
                         }
                         
                         HStack {
-                            Text(String(format: "Von: \(lowest.startDate.formatDateDDMM) zu \(lowest.endDate.formatDateDDMM)"))
-                                .font(.footnote)
+                            FootLineText(String(format: "Von: \(lowest.startDate.formatDateDDMM) zu \(lowest.endDate.formatDateDDMM)"))
                             Spacer()
                         }
                     }
@@ -95,9 +93,7 @@ struct WeightsScreen: View {
                                 Text(WeightFormatUtils.formatAvgWeightInKG(difference))
                             }
                             if index > 0 {
-                                Text("Differenz zur Vorwoche: \(differenceString)")
-                                    .font(.footnote)
-                                    .foregroundColor(difference >= 0 ? .green : .red)
+                                FootLineText("Differenz zur Vorwoche: \(differenceString)", color: difference >= 0 ? .green : .red)
                             } else {
                                 Text("Differenz zur Vorwoche: \(differenceString)")
                                     .font(.caption)
@@ -125,10 +121,9 @@ private struct SectionOutterHeader: View {
     
     var body: some View {
         HStack {
-            Text(text)
+            FootLineText(text)
             Spacer()
-        }
-        .font(.footnote)
+        } 
         .padding(.horizontal, theme.layout.padding)
     }
 }

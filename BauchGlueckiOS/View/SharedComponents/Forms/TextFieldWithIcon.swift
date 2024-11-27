@@ -107,13 +107,11 @@ struct TextFieldWithIcon<FieldTypes: Hashable>: View {
                 .background(theme.color.surface.opacity(0.9))
                 .cornerRadius(theme.layout.radius)
             } header: {
-                Text(title)
-                    .font(.footnote)
+                FootLineText(title)
                     .padding(.leading, theme.layout.padding)
             } footer: {
-                if let footnote = footnote {
-                    Text(footnote)
-                        .font(.footnote)
+                if let footnote = footnote { 
+                    FootLineText(footnote)
                         .padding(.leading, theme.layout.padding)
                 }
             }

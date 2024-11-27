@@ -6,8 +6,7 @@
 //
 import SwiftUI
 import SwiftData
-
-
+ 
 // TODO: TIMES NOT CHANGEABLE
 struct EditMedicationSheet: View {
     @Bindable var medication: Medication
@@ -127,9 +126,7 @@ struct EditMedicationSheet: View {
     @ViewBuilder func FootLine(text: String) -> some View {
         HStack {
             Spacer()
-            Text(text)
-                .font(.footnote)
-                .foregroundStyle(theme.color.onBackground.opacity(0.5))
+            FootLineText(text, color: theme.color.onBackground.opacity(0.5)) 
         }
     }
     

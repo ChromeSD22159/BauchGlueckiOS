@@ -19,12 +19,11 @@ struct DayItem: View {
     }
     
     var body: some View {
-        VStack(spacing: 4) {
-            Text(DateFormatteUtil.formatDateDDMM(date))
-                .font(theme.font.headlineTextSmall)
+        VStack(spacing: 4) { 
             
-            Text("\(currentMealCount)/\(targetMealCount)")
-                .font(.footnote)
+            HeadLineText(DateFormatteUtil.formatDateDDMM(date))
+             
+            FootLineText("\(currentMealCount)/\(targetMealCount)")
         }
         .frame(width: 80, height: 80)
         .sectionShadow()

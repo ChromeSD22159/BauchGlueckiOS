@@ -33,12 +33,10 @@ struct MedicationHistoryCard: View {
             Image(systemName: "pills.fill")
                 .font(.title)
             
-            VStack(alignment: .leading) {
-                Text(medication.name)
-                    .font(theme.font.headlineTextSmall)
-                
-                Text(medication.dosage)
-                    .font(.footnote)
+            VStack(alignment: .leading) { 
+                HeadLineText(medication.name)
+                 
+                FootLineText(medication.dosage)
             }
             
             Spacer()

@@ -18,10 +18,8 @@ struct RecipeImageCard: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
             
-            HStack(alignment: .center) {
-                Text(name)
-                    .font(theme.font.headlineTextSmall)
-                    .foregroundStyle(theme.color.onBackground)
+            HStack(alignment: .center) {                 
+                HeadLineText(name, color: theme.color.onBackground)
             }
             .padding(10)
             .frame(maxWidth: .infinity)

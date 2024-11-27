@@ -47,8 +47,8 @@ struct HomeCountdownTimerWidgetCard: View {
                         }
                     } else {
                         VStack {
-                            Text("Noch keinen Timer!").font(.footnote)
-                            Text("Trage dein ersten Timer ein.")    .font(.footnote)
+                            FootLineText("Noch keinen Timer!")
+                            FootLineText("Trage dein ersten Timer ein.")
                         }
                         .frame(width: 200, height: 80, alignment: .center)
                         .background(theme.color.surface)
@@ -85,13 +85,12 @@ struct HomerTimerCard: View {
     @Environment(\.theme) private var theme
     
     var body: some View {
-        VStack {
-            Text(remainingTime.toTimeString())
-                .font(theme.font.headlineText)
-            Text(timer.name)
+        VStack {             
+            HeadLineText(remainingTime.toTimeString())
+           
+            FootLineText(timer.name)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .font(.footnote)
         }
         .frame(width: 100, height: 80, alignment: .center)
         .background(theme.color.surface)

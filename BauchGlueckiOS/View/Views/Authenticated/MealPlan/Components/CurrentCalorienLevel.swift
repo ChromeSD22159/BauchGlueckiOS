@@ -32,9 +32,9 @@ struct CurrentCalorienLevel: View {
     }
   
     var body: some View {
-        VStack(alignment: .center, spacing: 20) {
-            Text("Aktueller gebrauch: \(calcedLevel.kcal) (Kcal)")
-                .font(theme.font.headlineTextSmall)
+        VStack(alignment: .center, spacing: 20) { 
+            
+            HeadLineText("Aktueller gebrauch: \(calcedLevel.kcal) (Kcal)")
             
             VStack(spacing: 20) {
                 HStack {
@@ -58,14 +58,13 @@ struct CurrentCalorienLevel: View {
         current: Int,
         max: Int
     ) -> some View {
-        VStack(spacing: 7) {
-            Text(title)
+        VStack(spacing: 7) { 
+            FootLineText(title)
             LabeledGauge(current: Double(current), minValue: 0, maxValue: Double(max))
-            Text("\(current)g/\(max)g" )
+            FootLineText("\(current)g/\(max)g")
         }
         .frame(maxWidth: .infinity)
-        .font(.footnote)
-    } 
+    }
 }
 
 func calculateKcalLevelSafely(operationTimestamp: Int64) -> KcalLevel? {

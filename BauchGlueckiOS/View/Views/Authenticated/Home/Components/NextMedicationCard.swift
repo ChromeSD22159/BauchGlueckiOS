@@ -49,23 +49,16 @@ struct NextMedicationCard: View {
     var body: some View {
         VStack(spacing: 20) {
             VStack {
-                Text("Medikamente für \( DateFormatteUtil.formattedFullDate(Date()) )")
-                    .font(theme.font.headlineTextSmall)
-                
-                
-                
+                HeadLineText("Medikamente für \( DateFormatteUtil.formattedFullDate(Date()) )")
+                 
                 if let next = nextMedication {
                     VStack {
-                        Text("Nachstes Medikament für Heute:")
-                            .font(.footnote)
-                        
-                        Text("\(next.medication.name) um \(next.intakeTime.formatTimeToHHmm) Uhr")
-                            .font(.footnote)
+                        FootLineText("Nachstes Medikament für Heute:") 
+                        FootLineText("\(next.medication.name) um \(next.intakeTime.formatTimeToHHmm) Uhr")
                     }
                 } else {
-                    VStack {
-                        Text("Du hast bereits alles Eingenommen!")
-                            .font(.footnote)
+                    VStack { 
+                        FootLineText("Du hast bereits alles Eingenommen!")
                     }
                 }
             }
@@ -73,8 +66,7 @@ struct NextMedicationCard: View {
             VStack(spacing: 10) {
                 ForEach(medications) { medication in
                     HStack {
-                        Text(medication.name)
-                            .font(.footnote)
+                        FootLineText(medication.name)
                             .fontWeight(.bold)
                         
                         Spacer()
@@ -84,9 +76,8 @@ struct NextMedicationCard: View {
                         })
                         
                         let formattedIntakeTimes = sortedIntakeTimes.map { "\($0.intakeTime)" }.joined(separator: ", ") + " Uhr"
-                        
-                        Text(formattedIntakeTimes)
-                            .font(.footnote)
+                         
+                        FootLineText(formattedIntakeTimes)
                     }
                 }
             }

@@ -66,6 +66,7 @@ struct BGWidgetExtentionLiveActivity: Widget {
                timerInterval: range,
                pauseTime: range.lowerBound
             )
+            .font(.footnote)
             .multilineTextAlignment(.trailing)
             .foregroundStyle(theme.color.onPrimary)
         }
@@ -135,7 +136,7 @@ struct BGWidgetExtentionLiveActivity: Widget {
      @ViewBuilder func DynamicIslandCompact(endDate: Date, name:String, position: ActivityPosition) -> some View {
          switch position {
             case .LargeLeading: Image(.iconStromach).foregroundStyle(theme.color.primary)
-             case .LargeTrailing: Text(name).font(.footnote)
+            case .LargeTrailing: FootLineText(name)
              case .LargeBottom: ZStack {
                  
                  VStack {
@@ -163,8 +164,8 @@ struct BGWidgetExtentionLiveActivity: Widget {
                  .padding(12)
              }
              case .SmallLeading: Image(systemName: "timer")
-             case .SmallTrailing: TimerView(date: endDate).font(.footnote)
-             case .Minimal: TimerView(date: endDate).font(.footnote)
+             case .SmallTrailing: TimerView(date: endDate)
+             case .Minimal: TimerView(date: endDate)
          }
          
      }

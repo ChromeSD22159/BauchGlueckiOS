@@ -79,9 +79,8 @@ struct LoginScreen: View, Navigable {
                         .buttonStyle(CapsuleButtonStyle())
                     } 
                     
-                    HStack {
-                        Text("Passwort vergessen?")
-                            .font(.footnote)
+                    HStack { 
+                        FootLineText("Passwort vergessen?")
                     }
                     .padding(.top, Theme.layout.padding * 2)
                     .onTapGesture {

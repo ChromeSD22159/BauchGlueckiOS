@@ -37,11 +37,9 @@ struct SearchRecipeScreen: View {
                                     VStack {
                                         Image(category.sliderImage)
                                             .resizable()
-                                            .frame(width: 60, height: 60)
+                                            .frame(width: 60, height: 60) 
                                         
-                                        Text("\(category.displayName)")
-                                            .font(theme.font.headlineTextSmall)
-                                            .foregroundColor(theme.color.onBackground)
+                                        HeadLineText("\(category.displayName)", color: theme.color.onBackground)
                                     }
                                     .frame(width: 150, height: 80)
                                     .onTapGesture { searchText = category.displayName }

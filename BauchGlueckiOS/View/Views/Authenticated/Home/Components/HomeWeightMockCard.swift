@@ -39,9 +39,8 @@ struct HomeWeightMockCard: View {
             VStack {
                 HStack {
                     Image(systemName: isAscendingTrend ? "arrow.up.forward.circle.fill" : "arrow.down.forward.circle.fill")
-                    
-                    Text(isAscendingTrend ? "Aufsteigender" : "Absteigender" + " Trend")
-                        .font(.footnote)
+                     
+                    FootLineText(isAscendingTrend ? "Aufsteigender" : "Absteigender" + " Trend")
                      
                     Spacer()
                 }   .foregroundStyle(theme.color.onBackground)

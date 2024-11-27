@@ -143,14 +143,10 @@ struct SettingSheetView: View {
                         .foregroundStyle(theme.color.onPrimary)
                     
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(settingViewModel.greeting)
-                            .font(theme.font.headlineText)
-                        
-                        Text("Unglaublich, wie schnell die Zeit vergeht!").font(.footnote)
-                        Text(settingViewModel.timeSinceSurgery).font(.footnote)
+                        HeadLineText(settingViewModel.greeting, color: theme.color.onBackground)
+                        FootLineText("Unglaublich, wie schnell die Zeit vergeht!", color: theme.color.onBackground)
+                        FootLineText(settingViewModel.timeSinceSurgery, color: theme.color.onBackground)
                     }
-                    .foregroundStyle(theme.color.onPrimary)
-                    .font(.callout)
                     .frame(maxWidth: .infinity)
                 }
                 .padding(.vertical, 10)

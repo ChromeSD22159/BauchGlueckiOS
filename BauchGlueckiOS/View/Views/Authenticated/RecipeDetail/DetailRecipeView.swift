@@ -90,9 +90,7 @@ struct DetailRecipeView: View {
                 ZStack {
                     
                     VStack(spacing: 25) {
-                        Text(recipe.name)
-                            .font(theme.font.headlineTextSmall)
-                            .foregroundStyle(theme.color.onBackground)
+                        HeadLineText(recipe.name, color: theme.color.onBackground)
                         
                         IconRow(
                             kcal: recipe.kcal,
@@ -108,9 +106,8 @@ struct DetailRecipeView: View {
                         
                         TextWithTitlte(title: "Beschreibung:", text: recipe.recipeDescription)
                         
-                        VStack(alignment: .leading, spacing: 15) {
-                            Text("Zutaten:")
-                                .font(theme.font.headlineTextSmall)
+                        VStack(alignment: .leading, spacing: 15) { 
+                            HeadLineText("Zutaten:")
                             
                             ForEach(recipe.ingredients) { ingredient in
                                 DetailRecipeIngredientItem(ingredient: ingredient)

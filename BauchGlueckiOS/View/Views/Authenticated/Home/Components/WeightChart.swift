@@ -23,9 +23,8 @@ struct WeightChart: View {
                 VStack {
                     HStack {
                         Image(systemName: homeViewModel.isAscendingWeightTrend ? "arrow.up.forward.circle.fill" : "arrow.down.forward.circle.fill")
-                        
-                        Text(homeViewModel.isAscendingWeightTrend ? "Aufsteigender" : "Absteigender" + " Trend")
-                            .font(.footnote)
+                         
+                        FootLineText(homeViewModel.isAscendingWeightTrend ? "Aufsteigender" : "Absteigender" + " Trend")
                          
                         Spacer()
                     }

@@ -111,8 +111,7 @@ struct WithErrorPopover: ViewModifier {
            if let currentAlert = errorHandling.currentAlert {
                VStack {
                    HStack {
-                       Text(currentAlert.message.description)
-                           .font(.footnote)
+                       FootLineText(currentAlert.message.description)
                        
                        if let errorButton = errorButton {
                            Spacer()

@@ -19,8 +19,8 @@ struct ShoppingListView: View {
         if sortedShoppingListItems.count > 0 {
             HStack {
                 HStack() {
-                    Image(systemName: asc ? "arrow.down" : "arrow.up")
-                    Text("Sortierung")
+                    Image(systemName: asc ? "arrow.down" : "arrow.up").font(.footnote)
+                    FootLineText("Sortierung")
                 }
                 .onTapGesture { asc.toggle() }
                 .padding(.leading, 5)
@@ -28,7 +28,6 @@ struct ShoppingListView: View {
                 Spacer()
             }
             .padding(theme.layout.padding)
-            .font(.footnote)
  
             ForEach(sortedShoppingListItems, id: \.self) { item in
                 
@@ -37,8 +36,7 @@ struct ShoppingListView: View {
             }
             
             VStack {
-              Text("⚠️ Wichtiger Hinweis: Ihre Einkaufsliste wird nicht automatisch aktualisiert, wenn Sie Ihre Einkaufsliste in der App vornehmen oder einen neuen Mealplan erstellen. Um sicherzustellen, dass Ihre Einkaufsliste alle benötigten Zutaten enthält, überprüfen sie Ihre Einkaufsliste regelmässig und erstellen Sie eine neue Liste.\nFür Fragen oder Unterstützung stehen wir Ihnen jederzeit zur Verfügung. Nutzen Sie den Support-Button unten in den Einstellungen.")
-                    .font(.footnote)
+                FootLineText("⚠️ Wichtiger Hinweis: Ihre Einkaufsliste wird nicht automatisch aktualisiert, wenn Sie Ihre Einkaufsliste in der App vornehmen oder einen neuen Mealplan erstellen. Um sicherzustellen, dass Ihre Einkaufsliste alle benötigten Zutaten enthält, überprüfen sie Ihre Einkaufsliste regelmässig und erstellen Sie eine neue Liste.\nFür Fragen oder Unterstützung stehen wir Ihnen jederzeit zur Verfügung. Nutzen Sie den Support-Button unten in den Einstellungen.") 
             }
             .sectionShadow(innerPadding: theme.layout.padding, margin: theme.layout.padding)
             .padding(.bottom, theme.layout.padding)

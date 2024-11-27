@@ -40,9 +40,8 @@ struct RecipePreviewCard: View {
             }
             
             VStack(alignment: .leading, spacing: 10) {
-                Text(name)
+                HeadLineText(name)
                     .lineLimit(1)
-                    .font(theme.font.headlineTextSmall)
                 
                 HStack {
                     HStack {
@@ -50,19 +49,20 @@ struct RecipePreviewCard: View {
                             .renderingMode(.template)
                             .foregroundColor(theme.color.onBackground)
                             .font(theme.font.headlineTextSmall)
-                        Text(String(format: "%0.1fg", protein))
+                            .font(.footnote)
+                        
+                        FootLineText(String(format: "%0.1fg", protein))
                     }
                     
                     Spacer()
                     
                     HStack {
-                        Image(systemName: "fish")
-                        Text(String(format: "%0.1fg", fat))
+                        Image(systemName: "fish").font(.footnote)
+                        FootLineText(String(format: "%0.1fg", fat))
                     }
                     
-                }.font(.footnote)
-            }
-            .font(theme.font.headlineTextSmall)
+                }
+            } 
             .foregroundStyle(theme.color.onBackground)
             .padding(.vertical, theme.layout.padding / 2)
             .padding(.horizontal, theme.layout.padding)

@@ -57,9 +57,8 @@ struct AddNote: View {
     @ViewBuilder func InputField() -> some View {
         VStack {
             HStack {
-                 
-                Text(Date().formatDateDDMM)
-                    .font(.footnote)
+                FootLineText(Date().formatDateDDMM)
+                
                 Spacer()
             }
             VStack {
@@ -125,9 +124,7 @@ private struct AddNoteSaveOverlay: View {
             ProgressView()
             Text("Notiz wird gespeichert!")
             
-            Text(viewModel.message)
-                .font(.footnote)
-                .foregroundStyle(.red)
+            FootLineText(viewModel.message, color: .red)
         }
         .frame(width: geo.size.width * 0.5, height: geo.size.width * 0.5)
         .background(Material.ultraThinMaterial)
@@ -145,8 +142,7 @@ private struct MoodList: View {
     var body: some View {
         VStack {
             HStack {
-                Text("Ausgewählte Moods: \(viewModel.allMoods.filter { $0.isOnList == true }.count )")
-                    .font(.footnote)
+                FootLineText("Ausgewählte Moods: \(viewModel.allMoods.filter { $0.isOnList == true }.count )")
                 
                 Spacer()
             }
@@ -158,13 +154,11 @@ private struct MoodList: View {
                 ]
             ) {
                 ForEach(viewModel.allMoods, id: \.display) { mood in
-                    Text(mood.display)
-                        .font(.footnote)
+                    FootLineText(mood.display, color: theme.color.onBackground)
                         .padding(.vertical, 10)
                         .padding(.horizontal, 10)
                         .lineLimit(1, reservesSpace: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(theme.color.onBackground)
                         .background(viewModel.currentMoodListContainsMood(mood: mood) ? theme.color.primary : theme.color.surface )
                         .cornerRadius(100)
                         .onTapGesture { viewModel.onClickOnMood(mood: mood) }

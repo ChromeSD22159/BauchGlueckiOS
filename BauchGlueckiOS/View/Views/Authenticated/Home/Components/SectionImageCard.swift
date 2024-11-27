@@ -37,14 +37,12 @@ struct SectionImageCard: View {
                 .opacity(0.60)
             
             VStack(alignment: .leading, spacing: 8) {
-                Text(title)
-                    .font(theme.font.headlineTextSmall)
+                HeadLineText(title) 
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 10)
-                
-                Text(description)
+                 
+                FootLineText(description)
                     .multilineTextAlignment(.leading)
-                    .font(.footnote)
                     .lineLimit(2, reservesSpace: true)
                     .padding(.horizontal, 10)
             }

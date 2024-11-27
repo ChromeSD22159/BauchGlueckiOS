@@ -17,9 +17,8 @@ struct MealPlanSpotCard: View {
     
     var body: some View {
         VStack(spacing: 15) {
-            HStack {
-                Text(recipe.name)
-                    .font(theme.font.headlineTextSmall)
+            HStack { 
+                HeadLineText(recipe.name)
                 
                 Spacer()
                 

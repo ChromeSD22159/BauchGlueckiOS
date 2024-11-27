@@ -104,10 +104,8 @@ struct EditTimerSheetContent: View {
                         )
                     }
                     HStack {
-                        Text(error)
-                            .foregroundStyle(Color.red)
-                            .opacity(error.isEmpty ? 0 : 1)
-                            .font(.footnote)
+                        FootLineText(error, color: .red)
+                            .opacity(error.isEmpty ? 0 : 1) 
                     }
                 }
             }
@@ -121,9 +119,7 @@ struct EditTimerSheetContent: View {
     @ViewBuilder func FootLine(text: String) -> some View {
         HStack {
             Spacer()
-            Text(text)
-                .font(.footnote)
-                .foregroundStyle(theme.color.onBackground.opacity(0.5))
+            FootLineText(text, color: theme.color.onBackground.opacity(0.5)) 
         }
     }
     

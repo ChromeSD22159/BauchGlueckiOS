@@ -16,12 +16,10 @@ struct NoMedCard: View {
                 Image(systemName: "pills.fill")
                     .font(.title)
                 
-                VStack(alignment: .leading) {
-                    Text("Noch kein Medikament")
-                        .font(theme.font.headlineTextSmall)
-                    
-                    Text("trage dein erstes Medikament ein")
-                        .font(.footnote)
+                VStack(alignment: .leading) { 
+                    HeadLineText("Noch kein Medikament")
+                     
+                    FootLineText("trage dein erstes Medikament ein")
                 }
             }
             Spacer()

@@ -23,7 +23,7 @@ class SettingViewModel: ObservableObject {
     
     @Published var showImageSheet: Bool = false
 
-    var greeting: LocalizedStringKey {
+    var greeting: String {
         let cal = Calendar.current
         let hour = cal.component(.hour, from: Date())
         let user = "\(userViewModel.userProfile?.firstName ?? "Unknown")!"
@@ -37,10 +37,10 @@ class SettingViewModel: ObservableObject {
             default: formattedString = String(format: NSLocalizedString("Hallo, %@", comment: ""), user)
         }
         
-        return LocalizedStringKey(formattedString)
+        return formattedString
     }
     
-    var timeSinceSurgery: LocalizedStringKey {
+    var timeSinceSurgery: String {
         guard let surgeryDate = userViewModel.userProfile?.surgeryDate else { return "Kein Operationsdatum" }
 
         let calendar = Calendar.current
@@ -54,7 +54,7 @@ class SettingViewModel: ObservableObject {
 
         if surgeryDate < today {
             let formattedString = String(format: NSLocalizedString("%d Jahre, %d Monate, %d Tage seit deinem Neustart.", comment: ""), years, months, days)
-            return LocalizedStringKey(formattedString)
+            return formattedString
         } else {
             let formattedString: String
             
@@ -66,7 +66,7 @@ class SettingViewModel: ObservableObject {
                 formattedString = String(format: NSLocalizedString("Nur %d Tage bis zu deinem Neustart.", comment: ""), days)
             }
             
-            return LocalizedStringKey(formattedString)
+            return formattedString
         }
     }
 

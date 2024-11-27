@@ -357,9 +357,7 @@ struct SaveOverlay: View {
                 step(icon: phaseIcon(for: .nutrinGeneration), text: "Nährwerte generieren", isCompleted: phase.rawValue >= UploadRecipePhase.nutrinGeneration.rawValue)
                 step(icon: phaseIcon(for: .SaveRecipe), text: "Rezept speichern", isCompleted: phase.rawValue >= UploadRecipePhase.SaveRecipe.rawValue)
             } else {
-                Text(errorText)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+                FootLineText(errorText, color: .red)
             }
             Spacer()
         }
@@ -410,19 +408,18 @@ struct SaveOverlay: View {
         HStack {
             ZStack {
                 if  icon == "ProgressView" {
-                        ProgressView()
+                        ProgressView() 
                 } else {
                     Image(systemName: icon)
+                        .font(.footnote)
                         .foregroundColor(isCompleted ? .primary : .gray)
                 }
             }.frame(width: 15, height: 15)
             
             Spacer()
             
-            Text(text)
-                .foregroundColor(isCompleted ? .primary : .gray)
+            FootLineText(text, color: isCompleted ? .primary : .gray)
         }
-        .font(.footnote)
         .transition(.scale)
         .animation(.easeInOut(duration: 0.5), value: isCompleted)
     }

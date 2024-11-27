@@ -27,10 +27,8 @@ struct NoteItem: View {
         
         VStack(spacing: 12) {
             HStack {
-                Spacer()
-               
-                Text(  DateFormatteUtil.formattedFullDate(note.date.toDate) )
-                    .font(.footnote)
+                Spacer() 
+                FootLineText(DateFormatteUtil.formattedFullDate(note.date.toDate))
             }
             
             HStack {

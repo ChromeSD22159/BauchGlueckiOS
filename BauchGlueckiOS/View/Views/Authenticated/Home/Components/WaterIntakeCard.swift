@@ -79,14 +79,12 @@ struct WaterIntakeCard: View {
             VStack(spacing: 20) {
                 
                 VStack(spacing: theme.layout.padding) {
-                    Text("Wassereinnahme")
-                        .font(theme.font.headlineTextSmall)
                     
-                    Text(String(format: "Dein Ziel: %.1f L Wasser", intakeTarget))
-                        .font(.footnote)
-                    
-                    Text(String(format: "%.2fL", totalIntakeInLiter))
-                        .font(theme.font.headlineTextSmall)
+                    HeadLineText("Wassereinnahme")
+                                        
+                    FootLineText(String(format: "Dein Ziel: %.1f L Wasser", intakeTarget))
+                                         
+                    HeadLineText(String(format: "%.2fL", totalIntakeInLiter))
                 }
                 
                 LazyVGrid(
@@ -119,3 +117,5 @@ struct WaterIntakeCard: View {
         .padding(.horizontal, 10)
     }
 }
+
+// TODO: String(format:

@@ -14,21 +14,20 @@ struct EmptyMealSpot: View {
     
     var body: some View {
         HStack {
-            Text("\(index + 1).")
+            FootLineText("\(index + 1).", color: theme.color.onBackground)
             
-            Text("Keine Mahlzeit zugewiesen")
+            FootLineText("Keine Mahlzeit zugewiesen", color: theme.color.onBackground)
             
             Spacer()
             
             Image(systemName: "plus")
+                .font(.footnote)
                 .padding(.horizontal, theme.layout.padding + 5)
                 .padding(.vertical, theme.layout.padding)
                 .background(theme.color.backgroundGradient)
                 .foregroundStyle(theme.color.onPrimary)
                 .cornerRadius(100)
         }
-        .font(.footnote)
-        .foregroundStyle(theme.color.onBackground)
         .padding(theme.layout.padding)
         .sectionShadow()
         .padding(.horizontal, theme.layout.padding)

@@ -43,9 +43,7 @@ struct NutrinIcon: View {
                     .foregroundStyle(theme.color.primary)
             }
             
-            Text(String(format: "%.0fg", nutrin))
-                .foregroundStyle(theme.color.onBackground)
-                .font(.footnote)
+            FootLineText(String(format: "%.0fg", nutrin), color: theme.color.onBackground)
         }
     }
 }

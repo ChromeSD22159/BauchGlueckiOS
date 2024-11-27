@@ -13,9 +13,8 @@ struct TextWithTitlte: View {
     let text: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            Text(title)
-                .font(theme.font.headlineTextSmall)
+        VStack(alignment: .leading, spacing: 15) { 
+            HeadLineText(title)
             
             Text(text)
         }

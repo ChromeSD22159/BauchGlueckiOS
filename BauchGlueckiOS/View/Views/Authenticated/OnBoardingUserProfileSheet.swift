@@ -47,16 +47,11 @@ struct OnBoardingUserProfileSheet: View {
                             .resizable()
                             .frame(width: 100, height: 100)
                         
-                        VStack(alignment: .leading) {
-                            Text("Hallo!")
-                                .font(theme.font.headlineText)
-                                .foregroundStyle(theme.color.primary)
-                            
-                            Text("Du hast dich mit deinem Google oder Apple Account registriert.\n\nBitte schließe die Registrierung ab!")
-                            
+                        VStack(alignment: .leading) { 
+                            HeadLineText("Hallo!", color: theme.color.primary)
+                             
+                            FootLineText("Du hast dich mit deinem Google oder Apple Account registriert.\n\nBitte schließe die Registrierung ab!", color: theme.color.onBackground)
                         }
-                        .font(.footnote)
-                        .foregroundStyle(theme.color.onBackground)
                     }
 
                     
@@ -79,7 +74,7 @@ struct OnBoardingUserProfileSheet: View {
                             .font(.footnote)
                         
                         VStack(alignment: .leading) {
-                            Text(
+                            FootLineText(
                                 String(
                                     format: NSLocalizedString(
                                         "Startgewicht: %dkg",
@@ -87,16 +82,14 @@ struct OnBoardingUserProfileSheet: View {
                                     ),
                                     Int(startWeight)
                                 )
-                            )
-                            .font(.footnote)
+                            ) 
                             
                             Slider(
                                 value: $startWeight, // STATE INT
                                 in: 40...300,
                                 step: 1,
                                 label: {
-                                    Text(String(format: NSLocalizedString("Hauptmahlzeiten: %d", comment: ""), startWeight))
-                                        .font(.footnote)
+                                    FootLineText(String(format: "Hauptmahlzeiten: %d", startWeight))
                                 }
                             ).accentColor(theme.color.primary)
                         }

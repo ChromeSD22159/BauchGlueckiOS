@@ -41,20 +41,18 @@ struct ImageCard: View {
     }
     
     @ViewBuilder func Content() -> some View {
-        VStack(spacing: 16) {
-            Text("Wie war dein Tag?").font(theme.font.headlineTextSmall)
-            Text("Erfasse Notizen, Gefühle")
+        VStack(spacing: 16) { 
+            HeadLineText("Wie war dein Tag?")
+             
+            FootLineText("Erfasse Notizen, Gefühle")
+                .multilineTextAlignment(.center) // TODO: REFACTOR
+            
+            FootLineText("oder gedanken.")
                 .multilineTextAlignment(.center)
-                .font(.footnote)
-            Text("oder gedanken.")
-                .multilineTextAlignment(.center)
-                .font(.footnote)
             
             HStack {
-                ZStack {
-                    Text("Notiz eintragen")
-                        .font(.footnote)
-                        .foregroundStyle(theme.color.onPrimary)
+                ZStack { 
+                    FootLineText("Notiz eintragen", color: theme.color.onPrimary)
                         .navigateTo(
                             destination: Destination.addNote,
                             target: { AddNote(modelContext: modelContext) },
@@ -69,10 +67,8 @@ struct ImageCard: View {
                 .cornerRadius(100)
                 
                 ZStack {
-                    Text("Alle Einträge")
-                        .font(.footnote)
-                        .foregroundStyle(theme.color.onPrimary)
-                        .navigateTo( 
+                    FootLineText("Alle Einträge", color: theme.color.onPrimary) 
+                        .navigateTo(
                             destination: Destination.notes,
                             target: { AllNotes() },
                             toolbarItems: {

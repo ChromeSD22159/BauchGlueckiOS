@@ -59,10 +59,9 @@ struct AddShoppingListCard: View {
     
     @ViewBuilder func addButton() -> some View {
         HStack {
-            Text("Einkaufsliste erstellen")
-            Image(systemName: "plus")
+            FootLineText("Einkaufsliste erstellen")
+            Image(systemName: "plus").font(.footnote)
         }
-        .font(.footnote)
         .padding(theme.layout.padding)
         .onTapGesture { showSheet.toggle() }
     }
