@@ -18,7 +18,7 @@ struct AddNote: View {
     @EnvironmentObject var services: Services
     
     init(modelContext: ModelContext) {
-        _viewModel = StateObject(wrappedValue: AddNodeViewModel(modelContext: modelContext))
+        _viewModel = StateObject(wrappedValue: ViewModelFactory.makeAddNoteViewModel(context: modelContext))
     }
     
     @State var overlay: Bool = false

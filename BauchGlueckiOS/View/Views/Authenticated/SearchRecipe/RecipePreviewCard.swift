@@ -62,7 +62,7 @@ struct RecipePreviewCard: View {
                     }
                     
                 }
-            } 
+            }
             .foregroundStyle(theme.color.onBackground)
             .padding(.vertical, theme.layout.padding / 2)
             .padding(.horizontal, theme.layout.padding)
@@ -73,7 +73,7 @@ struct RecipePreviewCard: View {
 }
  
 #Preview("PRE") {
-    @Previewable @State var viewModel = RecipeListViewModel(modelContext: previewDataScource.mainContext)
+    @Previewable @State var viewModel = ViewModelFactory.makeRecipeListViewModel(context: previewDataScource.mainContext)
    
     let context = previewDataScource.mainContext
     let columns = GridUtils.createGridItems(count: 2, spacing: 10)

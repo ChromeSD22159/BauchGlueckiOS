@@ -186,4 +186,4 @@ class WeightViewModel: ObservableObject {
             WeeklyAverageData(avgValue: weeklyAverage.avgValue, startOfWeek: weeklyAverage.startOfWeek, endOfWeek: weeklyAverage.endOfWeek)
         }
     }
-}
+} 

@@ -9,10 +9,12 @@ import SwiftUI
 struct FootLineText: View {
     let text: String
     let color: Color?
+    let multiLineTextAlignment: TextAlignment
     
-    init(_ text: String, color: Color? = nil) {
+    init(_ text: String, color: Color? = nil, multiLineTextAlignment: TextAlignment = .leading) {
         self.text = text
         self.color = color
+        self.multiLineTextAlignment = multiLineTextAlignment
     }
     
     var body: some View {
@@ -20,9 +22,11 @@ struct FootLineText: View {
             Text(text)
                 .font(.footnote)
                 .foregroundColor(color)
+                .multilineTextAlignment(multiLineTextAlignment)
         } else {
             Text(text)
                 .font(.footnote)
+                .multilineTextAlignment(multiLineTextAlignment)
         }
     }
 } 

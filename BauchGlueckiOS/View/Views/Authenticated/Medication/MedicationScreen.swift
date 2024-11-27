@@ -13,7 +13,7 @@ struct MedicationScreen: View {
     @State var viewModel: MedicationViewModel
  
     init(services: Services) {
-        self._viewModel = State(wrappedValue: MedicationViewModel(services: services))
+        self._viewModel = State(wrappedValue: ViewModelFactory.makeMedicationListViewModel(services: services))
     }
     
     var body: some View {

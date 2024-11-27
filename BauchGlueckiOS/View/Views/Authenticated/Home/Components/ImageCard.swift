@@ -44,11 +44,9 @@ struct ImageCard: View {
         VStack(spacing: 16) { 
             HeadLineText("Wie war dein Tag?")
              
-            FootLineText("Erfasse Notizen, Gefühle")
-                .multilineTextAlignment(.center) // TODO: REFACTOR
+            FootLineText("Erfasse Notizen, Gefühle", multiLineTextAlignment: .center)
             
-            FootLineText("oder gedanken.")
-                .multilineTextAlignment(.center)
+            FootLineText("oder gedanken.", multiLineTextAlignment: .center) 
             
             HStack {
                 ZStack { 

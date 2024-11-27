@@ -15,12 +15,9 @@ struct EditNoteSheet: View {
     @StateObject private var viewModel: EditNodeViewModel
     @FocusState private var isTextFieldFocused: Bool
     
-    init(note: Binding<Node>, allMoods: Binding<[Mood]>, maxCharacters: Int) {
-        self._viewModel = StateObject(wrappedValue: EditNodeViewModel(
-            note: note.wrappedValue,
-            allMoods: allMoods.wrappedValue,
-            maxCharacters: maxCharacters
-        ))
+    init(note: Binding<Node>, allMoods: Binding<[Mood]>, maxCharacters: Int) { 
+        let vm = ViewModelFactory.makeEditNoteViewModel(note: note.wrappedValue, allMoods: allMoods.wrappedValue, maxCharacters: maxCharacters)
+        self._viewModel = StateObject(wrappedValue: vm)
     }
     
     var body: some View {

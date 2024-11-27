@@ -41,8 +41,7 @@ struct SectionImageCard: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 10)
                  
-                FootLineText(description)
-                    .multilineTextAlignment(.leading)
+                FootLineText(description) 
                     .lineLimit(2, reservesSpace: true)
                     .padding(.horizontal, 10)
             }

@@ -17,8 +17,9 @@ struct ContentView: View {
     @State var backendIsReachable = false
      
     @State var services: Services = Services(env: .production, context: localDataScource.mainContext)
-    @State var userViewModel: UserViewModel = UserViewModel()
-    @State var homeViewModel: HomeViewModel = HomeViewModel(context: localDataScource.mainContext)
+     
+    @State var userViewModel: UserViewModel = ViewModelFactory.makeUserViewModel()
+    @State var homeViewModel: HomeViewModel = ViewModelFactory.makeHomeViewModel(context: localDataScource.mainContext)
     
     let launchDelay: Double
     

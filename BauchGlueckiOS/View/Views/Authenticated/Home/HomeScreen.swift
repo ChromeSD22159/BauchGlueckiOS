@@ -22,8 +22,9 @@ struct HomeScreen: View {
     
     init(page: Destination, services: Services) {
         self.page = page
-        self._mealPlanViewModel = State(initialValue: MealPlanViewModel(service: services))
-        self._weightViewModel = State(initialValue: WeightViewModel(startWeight: 0, services: services))
+        
+        self._mealPlanViewModel = State(initialValue: ViewModelFactory.makeMealPlanViewModel(services: services))
+        self._weightViewModel = State(initialValue: ViewModelFactory.makeWeightViewModel(startWeight: 0, services: services))
     }
     
     var body: some View {

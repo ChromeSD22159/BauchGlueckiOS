@@ -30,8 +30,8 @@ struct RecipeListScreen: View {
             }
         }
         .onAppear {
-            if viewModel == nil {
-                   viewModel = RecipeListViewModel(modelContext: modelContext)
+            if viewModel == nil { 
+                   viewModel = ViewModelFactory.makeRecipeListViewModel(context: modelContext)
                    viewModel?.inizialize(categoryId: categoryId)
             }
         }
