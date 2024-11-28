@@ -5,6 +5,7 @@
 //  Created by Frederik Kohler on 17.10.24.
 //
 import SwiftData
+import Foundation
  
 var localDataScource: ModelContainer = { 
     let schema = Schema([
@@ -25,6 +26,11 @@ var localDataScource: ModelContainer = {
         ShoppingList.self,
         ShoppingListItem.self
     ])
+    
+    /*
+        let storeURL = URL.documentsDirectory.appending(path: "database.sqlite")
+        let config = ModelConfiguration(url: storeURL)
+    */
     
     let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
     
