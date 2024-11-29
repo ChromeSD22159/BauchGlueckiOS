@@ -140,8 +140,13 @@ struct CalenderView: View {
 }
 
 struct Month: Hashable {
-    var id: UUID = UUID()
+    var id: UUID
     var name: String
+    
+    init(name: String) {
+        self.id = UUID()
+        self.name = name
+    }
     
     static func createMonts() -> [Month] {
         let months = [
