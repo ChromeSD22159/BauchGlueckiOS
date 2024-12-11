@@ -4,7 +4,6 @@
 //
 //  Created by Frederik Kohler on 18.10.24.
 //
-
 import SwiftUI
 import SwiftData
 
@@ -60,11 +59,3 @@ class Services: ObservableObject {
         })
     }
 }
-
-
-
-
-
-
-
-

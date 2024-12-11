@@ -247,3 +247,39 @@ extension [Bubble] {
         }
     }
 }
+
+
+#Preview {
+    @Previewable @State var isActive = false
+    @Previewable @State var isFilled = false
+    
+    HStack {
+        FillableGlassView(
+            bgColor: Theme.color.surface,
+            isActive: .constant(false),
+            isFilled: .constant(true),
+            animationDelay: 1
+        )
+        
+        FillableGlassView(
+            bgColor: Theme.color.surface,
+            isActive: .constant(false),
+            isFilled: .constant(true),
+            animationDelay: 1
+        )
+        
+        FillableGlassView(
+            bgColor: Theme.color.surface,
+            isActive: .constant(true),
+            isFilled: .constant(false),
+            animationDelay: 1
+        )
+        
+        FillableGlassView(
+            bgColor: Theme.color.surface,
+            isActive: .constant(false),
+            isFilled: .constant(false),
+            animationDelay: 1
+        )
+    }
+}

@@ -111,8 +111,7 @@ struct WithErrorPopover: ViewModifier {
            if let currentAlert = errorHandling.currentAlert {
                VStack {
                    HStack {
-                       FootLineText(currentAlert.message.description)
-                       
+                       FootLineText(currentAlert.message.description) 
                        if let errorButton = errorButton {
                            Spacer()
                            
@@ -125,7 +124,6 @@ struct WithErrorPopover: ViewModifier {
                            }
                            .buttonStyle(CapsuleButtonStyle())
                        }
-                       
                    }
                    .onAppear {
                        startTimer()
