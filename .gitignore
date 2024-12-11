@@ -70,3 +70,6 @@ fastlane/screenshots
 /BauchGlueckiOS/GoogleService-Info.plist
 /BauchGlueckiOS/Info.plist
 .DS_Store
+/BauchGlueckiOS.zip
+/BauchGlueckiOS/.DS_Store
+/BauchGlueckiOS/Assets.xcassets/Images/.DS_Store
