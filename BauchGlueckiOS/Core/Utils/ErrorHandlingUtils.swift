@@ -111,7 +111,7 @@ struct WithErrorPopover: ViewModifier {
            if let currentAlert = errorHandling.currentAlert {
                VStack {
                    HStack {
-                       FootLineText(currentAlert.message.description) 
+                       FootLineText(currentAlert.message.description)
                        if let errorButton = errorButton {
                            Spacer()
                            
@@ -315,13 +315,9 @@ extension View {
     
     // @EnvironmentObject var errorHandling: ErrorHandling
     
-    ScreenHolder {
-        Text("Hello, World!")
-            .onTapGestureWithErrorHandling {
-                throw CustomError.test
-            }
+    ScreenHolder { 
         
-        TryButton(text: "sds", action: {
+        TryButton(text: "Test Alert", action: {
             throw CustomError.test
         })
         .frame(maxWidth: .infinity)
