@@ -127,3 +127,66 @@ var previewDataScource: ModelContainer = {
         fatalError("Could not create ModelContainer: \(error)")
     }
 }()
+ 
+/*
+class WaterIntakeRepository: Database {
+    func fetchAll() throws -> [WaterIntake] {
+        return try modelContext.fetch(FetchDescriptor<WaterIntake>())
+    }
+}
+
+@MainActor
+class Database: RepositoryProtocoll {
+    var modelContainer: ModelContainer
+    
+    var modelContext: ModelContext {
+        modelContainer.mainContext
+    }
+    
+    required init(databaseType: DatabaseType) {
+        let schema = Schema([
+            CountdownTimer.self,
+            Node.self,
+            WaterIntake.self,
+            Weight.self,
+            Medication.self,
+            SyncHistory.self,
+            
+            Recipe.self,
+            Ingredient.self,
+            MainImage.self,
+            Category.self,
+            MealPlanDay.self,
+            MealPlanSpot.self,
+            
+            ShoppingList.self,
+            ShoppingListItem.self
+        ])
+        
+        let modelConfiguration: ModelConfiguration
+        
+        switch databaseType {
+            case .local: modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            case .preview: modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        }
+        
+        let container = try! ModelContainer(
+            for: schema,
+            configurations: [modelConfiguration]
+        )
+        
+        modelContainer = container
+    }
+}
+
+protocol RepositoryProtocoll {
+    @MainActor var modelContainer: ModelContainer { get }
+    @MainActor var modelContext: ModelContext { get }
+    @MainActor init(databaseType: DatabaseType)
+}
+
+
+enum DatabaseType {
+    case local, preview
+}
+ */
